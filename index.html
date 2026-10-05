@@ -40,8 +40,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
-    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    padding: 12px 16px;
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
     background: var(--panel-bg);
     border-bottom: 1px solid var(--border);
     gap: 8px;
@@ -49,17 +49,20 @@
     top: 0;
     z-index: 10;
   }
-  #topbar h1 { font-size: 15px; margin: 0; color: var(--accent); font-weight: 700; letter-spacing: -.2px; }
+  #topbar h1 { display: flex; align-items: center; gap: 8px; font-size: 16px; line-height: 20px; margin: 0; color: var(--accent); font-weight: 700; letter-spacing: -.2px; }
+  /* v2.11: по центру строки названия, высота ~ высоте заглавных букв лого
+     (16px при 16px-названии), отступ 8px (gap у h1), шрифт интерфейса */
   .version-badge {
-    font-size: 9px;
-    font-weight: 700;
-    font-family: Consolas, Menlo, monospace;
+    display: inline-flex; align-items: center; height: 16px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    font-variant-numeric: tabular-nums;
     color: var(--accent);
     background: var(--badge-bg);
     border: 1px solid var(--accent-light);
-    border-radius: 4px;
-    padding: 1px 5px;
-    margin-left: 4px;
+    border-radius: 5px;
+    padding: 0 6px;
   }
   .device-badge {
     display: inline-flex; align-items: center; gap: 4px;
@@ -70,7 +73,7 @@
   }
   .device-badge .dot { width: 5px; height: 5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.35); flex-shrink: 0; }
   #marquee-mobile {
-    padding: 4px 14px;
+    padding: 4px 16px;
     font-size: 10px;
     font-weight: 600;
     color: var(--muted);
@@ -381,6 +384,97 @@
   @keyframes m-splash-run { 0% { left: -40%; } 100% { left: 100%; } }
   .m-splash-hint { position: absolute; bottom: calc(48px + env(safe-area-inset-bottom, 0px)); font-size: 12px; color: rgba(255, 255, 255, .55); }
 
+  /* ============================================================
+     Тема «Фирменная» (brand) — по умолчанию. v2.11: палитра из макетов
+     бренда (Figma, «Аватарки»/«Проекты Инст»): бежевый #EEEBE7/#E7E4DF,
+     чёрный #131313, белый, единственный акцент — глубокий синий #2D2C7C
+     (логотип на бежевом). Заголовки — плотный гротеск, как «PROJECTS».
+     История: v2.9 ч/б «бьёт по глазам», v2.10 смягчённая — «бледновато».
+     Цвет группы этапов — точкой у названия.
+     ============================================================ */
+  html[data-theme="brand"] {
+    --accent: #2d2c7c; --accent-light: #6e6a64; --bg: #eeebe7;
+    --card: #faf9f7; --panel-bg: #faf9f7;
+    --border: rgba(19, 19, 19, .09); --text: #1a1918; --muted: #6f6b66; --link: #2d2c7c;
+    --badge-bg: rgba(45, 44, 124, .08);
+    --ink: #131313;                       /* тёмные заливки: шапка сделки, отметки */
+    --blue: #2d2c7c; --blue-bg: rgba(45, 44, 124, .09);
+    --soft-shadow: 0 1px 2px rgba(40, 32, 24, .05), 0 8px 22px -12px rgba(40, 32, 24, .20);
+    color-scheme: light;
+  }
+  html[data-theme="brand"] body { background: #eeebe7; }
+  html[data-theme="brand"] #topbar {
+    background: rgba(238, 235, 231, .86); border-bottom: 1px solid var(--border);
+    -webkit-backdrop-filter: blur(20px) saturate(140%); backdrop-filter: blur(20px) saturate(140%);
+  }
+  html[data-theme="brand"] #topbar h1 { color: var(--text); }
+  html[data-theme="brand"] .version-badge { color: var(--blue); background: var(--blue-bg); border-color: rgba(45, 44, 124, .22); }
+  html[data-theme="brand"] #marquee-mobile { background: #e7e4df; color: var(--accent-light); border-bottom-color: var(--border); }
+  html[data-theme="brand"] .m-hero-title { font-weight: 700; letter-spacing: -.04em; }
+  html[data-theme="brand"] .m-theme-btn { background: var(--card); border-color: var(--border); box-shadow: var(--soft-shadow); }
+  html[data-theme="brand"] ::selection { background: rgba(45, 44, 124, .18); }
+
+  /* доска */
+  html[data-theme="brand"] .m-group-strip {
+    background: var(--card); color: var(--text); border: 1px solid rgba(255, 255, 255, .8);
+    border-radius: 16px; box-shadow: var(--soft-shadow);
+  }
+  html[data-theme="brand"] .m-group-strip .title::before, html[data-theme="brand"] .m-stage-header > div:first-child::before {
+    content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gc); margin-right: 8px; vertical-align: 1px;
+  }
+  html[data-theme="brand"] .m-group-strip .g-meta { color: var(--muted); opacity: 1; }
+  html[data-theme="brand"] .m-group-body { background: var(--card); border: 1px solid rgba(255, 255, 255, .8); border-radius: 18px; box-shadow: var(--soft-shadow); }
+  html[data-theme="brand"] .m-stage-header, html[data-theme="brand"] .m-cards, html[data-theme="brand"] .m-empty { background: #f3f1ee; }
+  html[data-theme="brand"] .m-stage-header { border-top: 1px solid var(--border); font-weight: 700; letter-spacing: .4px; }
+  html[data-theme="brand"] .m-card {
+    background: #ffffff; border: 1px solid rgba(19, 19, 19, .06); border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(40, 32, 24, .05), 0 6px 16px -10px rgba(40, 32, 24, .20);
+  }
+  html[data-theme="brand"] .m-card .name { color: var(--text); }
+  html[data-theme="brand"] .m-card .items-summary { border-top-style: solid; border-top-color: var(--border); }
+  html[data-theme="brand"] .m-card-dup { border: 1.5px solid rgba(45, 44, 124, .45); }
+  html[data-theme="brand"] .m-card-won { border: 1.5px solid rgba(19, 19, 19, .38); }
+  html[data-theme="brand"] .m-card .dup-badge { color: var(--blue); background: var(--blue-bg); }
+  html[data-theme="brand"] .m-dash-search { background: var(--card); border-color: var(--border); box-shadow: var(--soft-shadow); }
+
+  /* карточка сделки — чёрная шапка, как чёрная плитка бренда */
+  html[data-theme="brand"] .m-panel-header { background: #131313; color: #f2efea; }
+  html[data-theme="brand"] .m-back { color: rgba(242, 239, 234, .6); }
+  html[data-theme="brand"] .m-stage-block { background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .10); box-shadow: none; }
+  html[data-theme="brand"] .m-stage-track { background: rgba(255, 255, 255, .16); }
+  html[data-theme="brand"] .m-stage-fill { background: #e7e4df; }
+  html[data-theme="brand"] .m-section { background: var(--card); border: 1px solid rgba(255, 255, 255, .8); border-radius: 16px; box-shadow: var(--soft-shadow); }
+  html[data-theme="brand"] .m-item { background: #ffffff; border-color: var(--border); border-radius: 12px; }
+  html[data-theme="brand"] .m-role { background: transparent !important; color: var(--text); border: 1px solid rgba(19, 19, 19, .25); }
+  html[data-theme="brand"] .m-role.client { background: var(--blue) !important; color: #fff; border-color: var(--blue); }
+  html[data-theme="brand"] .m-cat { background: transparent !important; color: var(--text); border: 1px solid rgba(19, 19, 19, .22); }
+  html[data-theme="brand"] .m-chk.on { background: var(--ink); border-color: var(--ink); color: #f2efea; }
+  html[data-theme="brand"] .m-chk.progress { background: var(--blue-bg); border-color: rgba(45, 44, 124, .5); color: var(--blue); }
+  html[data-theme="brand"] .m-pstatus-grid .m-pstatus.active { background: var(--ink); border-color: var(--ink); color: #f2efea; }
+  html[data-theme="brand"] .m-fin-total .val, html[data-theme="brand"] .m-purchase-totals .cell.remainder .num { color: var(--blue); }
+  html[data-theme="brand"] .m-pay-sub { background: #f3f1ee; }
+
+  /* вкладки, сегменты, реестры */
+  html[data-theme="brand"] #tabbar {
+    background: rgba(250, 249, 247, .9); border-top: 1px solid var(--border);
+    box-shadow: 0 -8px 24px -18px rgba(40, 32, 24, .35);
+  }
+  html[data-theme="brand"] .m-tab { color: #8e8a84; }
+  html[data-theme="brand"] .m-tab.on { color: var(--blue); }
+  html[data-theme="brand"] .m-tab-badge { background: var(--blue); color: #fff; }
+  html[data-theme="brand"] .m-seg { background: #e7e4df; }
+  html[data-theme="brand"] .m-seg button.on { background: #ffffff; color: var(--text); box-shadow: 0 1px 3px rgba(40, 32, 24, .14); }
+  html[data-theme="brand"] .m-kpi-num.accent { color: var(--blue); }
+  html[data-theme="brand"] .m-reg-deal { color: var(--blue); }
+  html[data-theme="brand"] .m-chip { background: rgba(19, 19, 19, .06); color: var(--accent-light); }
+  html[data-theme="brand"] .m-chip.ok { background: rgba(19, 19, 19, .07); color: var(--text); }
+  html[data-theme="brand"] .m-chip.due { background: var(--blue-bg); color: var(--blue); }
+  html[data-theme="brand"] .m-dgroup-sum { color: var(--blue); }
+  html[data-theme="brand"] .m-pwa-btn:not(.secondary) { background: var(--blue); color: #fff; }
+  html[data-theme="brand"] body.m-busy .summary-bar::after { color: var(--blue); }
+  html[data-theme="brand"] .m-file-btn { background: #f3f1ee; color: var(--blue); }
+
   /* ---------- кнопка темы в шапке ---------- */
   .m-topbar-right { display: flex; align-items: center; gap: 8px; }
   .m-theme-btn {
@@ -571,7 +665,7 @@
   html[data-theme="graphite"] ::selection { background: rgba(95, 191, 159, .35); }
 </style>
 <!-- Тема ставится до отрисовки страницы, чтобы не мигала старая палитра -->
-<script>(function () { var t = null; try { t = localStorage.getItem('dmcrm_m_theme'); } catch (e) { console.error(e); } if (['glass', 'graphite', 'desert'].indexOf(t) === -1) { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'graphite' : 'glass'; } document.documentElement.setAttribute('data-theme', t); })();</script>
+<script>(function () { var t = null; try { t = localStorage.getItem('dmcrm_m_theme2'); } catch (e) { console.error(e); } if (['brand', 'glass', 'graphite', 'desert'].indexOf(t) === -1) { t = 'brand'; } document.documentElement.setAttribute('data-theme', t); })();</script>
 </head>
 <body>
 <!-- Экран загрузки (mobile-v2.6): логотип с сайта docciamobili.ru, минимум
@@ -584,7 +678,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1>DM_CRM<span class="version-badge">mobile-v2.8 · pwa</span></h1>
+    <h1>DM_CRM<span class="version-badge">v2.11 · pwa</span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
     </div>
@@ -859,16 +953,18 @@
   // Сам атрибут data-theme ставит маленький скрипт в <head> (до отрисовки);
   // здесь — переключатель и тинты групп. Ключ localStorage свой
   // (dmcrm_m_theme): у мобильной версии отдельный Apps Script проект.
-  const THEME_CYCLE = ['glass', 'graphite', 'desert'];
-  const THEME_ICON = { glass: '🫧', graphite: '◼️', desert: '🍁' };
-  const THEME_NAME = { glass: 'Стекло', graphite: 'Графит', desert: 'Осенняя' };
-  let CURRENT_THEME = document.documentElement.getAttribute('data-theme') || 'glass';
+  // mobile-v2.9: «Фирменная» (brand) — первая и по умолчанию; ключ хранения
+  // сменён на dmcrm_m_theme2, чтобы у всех один раз включилась фирменная.
+  const THEME_CYCLE = ['brand', 'glass', 'graphite', 'desert'];
+  const THEME_ICON = { brand: '◻️', glass: '🫧', graphite: '◼️', desert: '🍁' };
+  const THEME_NAME = { brand: 'Фирменная', glass: 'Стекло', graphite: 'Графит', desert: 'Осенняя' };
+  let CURRENT_THEME = document.documentElement.getAttribute('data-theme') || 'brand';
   function nextTheme_(theme) {
     return THEME_CYCLE[(THEME_CYCLE.indexOf(theme) + 1) % THEME_CYCLE.length];
   }
   // Цвет системной строки (Android / установленный PWA) — под фон темы.
   // <meta name="theme-color"> есть только в PWA-сборке, в Apps Script его нет.
-  const THEME_BAR_COLOR = { glass: '#eef0f8', graphite: '#121215', desert: '#f2e8d5' };
+  const THEME_BAR_COLOR = { brand: '#eeebe7', glass: '#eef0f8', graphite: '#121215', desert: '#f2e8d5' };
   function updateThemeBtn_() {
     const bar = document.querySelector('meta[name="theme-color"]');
     if (bar) bar.setAttribute('content', THEME_BAR_COLOR[CURRENT_THEME] || '#eef0f8');
@@ -880,7 +976,7 @@
   function toggleTheme() {
     CURRENT_THEME = nextTheme_(CURRENT_THEME);
     document.documentElement.setAttribute('data-theme', CURRENT_THEME);
-    try { localStorage.setItem('dmcrm_m_theme', CURRENT_THEME); } catch (e) { console.error(e); }
+    try { localStorage.setItem('dmcrm_m_theme2', CURRENT_THEME); } catch (e) { console.error(e); }
     updateThemeBtn_();
     // тинты групп зашиты инлайном в разметку доски — перерисовать,
     // сохранив развёрнутые группы/этапы и скролл
