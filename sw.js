@@ -1,7 +1,7 @@
 // Service worker PWA DM_CRM Mobile.
 // CACHE_NAME ставит build-pwa.js по версии из Code.gs — руками не менять.
 // Новая версия = новое имя кэша: старый удаляется в activate.
-const CACHE_NAME = 'dmcrm-mobile-v2.3';
+const CACHE_NAME = 'dmcrm-mobile-v2.5';
 const APP_SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (event) {

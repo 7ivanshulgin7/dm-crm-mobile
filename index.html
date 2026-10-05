@@ -49,7 +49,7 @@
     top: 0;
     z-index: 10;
   }
-  #topbar h1 { font-size: 15px; margin: 0; color: var(--accent); font-weight: 700; }
+  #topbar h1 { font-size: 15px; margin: 0; color: var(--accent); font-weight: 700; letter-spacing: -.2px; }
   .version-badge {
     font-size: 9px;
     font-weight: 700;
@@ -80,15 +80,9 @@
     border-bottom: 1px solid var(--border);
     background: var(--panel-bg);
   }
-  .summary-bar {
-    padding: 8px 14px;
-    font-size: 12px;
-    color: var(--muted);
-    background: var(--panel-bg);
-    border-bottom: 1px solid var(--border);
-  }
+  .summary-bar { font-size: 13px; color: var(--muted); }
 
-  #boardView, #detailView { flex: 1; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+  #boardView, #detailView, #purchaseView, #bonusView { flex: 1; padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
   [hidden] { display: none !important; }
 
   .state-msg { padding: 30px 16px; text-align: center; color: var(--muted); font-size: 13px; }
@@ -223,7 +217,7 @@
   .m-chk-grid { display: flex; flex-wrap: wrap; gap: 6px; }
   .m-chk { font-size: 11px; padding: 5px 4px; border-radius: 5px; border: 1px solid var(--border); color: var(--muted); background: var(--card); text-align: center; flex: 1 1 30%; min-width: 70px; }
   /* ---------- поиск по доске ---------- */
-  .m-dash { padding: 16px 14px 18px; }
+  .m-dash { padding: 2px 12px 6px; }
   .m-dash-search {
     display: flex; align-items: center; gap: 8px;
     background: var(--card); border: 1px solid var(--border); border-radius: 12px;
@@ -298,6 +292,76 @@
   #topbar { overflow: hidden; }
   .m-slow-hint { margin-top: 8px; font-size: 11.5px; opacity: .85; }
 
+  /* ============ mobile-v2.4: современный вид — крупные заголовки экранов,
+     нижняя панель вкладок, экраны «Закупка» и «Бонусы» ============ */
+  .m-hero { padding: 16px 16px 8px; }
+  .m-hero-title { font-size: 30px; font-weight: 800; letter-spacing: -.8px; line-height: 1.1; color: var(--text); }
+  .m-hero-sub { margin-top: 4px; }
+
+  /* нижняя панель вкладок */
+  #tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    display: flex; justify-content: space-around;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: var(--panel-bg); border-top: 1px solid var(--border);
+    -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+  }
+  html[data-theme="glass"] #tabbar, html[data-theme="desert"] #tabbar {
+    background: rgba(var(--sheen-rgb), .62); border-top-color: rgba(var(--sheen-rgb), .8);
+    box-shadow: 0 -8px 24px -16px rgba(var(--shade-rgb), .35);
+  }
+  html[data-theme="graphite"] #tabbar { background: rgba(22, 22, 26, .82); }
+  .m-tab {
+    flex: 1; max-width: 120px; position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 4px 0; border: none; background: none; cursor: pointer;
+    color: var(--muted); font-family: inherit; font-size: 10.5px; font-weight: 600;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .m-tab svg { width: 24px; height: 24px; }
+  .m-tab.on { color: var(--accent); }
+  .m-tab-badge {
+    position: absolute; top: 0; left: calc(50% + 6px);
+    min-width: 17px; height: 17px; padding: 0 5px; border-radius: 9px;
+    background: #e5484d; color: #fff; font-size: 10px; font-weight: 700; line-height: 17px; text-align: center;
+  }
+
+  /* сегменты «Не оплачено / Все» */
+  .m-seg { display: flex; margin: 4px 12px 8px; padding: 3px; border-radius: 12px; background: var(--badge-bg); }
+  .m-seg button {
+    flex: 1; border: none; background: transparent; cursor: pointer;
+    padding: 7px 6px; border-radius: 9px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--muted);
+  }
+  .m-seg button.on { background: var(--card); color: var(--text); box-shadow: 0 1px 4px rgba(0, 0, 0, .12); }
+  html[data-theme="graphite"] .m-seg button.on { background: #2a2a30; }
+
+  /* итоги наверху реестров */
+  .m-kpis { display: flex; gap: 8px; margin: 4px 12px 6px; }
+  .m-kpis .m-section { flex: 1; margin: 0; padding: 10px 10px 9px; min-width: 0; }
+  .m-kpi-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; color: var(--muted); }
+  .m-kpi-num { font-size: 14px; font-weight: 800; margin-top: 3px; letter-spacing: -.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m-kpi-num.accent { color: var(--accent); }
+
+  /* строки реестров */
+  .m-reg-item { padding: 12px 14px; cursor: pointer; }
+  .m-reg-item:active { transform: scale(.99); }
+  .m-reg-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .m-reg-name { font-size: 14px; font-weight: 700; min-width: 0; }
+  .m-reg-amount { font-size: 14px; font-weight: 800; white-space: nowrap; letter-spacing: -.2px; }
+  .m-reg-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .m-reg-deal { font-size: 12px; color: var(--link); margin-top: 3px; font-weight: 600; }
+  .m-reg-bottom { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+  .m-reg-bottom .m-cat { margin-bottom: 0; }
+  .m-chip { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 10px; background: var(--badge-bg); color: var(--muted); }
+  .m-chip.ok { background: rgba(46, 145, 71, .14); color: #2e9147; }
+  .m-chip.due { background: rgba(224, 128, 32, .16); color: #b8620a; }
+  .m-chip.off { background: rgba(138, 148, 161, .16); color: var(--muted); }
+  html[data-theme="graphite"] .m-chip.ok { color: #6fd08a; }
+  html[data-theme="graphite"] .m-chip.due { color: #f3b26b; }
+  .m-dgroup { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 16px 16px 2px; }
+  .m-dgroup-name { font-size: 15px; font-weight: 800; letter-spacing: -.3px; }
+  .m-dgroup-sum { font-size: 12px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
   /* ---------- кнопка темы в шапке ---------- */
   .m-topbar-right { display: flex; align-items: center; gap: 8px; }
   .m-theme-btn {
@@ -371,8 +435,7 @@
     background: rgba(var(--sheen-rgb), .5); border-bottom: 1px solid rgba(var(--sheen-rgb), .65);
     -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
   }
-  html[data-theme="glass"] #marquee-mobile, html[data-theme="desert"] #marquee-mobile,
-  html[data-theme="glass"] .summary-bar, html[data-theme="desert"] .summary-bar {
+  html[data-theme="glass"] #marquee-mobile, html[data-theme="desert"] #marquee-mobile {
     background: rgba(var(--sheen-rgb), .35); border-bottom: 1px solid rgba(var(--sheen-rgb), .55);
   }
   html[data-theme="glass"] .m-group-strip, html[data-theme="desert"] .m-group-strip {
@@ -434,7 +497,7 @@
     background: rgba(18, 18, 21, .72); border-bottom: 1px solid var(--border);
     -webkit-backdrop-filter: blur(20px) saturate(150%); backdrop-filter: blur(20px) saturate(150%);
   }
-  html[data-theme="graphite"] #marquee-mobile, html[data-theme="graphite"] .summary-bar { background: rgba(18, 18, 21, .5); }
+  html[data-theme="graphite"] #marquee-mobile { background: rgba(18, 18, 21, .5); }
   html[data-theme="graphite"] .m-group-strip {
     background: linear-gradient(180deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 70%), color-mix(in srgb, var(--gc) 26%, #1c1c20);
     color: #f2f2f6;
@@ -495,24 +558,66 @@
 <div id="app">
 
   <div id="topbar">
-    <h1>DM_CRM<span class="version-badge">mobile-v2.3 · pwa</span></h1>
+    <h1>DM_CRM<span class="version-badge">mobile-v2.5 · pwa</span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
-      <div class="device-badge"><span class="dot"></span>Mobile</div>
     </div>
   </div>
   <div id="marquee-mobile"></div>
-  <div class="summary-bar" id="summaryBar">Загрузка…</div>
 
   <!-- Экран A: доска -->
   <div id="boardView">
-    <div id="boardBody"><div class="state-msg">Загрузка сделок…</div></div>
-    <div class="m-dash">
+    <div class="m-hero">
+      <div class="m-hero-title">Сделки</div>
+      <div class="m-hero-sub summary-bar" id="summaryBar">Загрузка…</div>
+    </div>
+    <div class="m-dash" id="boardDash">
       <div class="m-dash-search">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.2" y2="16.2"></line></svg>
         <input type="text" id="boardSearch" placeholder="Найти сделку — название, договор…" oninput="onBoardSearch(this.value)">
       </div>
     </div>
+    <div id="boardBody"><div class="state-msg">Загрузка сделок…</div></div>
+  </div>
+
+  <!-- Экран «Закупка» (mobile-v2.4): все счета по всем сделкам -->
+  <div id="purchaseView" hidden>
+    <div class="m-hero">
+      <div class="m-hero-title">Закупка</div>
+      <div class="m-hero-sub summary-bar" id="purchaseSub">Загрузка…</div>
+    </div>
+    <div class="m-seg" id="purchaseSeg">
+      <button type="button" class="on" data-v="unpaid" onclick="setRegFilter_('purchase', 'unpaid')">Не оплачено</button>
+      <button type="button" data-v="all" onclick="setRegFilter_('purchase', 'all')">Все</button>
+    </div>
+    <div class="m-dash">
+      <div class="m-dash-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.2" y2="16.2"></line></svg>
+        <input type="text" id="purchaseSearch" placeholder="Позиция, поставщик, счёт, сделка…" oninput="setRegSearch_('purchase', this.value)">
+      </div>
+    </div>
+    <div class="m-kpis" id="purchaseKpis"></div>
+    <div id="purchaseBody"><div class="state-msg">Загрузка…</div></div>
+  </div>
+
+  <!-- Экран «Бонусы» (mobile-v2.4): бонусы дизайнерам по сделкам -->
+  <div id="bonusView" hidden>
+    <div class="m-hero">
+      <div class="m-hero-title">Бонусы</div>
+      <div class="m-hero-sub summary-bar" id="bonusSub">Загрузка…</div>
+    </div>
+    <div class="m-seg" id="bonusSeg">
+      <button type="button" class="on" data-v="due" onclick="setRegFilter_('bonus', 'due')">К выплате</button>
+      <button type="button" data-v="all" onclick="setRegFilter_('bonus', 'all')">Все</button>
+    </div>
+    <div class="m-dash">
+      <div class="m-dash-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.2" y2="16.2"></line></svg>
+        <input type="text" id="bonusSearch" placeholder="Дизайнер, сделка…" oninput="setRegSearch_('bonus', this.value)">
+      </div>
+    </div>
+    <div class="m-kpis" id="bonusKpis"></div>
+    <div id="bonusBody"><div class="state-msg">Загрузка…</div></div>
   </div>
 
   <!-- Экран B: карточка сделки -->
@@ -564,8 +669,25 @@
     </div>
   </div>
 
-</div>
 
+  <!-- Нижняя панель вкладок (mobile-v2.4) -->
+  <nav id="tabbar">
+    <button type="button" class="m-tab on" data-tab="board" onclick="switchTab('board')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="16" rx="1.5"></rect><rect x="10" y="4" width="5" height="11" rx="1.5"></rect><rect x="17" y="4" width="4" height="7" rx="1.5"></rect></svg>
+      <span>Сделки</span>
+    </button>
+    <button type="button" class="m-tab" data-tab="purchase" onclick="switchTab('purchase')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2"></path><circle cx="10" cy="20" r="1.3"></circle><circle cx="17" cy="20" r="1.3"></circle></svg>
+      <span>Закупка</span>
+      <span class="m-tab-badge" id="purchaseBadge" hidden></span>
+    </button>
+    <button type="button" class="m-tab" data-tab="bonus" onclick="switchTab('bonus')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"></rect><path d="M5 12v8h14v-8"></path><line x1="12" y1="8" x2="12" y2="20"></line><path d="M12 8c-1.5-3-5-3.5-5-1.2C7 8 9.5 8 12 8c2.5 0 5 0 5-1.2C17 4.5 13.5 5 12 8z"></path></svg>
+      <span>Бонусы</span>
+      <span class="m-tab-badge" id="bonusBadge" hidden></span>
+    </button>
+  </nav>
+</div>
 <script>
   // ---------- статические данные интерфейса (как в десктопном Index.html —
   // группировка этапов и цвета захардкожены на клиенте, не приходят с сервера) ----------
@@ -748,6 +870,173 @@
     return colorSet.light + '99';
   }
 
+  function plural_(n, one, few, many) {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  }
+
+  // ---------- вкладки (mobile-v2.4) ----------
+  const VIEW_IDS = ['boardView', 'purchaseView', 'bonusView'];
+  const VIEW_BY_TAB = { board: 'boardView', purchase: 'purchaseView', bonus: 'bonusView' };
+  let currentTab = 'board';
+  function switchTab(tab) {
+    if (detailOpen) closeDetail();
+    if (tab === currentTab) { window.scrollTo(0, 0); return; }
+    currentTab = tab;
+    VIEW_IDS.forEach(function (id) { document.getElementById(id).hidden = id !== VIEW_BY_TAB[tab]; });
+    document.querySelectorAll('#tabbar .m-tab').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === tab); });
+    window.scrollTo(0, 0);
+    if (tab === 'purchase' || tab === 'bonus') loadRegistry_(tab, true);
+  }
+
+  // ---------- реестры «Закупка» и «Бонусы» (mobile-v2.4) ----------
+  // Как доска: сразу из сохранённого на телефоне, свежие — с сервера.
+  const REG = {
+    purchase: { action: 'getPurchaseRegistry', ls: 'dmcrm_m_purchase_cache', rows: null, filter: 'unpaid', q: '', loading: false },
+    bonus: { action: 'getBonusRegistry', ls: 'dmcrm_m_bonus_cache', rows: null, filter: 'due', q: '', loading: false }
+  };
+  function loadRegistry_(kind, showBusy) {
+    const r = REG[kind];
+    if (!r.rows) {
+      try { const c = JSON.parse(localStorage.getItem(r.ls) || 'null'); if (c && Array.isArray(c.rows)) r.rows = c.rows; } catch (e) { console.error(e); }
+      if (r.rows) renderRegistry_(kind);
+    }
+    if (r.loading) return;
+    r.loading = true;
+    if (showBusy) setBusy_(true);
+    api(r.action).then(function (rows) {
+      r.rows = rows || [];
+      try { localStorage.setItem(r.ls, JSON.stringify({ t: Date.now(), rows: r.rows })); } catch (e) { console.error(e); }
+      setOffline_(false);
+      renderRegistry_(kind);
+    }).catch(function (err) {
+      console.error('loadRegistry_ ' + kind + ':', err);
+      if (r.rows) setOffline_(true);
+      else document.getElementById(kind + 'Body').innerHTML = '<div class="state-msg">Не удалось загрузить.<br>' + esc(err && err.message ? err.message : err) + '</div>';
+    }).then(function () {
+      r.loading = false;
+      if (showBusy) setBusy_(false);
+    });
+  }
+  function setRegFilter_(kind, v) {
+    REG[kind].filter = v;
+    document.querySelectorAll('#' + kind + 'Seg button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === v); });
+    renderRegistry_(kind);
+  }
+  function setRegSearch_(kind, v) {
+    REG[kind].q = String(v || '').trim().toLowerCase();
+    renderRegistry_(kind);
+  }
+  function regMatches_(q, fields) {
+    if (!q) return true;
+    return fields.some(function (f) { return String(f || '').toLowerCase().indexOf(q) !== -1; });
+  }
+  function isPurchaseDue_(p) { return p.amount > 0 && p.remainder > 0; }
+  function isBonusDue_(b) { return !b.noBonus && b.remainder > 0; }
+  function renderRegistry_(kind) {
+    if (kind === 'purchase') renderPurchase_(); else renderBonus_();
+    renderTabBadges_();
+  }
+  function renderTabBadges_() {
+    [['purchase', isPurchaseDue_], ['bonus', isBonusDue_]].forEach(function (pair) {
+      const rows = REG[pair[0]].rows;
+      const badge = document.getElementById(pair[0] + 'Badge');
+      const n = rows ? rows.filter(pair[1]).length : 0;
+      badge.textContent = n > 99 ? '99+' : String(n);
+      badge.hidden = !n;
+    });
+  }
+  function kpi_(label, value, accent) {
+    return '<div class="m-section"><div class="m-kpi-lbl">' + esc(label) + '</div><div class="m-kpi-num' + (accent ? ' accent' : '') + '">' + esc(value) + '</div></div>';
+  }
+
+  function renderPurchase_() {
+    const r = REG.purchase;
+    if (!r.rows) return;
+    const matched = r.rows.filter(function (p) {
+      return regMatches_(r.q, [p.name, p.supplierName, p.invoiceNo, p.dealName, p.contractNo]);
+    });
+    const withSum = matched.filter(function (p) { return p.amount > 0; });
+    const total = withSum.reduce(function (s, p) { return s + p.amount; }, 0);
+    const paid = withSum.reduce(function (s, p) { return s + p.paid; }, 0);
+    const due = withSum.filter(isPurchaseDue_).reduce(function (s, p) { return s + p.remainder; }, 0);
+    document.getElementById('purchaseKpis').innerHTML =
+      kpi_('Заказано', fmtMoney(total)) + kpi_('Оплачено', fmtMoney(paid)) + kpi_('Остаток', fmtMoney(due), true);
+    const dueCount = r.rows.filter(isPurchaseDue_).length;
+    document.getElementById('purchaseSub').textContent = dueCount
+      ? 'Не оплачено: ' + dueCount + ' ' + plural_(dueCount, 'счёт', 'счёта', 'счетов')
+      : 'Все счета оплачены';
+
+    let list = r.filter === 'unpaid' ? matched.filter(isPurchaseDue_) : matched.slice();
+    list.sort(r.filter === 'unpaid'
+      ? function (a, b) { return b.remainder - a.remainder; }
+      : function (a, b) { return String(a.dealName).localeCompare(String(b.dealName), 'ru') || String(a.name).localeCompare(String(b.name), 'ru'); });
+    document.getElementById('purchaseBody').innerHTML = list.length ? list.map(function (p) {
+      const cat = PURCHASE_CATEGORIES.find(function (c) { return c.key === p.category; });
+      const st = PURCHASE_STAGES.find(function (x) { return x.key === p.status; });
+      const meta = [p.supplierName, p.invoiceNo ? 'счёт № ' + p.invoiceNo : ''].filter(Boolean).join(' · ');
+      const payChip = !p.amount ? '<span class="m-chip off">без суммы</span>'
+        : (p.remainder > 0
+          ? '<span class="m-chip due">остаток ' + esc(fmtMoney(p.remainder)) + '</span>'
+          : '<span class="m-chip ok">оплачено' + (p.lastPayDate ? ' ' + esc(p.lastPayDate) : '') + '</span>');
+      return '<div class="m-section m-reg-item" onclick="openDetail(\'' + esc(p.dealId) + '\')">' +
+        '<div class="m-reg-top"><span class="m-reg-name">' + esc(p.name || '—') + '</span><span class="m-reg-amount">' + (p.amount ? esc(fmtMoney(p.amount)) : '') + '</span></div>' +
+        (meta ? '<div class="m-reg-meta">' + esc(meta) + '</div>' : '') +
+        '<div class="m-reg-deal">' + esc(p.dealName || 'Сделка не найдена') + (p.contractNo ? ' · ' + esc(p.contractNo) : '') + '</div>' +
+        '<div class="m-reg-bottom"><span class="m-cat ' + esc(p.category) + '">' + esc(cat ? cat.label : p.category) + '</span>' +
+        '<span class="m-chip">' + esc(st ? st.label : (p.status || 'Корзина')) + '</span>' + payChip + '</div>' +
+        '</div>';
+    }).join('') : '<div class="state-msg">' + (r.q ? 'Ничего не найдено' : (r.filter === 'unpaid' ? 'Неоплаченных счетов нет 🎉' : 'Позиций закупки нет')) + '</div>';
+  }
+
+  function renderBonus_() {
+    const r = REG.bonus;
+    if (!r.rows) return;
+    const matched = r.rows.filter(function (b) { return regMatches_(r.q, [b.designer, b.dealName, b.contractNo]); });
+    const counted = matched.filter(function (b) { return !b.noBonus; });
+    const total = counted.reduce(function (s, b) { return s + b.bonus; }, 0);
+    const paid = matched.reduce(function (s, b) { return s + b.paid; }, 0);
+    const due = matched.filter(isBonusDue_).reduce(function (s, b) { return s + b.remainder; }, 0);
+    document.getElementById('bonusKpis').innerHTML =
+      kpi_('Бонусы', fmtMoney(total)) + kpi_('Выплачено', fmtMoney(paid)) + kpi_('К выплате', fmtMoney(due), true);
+    const dueCount = r.rows.filter(isBonusDue_).length;
+    document.getElementById('bonusSub').textContent = dueCount
+      ? 'К выплате: ' + dueCount + ' ' + plural_(dueCount, 'сделка', 'сделки', 'сделок')
+      : 'Всё выплачено';
+
+    const list = r.filter === 'due' ? matched.filter(isBonusDue_) : matched.slice();
+    // по дизайнерам: кому сколько выплатить
+    const groups = {};
+    list.forEach(function (b) {
+      const key = b.designer || 'Дизайнер не указан';
+      (groups[key] = groups[key] || []).push(b);
+    });
+    const names = Object.keys(groups).map(function (name) {
+      return { name: name, rows: groups[name], due: groups[name].filter(isBonusDue_).reduce(function (s, b) { return s + b.remainder; }, 0) };
+    }).sort(function (a, b) { return (b.due - a.due) || a.name.localeCompare(b.name, 'ru'); });
+    document.getElementById('bonusBody').innerHTML = names.length ? names.map(function (g) {
+      g.rows.sort(function (a, b) { return b.remainder - a.remainder; });
+      return '<div class="m-dgroup"><span class="m-dgroup-name">' + esc(g.name) + '</span>' +
+        (g.due > 0 ? '<span class="m-dgroup-sum">к выплате ' + esc(fmtMoney(g.due)) + '</span>' : '') + '</div>' +
+        g.rows.map(function (b) {
+          const chip = b.noBonus ? '<span class="m-chip off">без бонуса</span>'
+            : (!b.bonus && !b.paid ? '<span class="m-chip off">бонус не указан</span>'
+              : (b.remainder > 0 ? '<span class="m-chip due">к выплате ' + esc(fmtMoney(b.remainder)) + '</span>'
+                : '<span class="m-chip ok">выплачено</span>'));
+          const meta = [b.bonus ? 'бонус ' + fmtMoney(b.bonus) : '', b.paid ? 'выплачено ' + fmtMoney(b.paid) : '',
+            b.lastPayDate ? 'последняя ' + b.lastPayDate : ''].filter(Boolean).join(' · ');
+          return '<div class="m-section m-reg-item" onclick="openDetail(\'' + esc(b.dealId) + '\')">' +
+            '<div class="m-reg-top"><span class="m-reg-name">' + esc(b.dealName || '—') + '</span><span class="m-reg-amount">' + (b.bonus ? esc(fmtMoney(b.bonus)) : '') + '</span></div>' +
+            '<div class="m-reg-meta">' + esc([b.dealStage, b.contractNo].filter(Boolean).join(' · ')) + '</div>' +
+            (meta ? '<div class="m-reg-meta">' + esc(meta) + '</div>' : '') +
+            '<div class="m-reg-bottom">' + chip + '</div>' +
+            '</div>';
+        }).join('');
+    }).join('') : '<div class="state-msg">' + (r.q ? 'Ничего не найдено' : (r.filter === 'due' ? 'Выплачивать некому 🎉' : 'Бонусов нет')) + '</div>';
+  }
+
   function groupForStage(stage) {
     return STAGE_GROUPS.find(function (g) { return g.stages.indexOf(stage) !== -1; });
   }
@@ -787,8 +1076,8 @@
     if (IS_APPS_SCRIPT) {
       return new Promise(function (resolve, reject) {
         const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
-        if (action === 'getBoard') runner.getBoard();
-        else if (action === 'getDealDetail') runner.getDealDetail(params.id);
+        if (action === 'getDealDetail') runner.getDealDetail(params.id);
+        else if (['getBoard', 'getPurchaseRegistry', 'getBonusRegistry', 'getAllDealDetails'].indexOf(action) !== -1) runner[action]();
         else reject(new Error('Неизвестное действие: ' + action));
       });
     }
@@ -823,7 +1112,8 @@
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { console.error(e); }
   })();
   function showPwaSetup_() {
-    document.querySelector('.m-dash').hidden = true;
+    document.getElementById('boardDash').hidden = true;
+    document.getElementById('tabbar').hidden = true;
     document.getElementById('summaryBar').textContent = 'Нужна ссылка на веб-приложение';
     document.getElementById('boardBody').innerHTML =
       '<div class="m-pwa-setup">' +
@@ -876,13 +1166,15 @@
   function applyFreshBoard_(deals) {
     saveBoardCache_(deals);
     setOffline_(false);
+    prefetchDetails_();
     const snapshot = JSON.stringify(deals);
     if (snapshot === lastBoardSnapshot) return;
     lastBoardSnapshot = snapshot;
     ALL_DEALS = deals;
     const hadBoard = !!document.querySelector('.m-group');
     const state = hadBoard ? captureBoardState() : null;
-    document.querySelector('.m-dash').hidden = false;
+    document.getElementById('boardDash').hidden = false;
+    document.getElementById('tabbar').hidden = false;
     renderBoard();
     if (state) restoreBoardState(state);
   }
@@ -894,7 +1186,7 @@
     if (cached && !document.querySelector('.m-group')) {
       ALL_DEALS = cached.deals;
       lastBoardSnapshot = JSON.stringify(cached.deals);
-      document.querySelector('.m-dash').hidden = false;
+      document.getElementById('boardDash').hidden = false;
       renderBoard();
     } else if (!cached) {
       document.getElementById('boardBody').innerHTML = '<div class="state-msg">Загрузка сделок…<div class="m-slow-hint" id="slowHint" hidden>Сервер Google просыпается — первый запуск бывает до 10–20 секунд.</div></div>';
@@ -914,7 +1206,7 @@
   function renderBoard() {
     const totalCount = ALL_DEALS.length;
     const totalSum = ALL_DEALS.reduce(function (s, d) { return s + (Number(d.sum) || 0); }, 0);
-    document.getElementById('summaryBar').textContent = totalCount + ' сделок: ' + fmtMoney(totalSum);
+    document.getElementById('summaryBar').textContent = totalCount + ' ' + plural_(totalCount, 'сделка', 'сделки', 'сделок') + ' · ' + fmtMoney(totalSum);
 
     // "дубль" (ДопЭтапы, v3.7.2 десктоп) — та же сделка (тот же id) считается
     // относящейся к этапу, если это её основной "Этап" ИЛИ один из extraStages
@@ -944,7 +1236,7 @@
       const groupRemainder = groupDeals.reduce(function (s, d) { return s + (Number(d.remainder) || 0); }, 0);
       const showRemainder = GROUPS_WITH_REMAINDER.indexOf(g.name) !== -1;
 
-      const metaParts = [groupCount + (groupCount === 1 ? ' сделка' : ' сделки') , fmtMoneyShort(groupSum)];
+      const metaParts = [groupCount + ' ' + plural_(groupCount, 'сделка', 'сделки', 'сделок'), fmtMoneyShort(groupSum)];
       let meta = metaParts.join(' · ');
       if (showRemainder) meta += ' · остаток ' + fmtMoney(groupRemainder);
 
@@ -963,7 +1255,7 @@
         const header = '<div class="m-stage-header' + (isCollapsible ? ' collapsible' : '') + '"' +
           (isCollapsible ? ' onclick="toggleStage(this)"' : '') + '><div>' + esc(stage) +
           (isCollapsible ? ' <span class="chev">▸</span>' : '') + '</div><div class="meta">' +
-          stageDeals.length + ' ' + (stageDeals.length === 1 ? 'сделка' : 'сделки') +
+          stageDeals.length + ' ' + plural_(stageDeals.length, 'сделка', 'сделки', 'сделок') +
           (stageDeals.length ? ': ' + fmtMoney(stageSum) : '') + '</div></div>';
         const bodyInner = !stageDeals.length
           ? '<div class="m-empty">Нет сделок на этом этапе</div>'
@@ -1040,7 +1332,7 @@
 
   function openDetail(dealId) {
     detailOpen = true;
-    document.getElementById('boardView').hidden = true;
+    VIEW_IDS.forEach(function (id) { document.getElementById(id).hidden = true; });
     document.getElementById('detailView').hidden = false;
     document.getElementById('detailTitle').textContent = 'Загрузка…';
     document.getElementById('detailMain').innerHTML = '';
@@ -1052,15 +1344,65 @@
     document.getElementById('detailPurchase').innerHTML = '';
     window.scrollTo(0, 0);
 
+    // Карточка из памяти телефона — сразу; свежая с сервера — следом.
+    const key = String(dealId);
+    currentDetailId = key;
+    const cached = detailsCache_().byId[key];
+    if (cached) renderDetail(cached);
+
     // PWA: кнопка «назад» телефона закрывает карточку, а не всё приложение.
     // В Apps Script history не трогаем — страница сидит в iframe песочницы.
     if (!IS_APPS_SCRIPT) {
       try { history.pushState({ dmDetail: dealId }, ''); } catch (e) { console.error(e); }
     }
 
-    api('getDealDetail', { id: dealId }).then(renderDetail).catch(function (err) {
+    setBusy_(true);
+    api('getDealDetail', { id: dealId }).then(function (data) {
+      if (data) { detailsCache_().byId[key] = data; saveDetailsCache_(); }
+      if (detailOpen && currentDetailId === key) renderDetail(data);
+    }).catch(function (err) {
+      console.error('openDetail:', err);
+      if (cached) { setOffline_(true); return; } // на экране сохранённая карточка — её и оставляем
+      if (!detailOpen || currentDetailId !== key) return;
       document.getElementById('detailTitle').textContent = 'Ошибка загрузки';
       document.getElementById('detailMain').innerHTML = '<div class="state-msg">' + esc(err && err.message ? err.message : err) + '</div>';
+    }).then(function () {
+      setBusy_(false);
+    });
+  }
+
+  // ---------- карточки сделок в памяти телефона (mobile-v2.5) ----------
+  // После загрузки доски все карточки тихо подтягиваются ОДНИМ запросом
+  // (getAllDealDetails: сервер читает каждый лист один раз) не чаще раза в
+  // DETAILS_PREFETCH_EVERY_MS — открытие сделки потом мгновенное. Открытая
+  // карточка всё равно перезапрашивается и обновляется на экране.
+  const DETAILS_LS = 'dmcrm_m_details_cache';
+  const DETAILS_PREFETCH_EVERY_MS = 3 * 60 * 1000;
+  let detailsCache = null; // { t: время полной подгрузки, byId: {dealId: карточка} }
+  let currentDetailId = null;
+  let prefetchBusy = false;
+  function detailsCache_() {
+    if (!detailsCache) {
+      try { detailsCache = JSON.parse(localStorage.getItem(DETAILS_LS) || 'null'); } catch (e) { console.error(e); }
+      if (!detailsCache || !detailsCache.byId || typeof detailsCache.byId !== 'object') detailsCache = { t: 0, byId: {} };
+    }
+    return detailsCache;
+  }
+  function saveDetailsCache_() {
+    try { localStorage.setItem(DETAILS_LS, JSON.stringify(detailsCache_())); } catch (e) { console.error('saveDetailsCache_:', e); }
+  }
+  function prefetchDetails_() {
+    if (prefetchBusy) return;
+    if (!IS_APPS_SCRIPT && !getApiUrl_()) return;
+    if (Date.now() - detailsCache_().t < DETAILS_PREFETCH_EVERY_MS) return;
+    prefetchBusy = true;
+    api('getAllDealDetails').then(function (byId) {
+      detailsCache = { t: Date.now(), byId: byId || {} };
+      saveDetailsCache_();
+    }).catch(function (err) {
+      console.error('prefetchDetails_:', err);
+    }).then(function () {
+      prefetchBusy = false;
     });
   }
 
@@ -1070,7 +1412,7 @@
     if (!detailOpen) return;
     detailOpen = false;
     document.getElementById('detailView').hidden = true;
-    document.getElementById('boardView').hidden = false;
+    document.getElementById(VIEW_BY_TAB[currentTab]).hidden = false;
     if (!IS_APPS_SCRIPT && !fromPopstate && history.state && history.state.dmDetail) {
       try { history.back(); } catch (e) { console.error(e); }
     }
@@ -1282,6 +1624,9 @@
   updateThemeBtn_();
   initMarquee();
   loadBoard();
+  // счётчики на вкладках «Закупка»/«Бонусы» — сразу из сохранённого, потом тихо с сервера
+  renderTabBadges_();
+  if (IS_APPS_SCRIPT || getApiUrl_()) { loadRegistry_('purchase', false); loadRegistry_('bonus', false); }
   setInterval(function () { backgroundRefresh(false); }, REFRESH_MS);
 
   if (!IS_APPS_SCRIPT) {
