@@ -1,0 +1,18 @@
+{
+  "name": "DM_CRM Mobile",
+  "short_name": "DM_CRM",
+  "description": "Мобильная версия DM_CRM (Doccia Mobili): доска сделок и карточка заказа, только чтение",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef0f8",
+  "theme_color": "#1f7a63",
+  "lang": "ru",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

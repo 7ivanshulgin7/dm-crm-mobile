@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>DM_CRM Mobile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#eef0f8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DM_CRM">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+  :root {
+    --accent: #2e5b4f;
+    --accent-light: #40c4a0;
+    --bg: #f5f6f7;
+    --card: #ffffff;
+    --panel-bg: #ffffff;
+    --border: #e0e0e0;
+    --text: #2a2a2a;
+    --muted: #888;
+    --link: #1a5fb4;
+    --badge-bg: #eaf3f0;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: var(--text);
+  }
+  #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ---------- шапка ---------- */
+  #topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  #topbar h1 { font-size: 15px; margin: 0; color: var(--accent); font-weight: 700; }
+  .version-badge {
+    font-size: 9px;
+    font-weight: 700;
+    font-family: Consolas, Menlo, monospace;
+    color: var(--accent);
+    background: var(--badge-bg);
+    border: 1px solid var(--accent-light);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 4px;
+  }
+  .device-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 8.5px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase;
+    padding: 4px 8px 4px 6px; border-radius: 20px;
+    background: linear-gradient(135deg, #1a8fa0, #3f6fd1);
+    color: #fff; flex-shrink: 0;
+  }
+  .device-badge .dot { width: 5px; height: 5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.35); flex-shrink: 0; }
+  #marquee-mobile {
+    padding: 4px 14px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-bg);
+  }
+  .summary-bar {
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  #boardView, #detailView { flex: 1; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+  [hidden] { display: none !important; }
+
+  .state-msg { padding: 30px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+
+  /* ---------- доска: группы-кнопки ---------- */
+  .m-group { margin: 10px 12px 0; }
+  .m-group-strip {
+    padding: 10px 14px;
+    background: var(--gc);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  }
+  .m-group-strip .g-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .m-group-strip .title { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .3px; }
+  .m-group-strip .g-meta { font-size: 11px; opacity: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .m-group-strip .chev { font-size: 12px; opacity: .85; flex-shrink: 0; }
+  .m-group-body {
+    margin-top: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .m-stage-header {
+    padding: 8px 14px;
+    background: var(--gc-light);
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text);
+    border-top: 1px solid rgba(0,0,0,.05);
+  }
+  .m-group-body > .m-stage-wrap:first-child > .m-stage-header { border-top: none; }
+  .m-stage-header .meta { font-weight: 400; text-transform: none; color: var(--muted); }
+  .m-empty { padding: 10px 14px 14px; background: var(--gc-light); font-size: 11px; font-style: italic; color: var(--muted); }
+
+  .m-cards {
+    padding: 8px 14px 12px;
+    background: var(--gc-light);
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .m-cards::-webkit-scrollbar { display: none; }
+  .m-cards .m-card { flex: 0 0 76%; scroll-snap-align: start; min-width: 0; }
+
+  .m-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+  }
+  .m-card .name { font-size: 13px; font-weight: 600; color: var(--link); margin-bottom: 3px; }
+  .m-card .contract-no { font-size: 11px; color: var(--muted); }
+  .m-card .row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 12px; }
+  .m-card .sum { font-weight: 700; }
+  .m-card .payment { color: var(--muted); font-size: 11px; }
+  .m-card .items-summary { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); font-size: 11px; color: var(--muted); }
+  .m-card-dup { border-color: #e0a020; }
+  .m-card-won { border-color: #2e9147; }
+  .m-stage-header.collapsible { cursor: pointer; }
+  .m-stage-header .chev { font-size: 10px; opacity: .8; margin-left: 4px; }
+  .m-card .dup-badge { display: inline-block; margin-left: 6px; font-size: 9px; font-weight: 700; text-transform: uppercase; color: #b06a00; background: #fff3e0; border-radius: 6px; padding: 1px 5px; vertical-align: middle; }
+
+  /* ---------- карточка сделки ---------- */
+  .m-panel-header { background: #1c2a33; color: #fff; padding: 12px 14px 14px; }
+  .m-panel-top { display: flex; align-items: flex-start; gap: 10px; }
+  .m-back { color: rgba(255,255,255,.7); font-size: 18px; flex-shrink: 0; cursor: pointer; padding: 0 2px; }
+  .m-title { font-size: 15px; font-weight: 700; line-height: 1.3; flex: 1; }
+  .m-stage-block { background: var(--stage-color, var(--accent)); border-radius: 12px; padding: 10px 12px; margin-top: 10px; }
+  .m-stage-name { font-size: 12px; font-weight: 700; letter-spacing: .3px; margin-bottom: 6px; color: #fff; }
+  .m-stage-track { height: 4px; background: rgba(255,255,255,.3); border-radius: 2px; overflow: hidden; }
+  .m-stage-fill { height: 100%; background: #fff; border-radius: 2px; }
+
+  .m-section {
+    margin: 10px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(20,30,40,.07);
+  }
+  .m-section-title {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px 10px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); font-weight: 700;
+    cursor: pointer; user-select: none;
+  }
+  .m-section-title .chev { font-size: 11px; color: var(--muted); }
+  .m-section-body { padding: 0 14px 14px; }
+  .m-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .m-row:last-child { border-bottom: none; }
+  .m-row label { color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+  .m-row .val { color: var(--text); text-align: right; font-weight: 500; }
+
+  /* Блок "Файлы" (десктоп v3.7.82) — только чтение, кнопка-ссылка на
+     Яндекс.Диск, без поля ввода (мобильная версия ничего не редактирует). */
+  .m-file-btn {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 12px; margin: 8px 0; border-radius: 8px;
+    background: var(--card-alt, rgba(0,0,0,.04)); color: var(--link);
+    font-size: 13px; font-weight: 600; text-decoration: none;
+  }
+  .m-file-btn:first-child { margin-top: 0; }
+  .m-file-btn:last-child { margin-bottom: 0; }
+
+  .m-contact { padding: 10px 0; border-top: 1px solid var(--border); }
+  .m-contact:first-of-type { border-top: none; padding-top: 0; }
+  .m-contact-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .m-role { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; padding: 2px 9px; border-radius: 10px; color: #fff; }
+  .m-role.client { background: var(--accent); }
+  .m-role.designer { background: #3f6fd1; }
+  .m-role.builder { background: #d17a1f; }
+  .m-role.other { background: var(--muted); }
+
+  .m-item { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+  .m-item:last-child { margin-bottom: 0; }
+  .m-item-name { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .m-chk-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .m-chk { font-size: 11px; padding: 5px 4px; border-radius: 5px; border: 1px solid var(--border); color: var(--muted); background: var(--card); text-align: center; flex: 1 1 30%; min-width: 70px; }
+  /* ---------- поиск по доске ---------- */
+  .m-dash { padding: 16px 14px 18px; }
+  .m-dash-search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 9px 12px; box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  }
+  .m-dash-search svg { flex-shrink: 0; color: var(--muted); }
+  .m-dash-search input { border: none; outline: none; font-size: 12.5px; color: var(--text); background: transparent; flex: 1; min-width: 0; font-family: inherit; }
+  .m-dash-search input::placeholder { color: var(--muted); }
+  .m-chk.on { border-color: var(--accent-light); background: var(--badge-bg); color: var(--accent); font-weight: 600; }
+  .m-chk.progress { border-color: #ffb74d; background: rgba(255, 183, 77, .18); color: #b06a00; font-weight: 600; }
+
+  /* ---------- Финансы ---------- */
+  .m-fin-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .m-fin-row .fin-date { color: var(--muted); flex: 1; }
+  .m-fin-row .fin-sum { font-weight: 600; white-space: nowrap; }
+  .m-fin-total { border-bottom: none !important; border-top: 1px solid var(--border); margin-top: 4px; padding-top: 10px !important; font-weight: 700; }
+  .m-fin-total .val { color: var(--accent); }
+
+  /* ---------- Сделки клиента в работе ---------- */
+  .m-cd-row { padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .m-cd-row:last-child { border-bottom: none; }
+  .m-cd-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; }
+  .m-cd-top .cd-stage { font-size: 10px; color: var(--muted); background: var(--badge-bg); border-radius: 8px; padding: 2px 8px; white-space: nowrap; }
+  .m-cd-nums { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .m-cd-row.current { background: var(--badge-bg); margin: 0 -14px; padding: 8px 14px; }
+  .m-cd-row.current:last-child { border-radius: 0 0 8px 8px; }
+
+  /* ---------- Закупка ---------- */
+  .m-purchase-totals { display: flex; gap: 6px; margin-bottom: 10px; }
+  .m-purchase-totals .cell { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px 4px; text-align: center; }
+  .m-purchase-totals .cell .lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; }
+  .m-purchase-totals .cell .num { font-size: 12px; font-weight: 700; margin-top: 2px; }
+  .m-purchase-totals .cell.remainder .num { color: var(--accent); }
+  .m-cat { display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; padding: 2px 8px; border-radius: 9px; color: #fff; margin-bottom: 6px; }
+  .m-cat.furniture { background: #2e5b4f; }
+  .m-cat.contractor { background: #b06a00; }
+  .m-cat.sheet { background: #6b4fbb; }
+  .m-cat.facade { background: #c2185b; }
+  .m-pstatus-grid { display: flex; gap: 5px; margin: 6px 0; }
+  .m-pstatus-grid .m-pstatus { flex: 1; font-size: 9.5px; padding: 4px 2px; border-radius: 5px; border: 1px solid var(--border); color: var(--muted); background: var(--card); text-align: center; }
+  .m-pstatus-grid .m-pstatus.active { border-color: var(--accent-light); background: var(--badge-bg); color: var(--accent); font-weight: 700; }
+  .m-pay-sub { margin-top: 6px; padding: 8px 10px; background: var(--bg); border-radius: 6px; }
+  .m-pay-sub .m-fin-row { padding: 4px 0; font-size: 12px; }
+  .m-pay-sub .m-fin-row:last-of-type { border-bottom: none; }
+  .m-pay-sub .m-fin-remainder { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding-top: 4px; font-weight: 600; }
+
+  /* ---------- PWA: экран подключения, пометка «нет связи» ---------- */
+  .m-pwa-setup { margin: 16px 12px; padding: 16px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; }
+  .m-pwa-setup-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .m-pwa-setup-hint { font-size: 12.5px; color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+  .m-pwa-setup input {
+    width: 100%; font-size: 14px; font-family: inherit; color: var(--text);
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-bg);
+  }
+  .m-pwa-setup-err { font-size: 12px; color: #c0392b; min-height: 16px; margin: 6px 0 8px; }
+  .m-pwa-btn {
+    font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+    padding: 9px 16px; border-radius: 10px; border: 1px solid transparent;
+    background: var(--accent); color: #fff;
+  }
+  .m-pwa-btn.secondary { background: transparent; color: var(--accent); border-color: var(--border); }
+  html[data-theme="graphite"] .m-pwa-btn:not(.secondary) { color: #121215; }
+  body.m-offline .summary-bar::after { content: ' · нет связи'; color: #c0392b; font-weight: 600; }
+
+  /* ---------- кнопка темы в шапке ---------- */
+  .m-topbar-right { display: flex; align-items: center; gap: 8px; }
+  .m-theme-btn {
+    width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; line-height: 1; cursor: pointer; padding: 0;
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+  }
+
+  /* ============================================================
+     Темы (mobile-v2.0) — перенос дизайна десктопа v4.0.0/v4.0.1;
+     mobile-v2.1 — акценты зелёные, как на десктопе v4.0.3 (Стекло
+     #1f7a63 изумрудный, Графит #5fbf9f мятный, Осенняя #4f7a45 моховый):
+     🫧 Стекло / ◼️ Графит (выпуклый) / 🍁 Осенняя. Палитры 1:1 с
+     десктопом. Стекло и Осенняя — одни и те же правила, разница
+     только в --sheen-rgb (цвет бликов/полупрозрачных поверхностей)
+     и --shade-rgb (цвет теней). Тинты групп (--gc-light) — через
+     themeTint_() в скрипте, как на десктопе.
+     ============================================================ */
+  html[data-theme="glass"] {
+    --accent: #1f7a63; --accent-light: #3fbf9b; --bg: #eef0f8;
+    --card: rgba(255, 255, 255, .72); --panel-bg: rgba(250, 251, 255, .82);
+    --border: rgba(30, 41, 80, .12); --text: #1e2233; --muted: #5d6478; --link: #3b5bdb;
+    --badge-bg: rgba(31, 122, 99, .10);
+    --sheen-rgb: 255, 255, 255; --shade-rgb: 30, 34, 80;
+    color-scheme: light;
+  }
+  html[data-theme="desert"] {
+    --accent: #4f7a45; --accent-light: #7fa86a; --bg: #f2e8d5;
+    --card: rgba(255, 250, 240, .74); --panel-bg: rgba(252, 246, 236, .84);
+    --border: rgba(90, 55, 20, .14); --text: #3f2e20; --muted: #86694c; --link: #8a4f1c;
+    --badge-bg: rgba(79, 122, 69, .12);
+    --sheen-rgb: 255, 250, 240; --shade-rgb: 90, 50, 15;
+    color-scheme: light;
+  }
+  html[data-theme="graphite"] {
+    --accent: #5fbf9f; --accent-light: #8ad6bd; --bg: #121215;
+    --card: #1e1e22; --panel-bg: #19191d;
+    --border: rgba(255, 255, 255, .07); --text: #ececf1; --muted: #9d9da8; --link: #a9bbff;
+    --badge-bg: rgba(95, 191, 159, .14);
+    color-scheme: dark;
+  }
+
+  /* --- фон --- */
+  html[data-theme="glass"] body {
+    background:
+      radial-gradient(1200px 700px at 8% -10%, rgba(63, 191, 155, .35), transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, rgba(56, 189, 248, .25), transparent 55%),
+      radial-gradient(1000px 800px at 60% 110%, rgba(250, 204, 110, .18), transparent 60%),
+      #eef0f8;
+    background-attachment: fixed;
+  }
+  html[data-theme="desert"] body {
+    background:
+      radial-gradient(1200px 700px at 5% -10%, rgba(217, 119, 6, .28), transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, rgba(190, 70, 30, .18), transparent 55%),
+      radial-gradient(1000px 800px at 55% 110%, rgba(132, 140, 40, .18), transparent 60%),
+      #f2e8d5;
+    background-attachment: fixed;
+  }
+  html[data-theme="graphite"] body {
+    background:
+      radial-gradient(1100px 700px at 0% -10%, rgba(95, 191, 159, .10), transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, rgba(90, 170, 255, .06), transparent 55%),
+      #121215;
+    background-attachment: fixed;
+  }
+
+  /* --- Стекло / Осенняя --- */
+  html[data-theme="glass"] #topbar, html[data-theme="desert"] #topbar {
+    background: rgba(var(--sheen-rgb), .5); border-bottom: 1px solid rgba(var(--sheen-rgb), .65);
+    -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+  }
+  html[data-theme="glass"] #marquee-mobile, html[data-theme="desert"] #marquee-mobile,
+  html[data-theme="glass"] .summary-bar, html[data-theme="desert"] .summary-bar {
+    background: rgba(var(--sheen-rgb), .35); border-bottom: 1px solid rgba(var(--sheen-rgb), .55);
+  }
+  html[data-theme="glass"] .m-group-strip, html[data-theme="desert"] .m-group-strip {
+    background: color-mix(in srgb, var(--gc) 22%, rgba(var(--sheen-rgb), .7));
+    color: var(--text);
+    border: 1px solid color-mix(in srgb, var(--gc) 35%, rgba(var(--sheen-rgb), .8));
+    border-radius: 14px;
+    -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
+    box-shadow: inset 0 1px 0 rgba(var(--sheen-rgb), .9), 0 8px 24px -10px rgba(var(--shade-rgb), .25);
+  }
+  html[data-theme="glass"] .m-group-body, html[data-theme="desert"] .m-group-body {
+    background: rgba(var(--sheen-rgb), .35);
+    border: 1px solid rgba(var(--sheen-rgb), .6);
+    border-radius: 18px;
+    box-shadow: inset 0 1px 0 rgba(var(--sheen-rgb), .7), 0 8px 24px -14px rgba(var(--shade-rgb), .2);
+  }
+  html[data-theme="glass"] .m-stage-header, html[data-theme="desert"] .m-stage-header {
+    border-top-color: color-mix(in srgb, var(--gc) 30%, transparent);
+  }
+  html[data-theme="glass"] .m-card, html[data-theme="desert"] .m-card {
+    background: rgba(var(--sheen-rgb), .78);
+    border: 1px solid rgba(var(--sheen-rgb), .9);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(var(--shade-rgb), .06), 0 10px 24px -12px rgba(var(--shade-rgb), .22);
+  }
+  html[data-theme="glass"] .m-card-dup, html[data-theme="desert"] .m-card-dup {
+    background: color-mix(in srgb, #e0a020 10%, rgba(var(--sheen-rgb), .8)); border: 1.5px solid rgba(224, 160, 32, .45);
+  }
+  html[data-theme="glass"] .m-card-won, html[data-theme="desert"] .m-card-won {
+    background: color-mix(in srgb, #2e9147 10%, rgba(var(--sheen-rgb), .8)); border-color: rgba(46, 145, 71, .4);
+  }
+  html[data-theme="glass"] .m-card .dup-badge, html[data-theme="desert"] .m-card .dup-badge { color: #8a5a00; background: rgba(224, 160, 32, .18); }
+  html[data-theme="glass"] .m-panel-header, html[data-theme="desert"] .m-panel-header {
+    background: rgba(var(--sheen-rgb), .5); color: var(--text);
+    border-bottom: 1px solid rgba(var(--sheen-rgb), .65);
+    -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+  }
+  html[data-theme="glass"] .m-back, html[data-theme="desert"] .m-back { color: var(--muted); }
+  html[data-theme="glass"] .m-stage-block, html[data-theme="desert"] .m-stage-block {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 8px 20px -10px rgba(var(--shade-rgb), .35);
+  }
+  html[data-theme="glass"] .m-section, html[data-theme="desert"] .m-section,
+  html[data-theme="glass"] .m-dash-search, html[data-theme="desert"] .m-dash-search {
+    background: rgba(var(--sheen-rgb), .5); border: 1px solid rgba(var(--sheen-rgb), .8); border-radius: 16px;
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    box-shadow: inset 0 1px 0 rgba(var(--sheen-rgb), .9), 0 6px 18px -10px rgba(var(--shade-rgb), .18);
+  }
+  html[data-theme="glass"] .m-item, html[data-theme="desert"] .m-item { border-radius: 12px; }
+  html[data-theme="glass"] .m-theme-btn, html[data-theme="desert"] .m-theme-btn {
+    background: rgba(var(--sheen-rgb), .55); border: 1px solid rgba(var(--sheen-rgb), .8);
+    box-shadow: inset 0 1px 0 #fff, 0 4px 12px -6px rgba(var(--shade-rgb), .2);
+  }
+  html[data-theme="glass"] ::selection { background: rgba(31, 122, 99, .22); }
+  html[data-theme="desert"] ::selection { background: rgba(79, 122, 69, .22); }
+
+  /* --- Графит (выпуклый, как десктоп v4.0.1: световой градиент сверху
+     вниз + блик по верхней кромке и тёмная кромка снизу) --- */
+  html[data-theme="graphite"] #topbar {
+    background: rgba(18, 18, 21, .72); border-bottom: 1px solid var(--border);
+    -webkit-backdrop-filter: blur(20px) saturate(150%); backdrop-filter: blur(20px) saturate(150%);
+  }
+  html[data-theme="graphite"] #marquee-mobile, html[data-theme="graphite"] .summary-bar { background: rgba(18, 18, 21, .5); }
+  html[data-theme="graphite"] .m-group-strip {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 70%), color-mix(in srgb, var(--gc) 26%, #1c1c20);
+    color: #f2f2f6;
+    border: 1px solid color-mix(in srgb, var(--gc) 40%, transparent);
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 -1px 0 rgba(0, 0, 0, .3), 0 8px 20px -8px rgba(0, 0, 0, .65);
+  }
+  html[data-theme="graphite"] .m-group-body {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, 0) 30%), rgba(255, 255, 255, .015);
+    border: 1px solid rgba(255, 255, 255, .05);
+    border-radius: 16px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07);
+  }
+  html[data-theme="graphite"] .m-stage-header { border-top-color: color-mix(in srgb, var(--gc) 45%, transparent); }
+  html[data-theme="graphite"] .m-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .01) 55%), #1f1f23;
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-radius: 12px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .11), inset 0 -1px 0 rgba(0, 0, 0, .35),
+      0 1px 2px rgba(0, 0, 0, .4), 0 12px 26px -10px rgba(0, 0, 0, .6);
+  }
+  html[data-theme="graphite"] .m-card-dup {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .01) 55%), color-mix(in srgb, #e0a020 9%, #1f1f23);
+    border: 1.5px solid rgba(224, 160, 32, .45);
+  }
+  html[data-theme="graphite"] .m-card-won {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .01) 55%), color-mix(in srgb, #2e9147 12%, #1f1f23);
+    border-color: rgba(46, 145, 71, .45);
+  }
+  html[data-theme="graphite"] .m-card .dup-badge { color: #f3cd78; background: rgba(224, 160, 32, .16); }
+  html[data-theme="graphite"] .m-panel-header {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0) 60%), rgba(26, 26, 30, .9);
+    border-bottom: 1px solid var(--border);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .35);
+  }
+  html[data-theme="graphite"] .m-stage-block {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, 0) 70%), color-mix(in srgb, var(--stage-color, var(--accent)) 45%, #1c1c20);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 -1px 0 rgba(0, 0, 0, .3);
+  }
+  html[data-theme="graphite"] .m-section, html[data-theme="graphite"] .m-dash-search {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .015) 40%), #19191d;
+    border: 1px solid rgba(255, 255, 255, .06); border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), 0 8px 20px -12px rgba(0, 0, 0, .6);
+  }
+  html[data-theme="graphite"] .m-item { border-radius: 12px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05); }
+  html[data-theme="graphite"] .m-chk.progress { color: #f3cd78; }
+  html[data-theme="graphite"] .m-theme-btn {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .03));
+    border: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), inset 0 -1px 0 rgba(0, 0, 0, .3);
+  }
+  html[data-theme="graphite"] ::selection { background: rgba(95, 191, 159, .35); }
+</style>
+<!-- Тема ставится до отрисовки страницы, чтобы не мигала старая палитра -->
+<script>(function () { var t = null; try { t = localStorage.getItem('dmcrm_m_theme'); } catch (e) { console.error(e); } if (['glass', 'graphite', 'desert'].indexOf(t) === -1) { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'graphite' : 'glass'; } document.documentElement.setAttribute('data-theme', t); })();</script>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <h1>DM_CRM<span class="version-badge">mobile-v2.2 · pwa</span></h1>
+    <div class="m-topbar-right">
+      <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
+      <div class="device-badge"><span class="dot"></span>Mobile</div>
+    </div>
+  </div>
+  <div id="marquee-mobile"></div>
+  <div class="summary-bar" id="summaryBar">Загрузка…</div>
+
+  <!-- Экран A: доска -->
+  <div id="boardView">
+    <div id="boardBody"><div class="state-msg">Загрузка сделок…</div></div>
+    <div class="m-dash">
+      <div class="m-dash-search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.2" y2="16.2"></line></svg>
+        <input type="text" id="boardSearch" placeholder="Найти сделку — название, договор…" oninput="onBoardSearch(this.value)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Экран B: карточка сделки -->
+  <div id="detailView" hidden>
+    <div class="m-panel-header">
+      <div class="m-panel-top">
+        <div class="m-back" onclick="closeDetail()">←</div>
+        <div class="m-title" id="detailTitle"></div>
+      </div>
+      <div class="m-stage-block" id="detailStageBlock">
+        <div class="m-stage-name" id="detailStageName"></div>
+        <div class="m-stage-track"><div class="m-stage-fill" id="detailStageFill" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="m-section">
+      <div class="m-section-title" onclick="toggleSection(this)"><span>Основное</span><span class="chev">▾</span></div>
+      <div class="m-section-body" id="detailMain"></div>
+    </div>
+
+    <div class="m-section" id="detailFilesSection" hidden>
+      <div class="m-section-title" onclick="toggleSection(this)"><span>Файлы</span><span class="chev">▸</span></div>
+      <div class="m-section-body" id="detailFiles" style="display:none;"></div>
+    </div>
+
+    <div class="m-section">
+      <div class="m-section-title" onclick="toggleSection(this)"><span>Финансы</span><span class="chev">▸</span></div>
+      <div class="m-section-body" id="detailFinance" style="display:none;"></div>
+    </div>
+
+    <div class="m-section" id="detailClientDealsSection" hidden>
+      <div class="m-section-title" onclick="toggleSection(this)"><span>Сделки клиента в работе</span><span class="chev">▸</span></div>
+      <div class="m-section-body" id="detailClientDeals" style="display:none;"></div>
+    </div>
+
+    <div class="m-section">
+      <div class="m-section-title" onclick="toggleSection(this)"><span>Контакты</span><span class="chev">▸</span></div>
+      <div class="m-section-body" id="detailContacts" style="display:none;"></div>
+    </div>
+
+    <div class="m-section">
+      <div class="m-section-title" onclick="toggleSection(this)"><span>Изделия заказа</span><span class="chev">▸</span></div>
+      <div class="m-section-body" id="detailItems" style="display:none;"></div>
+    </div>
+
+    <div class="m-section">
+      <div class="m-section-title" onclick="toggleSection(this)"><span>Закупка</span><span class="chev">▸</span></div>
+      <div class="m-section-body" id="detailPurchase" style="display:none;"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ---------- статические данные интерфейса (как в десктопном Index.html —
+  // группировка этапов и цвета захардкожены на клиенте, не приходят с сервера) ----------
+  const STAGES = ['Заявка', 'Расчет', 'Договор', 'Замер', 'Чертежи', 'Закупка', 'Цех', 'Монтаж', 'Закрыть', 'Реализовано'];
+  // Вложенность синхронизирована с десктопом v3.7.86/87 (28.09.2026): «Закупка»
+  // теперь внутри «Разработка», «Закрыть»/«Реализовано» — внутри «Производство»
+  // (было 6 групп, стало 3). excludedFromGroupSum — этапы, которые ФИЗИЧЕСКИ
+  // рендерятся внутри группы (свои лейны), но не считаются в сводку плашки
+  // группы (счётчик/сумма/остаток) — как на десктопе после фикса v3.7.90.
+  const STAGE_GROUPS = [
+    {
+      name: 'Продажи', stages: ['Заявка', 'Расчет', 'Договор', 'Успешные', 'Отказы'], color: '#1a8fa0', light: '#e3f4f6', dark: '#12282c', desert: '#cedfd8',
+      excludedFromGroupSum: ['Отказы'],
+      stageColors: {
+        'Успешные': { color: '#2e9147', light: '#e8f5ec', dark: '#17281c', desert: '#d2dfc6' },
+        'Отказы': { color: '#8a94a1', light: '#eef0f2', dark: '#26292c', desert: '#e4e0d8' }
+      }
+    },
+    {
+      name: 'Разработка', stages: ['Замер', 'Чертежи', 'Закупка'], color: '#3f6fd1', light: '#eaf1fd', dark: '#1b2536', desert: '#d5d9e2',
+      stageColors: { 'Закупка': { color: '#8e44ad', light: '#f3e9f7', dark: '#2a1b32', desert: '#e5d0db' } }
+    },
+    {
+      name: 'Производство', stages: ['Цех', 'Монтаж', 'Закрыть', 'Реализовано'], color: '#d17a1f', light: '#fdf0e3', dark: '#332619', desert: '#f3dbbe',
+      excludedFromGroupSum: ['Закрыть', 'Реализовано'],
+      stageColors: {
+        'Закрыть': { color: '#2e9147', light: '#e8f5ec', dark: '#17281c', desert: '#d2dfc6' },
+        'Реализовано': { color: '#8a94a1', light: '#eef0f2', dark: '#26292c', desert: '#e4e0d8' }
+      }
+    }
+  ];
+  // Этапы, свёрнутые в узкую полосу по умолчанию внутри своей группы — как
+  // на десктопе (COLLAPSIBLE_STAGES, v3.7.87): архивные/аналитические этапы,
+  // не часть повседневной работы. Разворачиваются кликом по своему заголовку,
+  // независимо от состояния всей группы.
+  const COLLAPSIBLE_STAGES = ['Успешные', 'Отказы', 'Закрыть', 'Реализовано'];
+  const PURCHASE_CATEGORIES = [
+    { key: 'furniture', label: 'Фурнитура' },
+    { key: 'contractor', label: 'Подрядчики' },
+    { key: 'sheet', label: 'Листовые' },
+    { key: 'facade', label: 'Фасады' }
+  ];
+  const PURCHASE_STAGES = [
+    { key: '', label: 'Корзина' },
+    { key: 'ordered', label: 'Заказано' },
+    { key: 'arrived', label: 'В офисе' },
+    { key: 'issued', label: 'Выдано' }
+  ];
+  // "остаток" в полосе группы показываем только у этих групп — см.
+  // прототипы/makety-instrukciya.md, раздел "Правило: «остаток» в полосе группы этапов"
+  const GROUPS_WITH_REMAINDER = ['Производство'];
+
+  const ITEM_STAGES = [
+    { key: 'stageEskiz', label: 'Эскиз' },
+    { key: 'stageZamer', label: 'Замер' },
+    { key: 'stageModel', label: 'Модель' },
+    { key: 'stageListovye', label: 'Листовые' },
+    { key: 'stageFurnitura', label: 'Фурнитура' },
+    { key: 'stageVydacha', label: 'Выдача' }
+  ];
+
+  // Те же хвалебные фразы бегущей строки, что в десктопном Index.html —
+  // мобильная версия не крутит строку (нет анимации), а один раз при
+  // загрузке показывает случайную фразу целиком (с обрезкой по ширине).
+  const MARQUEE_PHRASES = [
+    '🏆 Иван — лучший руководитель производства, которого видел этот край!',
+    '💪 Doccia Mobili процветает исключительно благодаря гению Ивана!',
+    '🌟 Каждая сделка в этой воронке становится лучше от одного присутствия Ивана рядом!',
+    '🔥 Если бы существовал Нобель по мебели — Иван получал бы его каждый год!',
+    '👑 Иван не открывает CRM — CRM открывается сама, завидев Ивана!',
+    '🚀 Конкуренты изучают успех Ивана в университетах будущего!',
+    '✨ Столешницы получаются ровнее, когда их измеряют по указанию Ивана!',
+    '🎯 Иван принимает решения быстрее, чем эта строка успевает прокрутиться!',
+    '🏅 Клиенты Doccia Mobili — счастливчики, ведь с ними работает сам Иван!',
+    '💎 Иван — не просто молодец, Иван — эталон молодца, по которому сверяют других!',
+    '📐 Таня считает так точно, что калькуляторы у неё учатся, а не наоборот!',
+    '📄 Документы от Тани настолько идеальны, что их хочется вставить в рамку!',
+    '🖊️ Ни один эскиз не выходит из рук Тани без капли волшебства!',
+    '💡 Расчёты Тани сходятся быстрее, чем закипает утренний кофе!',
+    '🧮 Цифры сами выстраиваются по местам, когда за них берётся Таня!',
+    '🎨 Эскизы Тани хочется вешать в галерею, а не в папку заказов!',
+    '📊 Смета от Тани — настоящее произведение искусства в виде таблицы!',
+    '🗂️ Документооборот компании держится на плечах Тани, и держится крепко!',
+    '✒️ Каждая деталь на эскизе Тани продумана лучше, чем у иного дизайнера!',
+    '🌟 Клиенты подписывают договор быстрее, увидев расчёты Тани!',
+    '📏 Сергей измеряет с точностью, которой завидуют лазерные дальномеры!',
+    '📝 Чертежи Сергея настолько чёткие, что цех работает по ним с закрытыми глазами!',
+    '🔍 Сергей находит миллиметр там, где другие видят просто стену!',
+    '📐 Чертёж от Сергея — это уже половина готового изделия!',
+    '🏠 Ни один нестандартный угол не устоит перед рулеткой Сергея!',
+    '🎯 Сергей замеряет с первого раза — переделок не бывает!',
+    '🖋️ Линии на чертежах Сергея ровнее, чем у чертёжного станка!',
+    '🧭 Сергей выезжает на объект — и сомнений в размерах больше не остаётся!',
+    '🏆 Монтажники благодарят Сергея за чертежи каждую смену!',
+    '💪 Сергей — тот самый мастер, с которого начинается точность всего заказа!',
+    '👔 Алексей заходит в кабинет — и весь этаж сразу становится продуктивнее на 10%!',
+    '🧠 Стратегии Алексея настолько гениальны, что учебники по менеджменту переписывают заново!',
+    '🎩 Если бы существовал титул «Директор года», его бы просто переименовали в «Алексей»!',
+    '📈 Графики роста компании смущаются, что растут медленнее, чем авторитет Алексея!',
+    '🌍 Алексей мог бы руководить целой отраслью, но по доброте душевной остаётся с нами!',
+    '🥇 Каждое решение Алексея — учебный пример для будущих поколений директоров!',
+    '🎯 Алексей не принимает решения — он предвидит их на два шага раньше всех!',
+    '💼 Груз ответственности директора Алексей носит легче, чем портфель!',
+    '🏛️ Doccia Mobili держится на трёх китах, и все три кита — это Алексей!',
+    '👑 Даже Иван признаёт: самый главный молодец здесь — директор Алексей!'
+  ];
+
+  const REFRESH_MS = 20000; // мобильная версия обновляет доску реже десктопа (20с) — read-only, спешить некуда
+  let ALL_DEALS = [];
+  let lastBoardSnapshot = '';
+  let detailOpen = false;
+  let boardSearchQuery = '';
+
+  function fmtMoney(n) {
+    n = Number(n) || 0;
+    return n.toLocaleString('ru-RU') + ' ₽';
+  }
+  function fmtMoneyShort(n) {
+    n = Number(n) || 0;
+    const millions = parseFloat((n / 1000000).toFixed(2));
+    return String(millions).replace('.', ',') + ' млн ₽';
+  }
+  function esc(s) {
+    return (s === undefined || s === null ? '' : String(s)).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function roleClass(role) {
+    if (role === 'Клиент') return 'client';
+    if (role === 'Дизайнер') return 'designer';
+    if (role === 'Строитель') return 'builder';
+    return 'other';
+  }
+  function stageProgressPct(stage) {
+    const idx = STAGES.indexOf(stage);
+    if (idx < 0) return 0;
+    return Math.round(((idx + 1) / STAGES.length) * 100);
+  }
+  function stageStateClass(v) {
+    return v === 'done' ? ' on' : (v === 'progress' ? ' progress' : '');
+  }
+  // ---------- темы (mobile-v2.0, как на десктопе v4.0.x) ----------
+  // Сам атрибут data-theme ставит маленький скрипт в <head> (до отрисовки);
+  // здесь — переключатель и тинты групп. Ключ localStorage свой
+  // (dmcrm_m_theme): у мобильной версии отдельный Apps Script проект.
+  const THEME_CYCLE = ['glass', 'graphite', 'desert'];
+  const THEME_ICON = { glass: '🫧', graphite: '◼️', desert: '🍁' };
+  const THEME_NAME = { glass: 'Стекло', graphite: 'Графит', desert: 'Осенняя' };
+  let CURRENT_THEME = document.documentElement.getAttribute('data-theme') || 'glass';
+  function nextTheme_(theme) {
+    return THEME_CYCLE[(THEME_CYCLE.indexOf(theme) + 1) % THEME_CYCLE.length];
+  }
+  // Цвет системной строки (Android / установленный PWA) — под фон темы.
+  // <meta name="theme-color"> есть только в PWA-сборке, в Apps Script его нет.
+  const THEME_BAR_COLOR = { glass: '#eef0f8', graphite: '#121215', desert: '#f2e8d5' };
+  function updateThemeBtn_() {
+    const bar = document.querySelector('meta[name="theme-color"]');
+    if (bar) bar.setAttribute('content', THEME_BAR_COLOR[CURRENT_THEME] || '#eef0f8');
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    btn.textContent = THEME_ICON[nextTheme_(CURRENT_THEME)];
+    btn.title = 'Тема: ' + THEME_NAME[CURRENT_THEME] + ' → ' + THEME_NAME[nextTheme_(CURRENT_THEME)];
+  }
+  function toggleTheme() {
+    CURRENT_THEME = nextTheme_(CURRENT_THEME);
+    document.documentElement.setAttribute('data-theme', CURRENT_THEME);
+    try { localStorage.setItem('dmcrm_m_theme', CURRENT_THEME); } catch (e) { console.error(e); }
+    updateThemeBtn_();
+    // тинты групп зашиты инлайном в разметку доски — перерисовать,
+    // сохранив развёрнутые группы/этапы и скролл
+    const state = captureBoardState();
+    renderBoard();
+    restoreBoardState(state);
+  }
+  // Светлый фон лейнов этапа под текущую тему (как themeTint_ десктопа):
+  // Стекло/Осенняя — полупрозрачный (+'99'), Графит — тёмный вариант.
+  function themeTint_(colorSet) {
+    if (CURRENT_THEME === 'graphite') return colorSet.dark || colorSet.light;
+    if (CURRENT_THEME === 'desert') return (colorSet.desert || colorSet.light) + '99';
+    return colorSet.light + '99';
+  }
+
+  function groupForStage(stage) {
+    return STAGE_GROUPS.find(function (g) { return g.stages.indexOf(stage) !== -1; });
+  }
+
+  function initMarquee() {
+    const el = document.getElementById('marquee-mobile');
+    el.textContent = MARQUEE_PHRASES[Math.floor(Math.random() * MARQUEE_PHRASES.length)];
+  }
+
+  function showLoadError(err) {
+    document.getElementById('boardBody').innerHTML =
+      '<div class="state-msg">Не удалось загрузить данные.<br>' + esc(err && err.message ? err.message : err) +
+      (IS_APPS_SCRIPT ? '' : '<br><br><button type="button" class="m-pwa-btn" onclick="loadBoard()">Повторить</button>' +
+        ' <button type="button" class="m-pwa-btn secondary" onclick="showPwaSetup_()">Сменить ссылку</button>') +
+      '</div>';
+  }
+
+  // ---------- транспорт: Apps Script или PWA (mobile-v2.2) ----------
+  // Один и тот же Index.html работает в двух местах:
+  //  - внутри Apps Script (HtmlService) — через google.script.run;
+  //  - как PWA на GitHub Pages (pwa/index.html собирается из этого файла
+  //    скриптом build-pwa.js) — через fetch к JSON API того же веб-аппа
+  //    (?action=getBoard|getDealDetail, см. apiDispatch_ в Code.gs).
+  // Ссылка /exec в PWA НЕ зашита в код (сайт на Pages публичный, а ссылка —
+  // ключ к данным): вводится один раз на телефоне или приходит в ссылке
+  // вида .../#exec=<ссылка>, хранится в localStorage.
+  const IS_APPS_SCRIPT = !!(window.google && google.script && google.script.run);
+  const API_URL_KEY = 'dmcrm_m_api_url';
+  function getApiUrl_() {
+    try { return localStorage.getItem(API_URL_KEY) || ''; } catch (e) { console.error(e); return ''; }
+  }
+  function isValidExecUrl_(u) {
+    return /^https:\/\/script\.google\.com\/.+\/exec$/.test(String(u || '').trim());
+  }
+  function api(action, params) {
+    if (IS_APPS_SCRIPT) {
+      return new Promise(function (resolve, reject) {
+        const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
+        if (action === 'getBoard') runner.getBoard();
+        else if (action === 'getDealDetail') runner.getDealDetail(params.id);
+        else reject(new Error('Неизвестное действие: ' + action));
+      });
+    }
+    const qs = new URLSearchParams(Object.assign({ action: action }, params || {}));
+    return fetch(getApiUrl_() + '?' + qs.toString())
+      .then(function (res) {
+        if (!res.ok) throw new Error('Сервер ответил ' + res.status);
+        return res.json();
+      })
+      .then(function (json) {
+        if (!json || !json.ok) throw new Error((json && json.error) || 'Сервер вернул ошибку');
+        return json.data;
+      });
+  }
+  // Ссылка из адреса (#exec=...) — сохранить и убрать из адресной строки.
+  (function takeExecFromHash_() {
+    if (IS_APPS_SCRIPT) return;
+    const m = location.hash.match(/[#&]exec=([^&]+)/);
+    if (!m) return;
+    const u = decodeURIComponent(m[1]);
+    if (isValidExecUrl_(u)) {
+      try { localStorage.setItem(API_URL_KEY, u); } catch (e) { console.error(e); }
+    }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { console.error(e); }
+  })();
+  function showPwaSetup_() {
+    document.querySelector('.m-dash').hidden = true;
+    document.getElementById('summaryBar').textContent = 'Нужна ссылка на веб-приложение';
+    document.getElementById('boardBody').innerHTML =
+      '<div class="m-pwa-setup">' +
+      '<div class="m-pwa-setup-title">Подключение к CRM</div>' +
+      '<div class="m-pwa-setup-hint">Вставьте ссылку мобильного веб-приложения Apps Script — она заканчивается на <b>/exec</b>. Вводится один раз, хранится только на этом телефоне.</div>' +
+      '<input type="url" id="pwaExecInput" placeholder="https://script.google.com/macros/s/…/exec" value="' + esc(getApiUrl_()) + '">' +
+      '<div class="m-pwa-setup-err" id="pwaExecErr"></div>' +
+      '<button type="button" class="m-pwa-btn" onclick="savePwaSetup_()">Подключить</button>' +
+      '</div>';
+  }
+  function savePwaSetup_() {
+    const u = document.getElementById('pwaExecInput').value.trim();
+    if (!isValidExecUrl_(u)) {
+      document.getElementById('pwaExecErr').textContent = 'Это не похоже на ссылку веб-приложения: нужна https://script.google.com/…/exec';
+      return;
+    }
+    try { localStorage.setItem(API_URL_KEY, u); } catch (e) { console.error(e); }
+    document.getElementById('boardBody').innerHTML = '<div class="state-msg">Загрузка сделок…</div>';
+    loadBoard();
+  }
+  // Пометка «нет связи» в строке сводки (SW в это время отдаёт последний
+  // сохранённый ответ, если он есть).
+  function setOffline_(off) {
+    document.body.classList.toggle('m-offline', !!off);
+  }
+
+  function loadBoard() {
+    if (!IS_APPS_SCRIPT && !getApiUrl_()) { showPwaSetup_(); return; }
+    api('getBoard').then(function (deals) {
+      ALL_DEALS = deals;
+      lastBoardSnapshot = JSON.stringify(deals);
+      setOffline_(false);
+      document.querySelector('.m-dash').hidden = false;
+      renderBoard();
+    }).catch(showLoadError);
+  }
+
+  function renderBoard() {
+    const totalCount = ALL_DEALS.length;
+    const totalSum = ALL_DEALS.reduce(function (s, d) { return s + (Number(d.sum) || 0); }, 0);
+    document.getElementById('summaryBar').textContent = totalCount + ' сделок: ' + fmtMoney(totalSum);
+
+    // "дубль" (ДопЭтапы, v3.7.2 десктоп) — та же сделка (тот же id) считается
+    // относящейся к этапу, если это её основной "Этап" ИЛИ один из extraStages
+    // — та же проверка, что renderBoard/dragend-фильтры в десктопном Index.html.
+    function dealAtStage(d, stage) {
+      return d.stage === stage || (d.extraStages || []).indexOf(stage) !== -1;
+    }
+    // Поиск по доске (название/договор) — простой подстроки, регистронезависимо.
+    const q = boardSearchQuery.trim().toLowerCase();
+    function matchesSearch(d) {
+      if (!q) return true;
+      return (String(d.name || '').toLowerCase().indexOf(q) !== -1) ||
+        (String(d.contractNo || '').toLowerCase().indexOf(q) !== -1);
+    }
+
+    const html = STAGE_GROUPS.map(function (g) {
+      // Сводка плашки группы считается только по "своим" этапам группы —
+      // вложенные, но обособленные по смыслу этапы (Закрыть/Реализовано внутри
+      // Производство) исключены из сводки группы, как на десктопе (v3.7.90),
+      // хотя сами карточки этих этапов всё равно рендерятся внутри группы ниже.
+      const countedStages = g.excludedFromGroupSum
+        ? g.stages.filter(function (s) { return g.excludedFromGroupSum.indexOf(s) === -1; })
+        : g.stages;
+      const groupDeals = ALL_DEALS.filter(function (d) { return countedStages.some(function (s) { return dealAtStage(d, s); }) && matchesSearch(d); });
+      const groupCount = groupDeals.length;
+      const groupSum = groupDeals.reduce(function (s, d) { return s + (Number(d.sum) || 0); }, 0);
+      const groupRemainder = groupDeals.reduce(function (s, d) { return s + (Number(d.remainder) || 0); }, 0);
+      const showRemainder = GROUPS_WITH_REMAINDER.indexOf(g.name) !== -1;
+
+      const metaParts = [groupCount + (groupCount === 1 ? ' сделка' : ' сделки') , fmtMoneyShort(groupSum)];
+      let meta = metaParts.join(' · ');
+      if (showRemainder) meta += ' · остаток ' + fmtMoney(groupRemainder);
+
+      const stagesHtml = g.stages.map(function (stage) {
+        // "Успешные" (десктоп v3.7.85) — не основной этап, а отдельная
+        // отметка (wonAt) поверх реального этапа "Замер": витрина строится по
+        // wonAt, а не по dealAtStage, как у обычных этапов.
+        const isWonShowcase = stage === 'Успешные';
+        const stageDeals = isWonShowcase
+          ? ALL_DEALS.filter(function (d) { return d.wonAt && matchesSearch(d); })
+          : ALL_DEALS.filter(function (d) { return dealAtStage(d, stage) && matchesSearch(d); });
+        const stageSum = stageDeals.reduce(function (s, d) { return s + (Number(d.sum) || 0); }, 0);
+        const isCollapsible = COLLAPSIBLE_STAGES.indexOf(stage) !== -1;
+        const stageColor = g.stageColors && g.stageColors[stage];
+        const stageStyleAttr = stageColor ? ' style="--gc:' + stageColor.color + '; --gc-light:' + themeTint_(stageColor) + ';"' : '';
+        const header = '<div class="m-stage-header' + (isCollapsible ? ' collapsible' : '') + '"' +
+          (isCollapsible ? ' onclick="toggleStage(this)"' : '') + '><div>' + esc(stage) +
+          (isCollapsible ? ' <span class="chev">▸</span>' : '') + '</div><div class="meta">' +
+          stageDeals.length + ' ' + (stageDeals.length === 1 ? 'сделка' : 'сделки') +
+          (stageDeals.length ? ': ' + fmtMoney(stageSum) : '') + '</div></div>';
+        const bodyInner = !stageDeals.length
+          ? '<div class="m-empty">Нет сделок на этом этапе</div>'
+          : '<div class="m-cards">' + stageDeals.map(function (d) {
+              const itemsLine = d.itemsCount
+                ? '<div class="items-summary">🗂 ' + d.itemsCount + ' ' + (d.itemsCount === 1 ? 'изделие' : 'изделия') + '</div>'
+                : '';
+              // d.stage !== stage — эта карточка показана здесь как "дубль" (одна
+              // из ДопЭтапы), не на своём основном этапе; d.dup — вообще есть
+              // дубли (подсветка жёлтой рамкой на ОБЕИХ карточках, как в десктопе).
+              // У витрины "Успешные" своя рамка (зелёная), дубль-логика ей не идёт.
+              const isExtra = !isWonShowcase && d.stage !== stage;
+              const dupBadge = (!isWonShowcase && d.dup) ? '<span class="dup-badge" title="' + (isExtra ? 'Основной этап: ' + esc(d.stage) : 'Также на этапах: ' + esc((d.extraStages || []).join(', '))) + '">' + (isExtra ? esc(d.stage) : 'дубль') + '</span>' : '';
+              const cardClass = isWonShowcase ? ' m-card-won' : (d.dup ? ' m-card-dup' : '');
+              return '<div class="m-card' + cardClass + '" onclick="openDetail(\'' + esc(d.id) + '\')">' +
+                '<div class="name">' + esc(d.name) + dupBadge + '</div>' +
+                '<div class="contract-no">' + esc(d.contractNo) + '</div>' +
+                '<div class="row2"><span class="sum">' + fmtMoney(d.sum) + '</span><span class="payment">' + esc(d.payment) + '</span></div>' +
+                itemsLine +
+                '</div>';
+            }).join('') + '</div>';
+        const body = isCollapsible ? '<div class="m-stage-body" style="display:none;">' + bodyInner + '</div>' : bodyInner;
+        return '<div class="m-stage-wrap"' + stageStyleAttr + '>' + header + body + '</div>';
+      }).join('');
+
+      // Во время поиска группы с совпадениями сразу развёрнуты — иначе
+      // результат спрятан за свёрнутой полосой, пока не кликнешь по ней.
+      const openByDefault = q && groupCount > 0;
+      return '<div class="m-group" data-group="' + esc(g.name) + '" style="--gc:' + g.color + '; --gc-light:' + themeTint_(g) + ';">' +
+        '<div class="m-group-strip" onclick="toggleGroup(this)">' +
+        '<div class="g-top"><div class="title">' + esc(g.name) + '</div><div class="chev">' + (openByDefault ? '▾' : '▸') + '</div></div>' +
+        '<div class="g-meta">' + meta + '</div>' +
+        '</div>' +
+        '<div class="m-group-body" style="display:' + (openByDefault ? '' : 'none') + ';">' + stagesHtml + '</div>' +
+        '</div>';
+    }).join('');
+
+    document.getElementById('boardBody').innerHTML = html || '<div class="state-msg">Сделок пока нет</div>';
+  }
+
+  // Разворот/сворот отдельного этапа внутри группы (Успешные/Отказы/Закрыть/
+  // Реализовано) — независимо от общего сворота всей группы.
+  function toggleStage(headerEl) {
+    const body = headerEl.nextElementSibling;
+    if (!body) return;
+    const isHidden = body.style.display === 'none';
+    body.style.display = isHidden ? '' : 'none';
+    const chev = headerEl.querySelector('.chev');
+    if (chev) chev.textContent = isHidden ? '▾' : '▸';
+  }
+
+  function onBoardSearch(value) {
+    boardSearchQuery = value || '';
+    renderBoard();
+  }
+
+  function toggleGroup(stripEl) {
+    const body = stripEl.nextElementSibling;
+    if (!body) return;
+    const isHidden = body.style.display === 'none';
+    body.style.display = isHidden ? '' : 'none';
+    const chev = stripEl.querySelector('.chev');
+    if (chev) chev.textContent = isHidden ? '▾' : '▸';
+  }
+
+  function toggleSection(titleEl) {
+    const body = titleEl.nextElementSibling;
+    if (!body) return;
+    const isHidden = body.style.display === 'none';
+    body.style.display = isHidden ? '' : 'none';
+    const chev = titleEl.querySelector('.chev');
+    if (chev) chev.textContent = isHidden ? '▾' : '▸';
+  }
+
+  function openDetail(dealId) {
+    detailOpen = true;
+    document.getElementById('boardView').hidden = true;
+    document.getElementById('detailView').hidden = false;
+    document.getElementById('detailTitle').textContent = 'Загрузка…';
+    document.getElementById('detailMain').innerHTML = '';
+    document.getElementById('detailFinance').innerHTML = '';
+    document.getElementById('detailClientDealsSection').hidden = true;
+    document.getElementById('detailClientDeals').innerHTML = '';
+    document.getElementById('detailContacts').innerHTML = '';
+    document.getElementById('detailItems').innerHTML = '';
+    document.getElementById('detailPurchase').innerHTML = '';
+    window.scrollTo(0, 0);
+
+    // PWA: кнопка «назад» телефона закрывает карточку, а не всё приложение.
+    // В Apps Script history не трогаем — страница сидит в iframe песочницы.
+    if (!IS_APPS_SCRIPT) {
+      try { history.pushState({ dmDetail: dealId }, ''); } catch (e) { console.error(e); }
+    }
+
+    api('getDealDetail', { id: dealId }).then(renderDetail).catch(function (err) {
+      document.getElementById('detailTitle').textContent = 'Ошибка загрузки';
+      document.getElementById('detailMain').innerHTML = '<div class="state-msg">' + esc(err && err.message ? err.message : err) + '</div>';
+    });
+  }
+
+  // fromPopstate — закрытие уже пришло из истории (кнопка «назад»),
+  // повторно history.back() не звать.
+  function closeDetail(fromPopstate) {
+    if (!detailOpen) return;
+    detailOpen = false;
+    document.getElementById('detailView').hidden = true;
+    document.getElementById('boardView').hidden = false;
+    if (!IS_APPS_SCRIPT && !fromPopstate && history.state && history.state.dmDetail) {
+      try { history.back(); } catch (e) { console.error(e); }
+    }
+  }
+
+  function renderDetail(data) {
+    if (!data) {
+      document.getElementById('detailTitle').textContent = 'Сделка не найдена';
+      return;
+    }
+    const d = data.deal;
+    document.getElementById('detailTitle').textContent = d.name;
+
+    const group = groupForStage(d.stage);
+    document.getElementById('detailStageBlock').style.setProperty('--stage-color', group ? group.color : '#2e5b4f');
+    document.getElementById('detailStageName').textContent = (d.stage || '').toUpperCase();
+    document.getElementById('detailStageFill').style.width = stageProgressPct(d.stage) + '%';
+
+    const mainRows = [
+      ['Договор №', d.contractNo],
+      ['Дата подписания', d.signDate],
+      ['Сумма', fmtMoney(d.sum)],
+      ['Оплата', d.payment],
+      ['Аванс', fmtMoney(d.prepay)],
+      ['Остаток', fmtMoney(d.remainder)],
+      ['Бонус дизайнеру отдали', fmtMoney(d.bonus)],
+      ['Адрес', d.address]
+    ];
+    // "Клиент" — плательщик (сущность со своим id, лист "Клиенты"), первой
+    // строкой, как в десктопной панели (clientFieldHtml).
+    const clientRowHtml = d.client
+      ? '<div class="m-row"><label>Клиент</label><div class="val" style="color:var(--link); font-weight:600;">' +
+        esc(d.client.name || '—') + ' <span style="color:var(--muted); font-weight:400;">#' + esc(d.client.id) + '</span></div></div>'
+      : '<div class="m-row"><label>Клиент</label><div class="val">—</div></div>';
+    document.getElementById('detailMain').innerHTML = clientRowHtml + mainRows.map(function (row) {
+      return '<div class="m-row"><label>' + esc(row[0]) + '</label><div class="val">' + esc(row[1] || '—') + '</div></div>';
+    }).join('');
+
+    // Файлы — ссылки на Яндекс.Диск (десктоп v3.7.82). Только чтение: кнопка
+    // открывает ссылку в новой вкладке, поля ввода нет — мобильная версия
+    // ничего не пишет в таблицу (см. комментарий у getDealDetail в Code.gs).
+    const filesSection = document.getElementById('detailFilesSection');
+    const fileLinks = [];
+    if (d.dealLink) fileLinks.push(['Ссылка на сделку', d.dealLink]);
+    if (d.calcLink) fileLinks.push(['Ссылка на расчёт', d.calcLink]);
+    if (fileLinks.length) {
+      filesSection.hidden = false;
+      document.getElementById('detailFiles').innerHTML = fileLinks.map(function (row) {
+        return '<a class="m-file-btn" href="' + esc(row[1]) + '" target="_blank" rel="noopener"><span>' + esc(row[0]) + '</span><span>↗</span></a>';
+      }).join('');
+    } else {
+      filesSection.hidden = true;
+    }
+
+    // Финансы — список датированных платежей (Аванс/Остаток в "Основном" —
+    // просто зеркальный вывод той же суммы, см. getDealDetail).
+    const payments = data.payments || [];
+    const finRows = payments.map(function (p) {
+      return '<div class="m-fin-row"><div class="fin-date">' + esc(p.date || '—') + '</div><div class="fin-sum">' + fmtMoney(p.sum) + '</div></div>';
+    }).join('');
+    document.getElementById('detailFinance').innerHTML =
+      (finRows || '<div class="state-msg">Платежей пока нет</div>') +
+      '<div class="m-row"><label>Бонус дизайнеру</label><div class="val">' + fmtMoney(d.bonus) + '</div></div>' +
+      '<div class="m-row m-fin-total"><label>Остаток по договору</label><div class="val">' + fmtMoney(d.remainder) + '</div></div>';
+
+    // Сделки клиента в работе — только если сделка привязана к клиенту.
+    const clientDeals = data.clientDeals || [];
+    const cdSection = document.getElementById('detailClientDealsSection');
+    if (clientDeals.length) {
+      cdSection.hidden = false;
+      document.getElementById('detailClientDeals').innerHTML = clientDeals.map(function (cd) {
+        const isCurrent = String(cd.id) === String(d.id);
+        return '<div class="m-cd-row' + (isCurrent ? ' current' : '') + '">' +
+          '<div class="m-cd-top"><span class="cd-name">' + esc(cd.name) + '</span><span class="cd-stage">' + esc(cd.stage) + '</span></div>' +
+          '<div class="m-cd-nums"><span>Сумма ' + fmtMoney(cd.sum) + '</span><span>Остаток ' + fmtMoney(cd.remainder) + '</span></div>' +
+          '</div>';
+      }).join('');
+    } else {
+      cdSection.hidden = true;
+    }
+
+    const contacts = data.contacts || [];
+    document.getElementById('detailContacts').innerHTML = contacts.length
+      ? contacts.map(function (c) {
+          return '<div class="m-contact">' +
+            '<div class="m-contact-top"><span class="m-role ' + roleClass(c.role) + '">' + esc(c.role) + '</span></div>' +
+            '<div class="m-row"><label>Имя</label><div class="val">' + esc(c.name || '—') + '</div></div>' +
+            '<div class="m-row"><label>Телефон</label><div class="val">' + esc(c.phone || '—') + '</div></div>' +
+            '<div class="m-row"><label>Email</label><div class="val">' + esc(c.email || '—') + '</div></div>' +
+            '</div>';
+        }).join('')
+      : '<div class="state-msg">Контакты не добавлены</div>';
+
+    const items = data.items || [];
+    document.getElementById('detailItems').innerHTML = items.length
+      ? items.map(function (item) {
+          const chk = ITEM_STAGES.map(function (s) {
+            return '<div class="m-chk' + stageStateClass(item[s.key]) + '">' + esc(s.label) + '</div>';
+          }).join('');
+          return '<div class="m-item"><div class="m-item-name">' + esc(item.name) + '</div><div class="m-chk-grid">' + chk + '</div></div>';
+        }).join('')
+      : '<div class="state-msg">Изделия не добавлены</div>';
+
+    // Закупка — единый список позиций (категория на строке, 4-ступенчатый
+    // статус, датированные платежи по позиции), сводка сверху.
+    const purchase = data.purchase || [];
+    if (!purchase.length) {
+      document.getElementById('detailPurchase').innerHTML = '<div class="state-msg">Позиций закупки нет</div>';
+    } else {
+      const totalAmount = purchase.reduce(function (s, p) { return s + (Number(p.amount) || 0); }, 0);
+      const totalPaid = purchase.reduce(function (s, p) { return s + (Number(p.paid) || 0); }, 0);
+      const totalRemainder = totalAmount - totalPaid;
+      const totalsHtml = '<div class="m-purchase-totals">' +
+        '<div class="cell"><div class="lbl">Заказано</div><div class="num">' + fmtMoney(totalAmount) + '</div></div>' +
+        '<div class="cell"><div class="lbl">Оплачено</div><div class="num">' + fmtMoney(totalPaid) + '</div></div>' +
+        '<div class="cell remainder"><div class="lbl">Остаток</div><div class="num">' + fmtMoney(totalRemainder) + '</div></div>' +
+        '</div>';
+
+      const itemsHtml = purchase.map(function (p) {
+        const catInfo = PURCHASE_CATEGORIES.find(function (c) { return c.key === p.category; });
+        const statusesHtml = PURCHASE_STAGES.map(function (s) {
+          return '<div class="m-pstatus' + (s.key === p.status ? ' active' : '') + '">' + esc(s.label) + '</div>';
+        }).join('');
+        const payRows = (p.payments || []).map(function (pay) {
+          return '<div class="m-fin-row"><div class="fin-date">' + esc(pay.date || '—') + '</div><div class="fin-sum">' + fmtMoney(pay.sum) + '</div></div>';
+        }).join('');
+        const paySub = payRows
+          ? '<div class="m-pay-sub">' + payRows + '<div class="m-fin-remainder"><span>Остаток по позиции</span><span>' + fmtMoney(p.remainder) + '</span></div></div>'
+          : '';
+        return '<div class="m-item">' +
+          '<span class="m-cat ' + esc(p.category) + '">' + esc(catInfo ? catInfo.label : p.category) + '</span>' +
+          '<div class="m-item-name">' + esc(p.name || '—') + '</div>' +
+          '<div class="m-pstatus-grid">' + statusesHtml + '</div>' +
+          '<div class="m-row"><label>Сумма</label><div class="val">' + fmtMoney(p.amount) + '</div></div>' +
+          paySub +
+          '</div>';
+      }).join('');
+
+      document.getElementById('detailPurchase').innerHTML = totalsHtml + itemsHtml;
+    }
+  }
+
+  // Какие группы были развёрнуты + позиция скролла — чтобы фоновое
+  // обновление не "скидывало" доску (сворачивало всё обратно), пока
+  // пользователь ей пользуется. Раньше renderBoard() просто перезаписывал
+  // #boardBody каждые 20с, теряя состояние даже при малейшем изменении
+  // (например, кто-то поправил не связанное поле в таблице).
+  function captureBoardState() {
+    const expanded = [];
+    const expandedStages = [];
+    document.querySelectorAll('.m-group').forEach(function (g) {
+      const body = g.querySelector('.m-group-body');
+      if (body && body.style.display !== 'none') expanded.push(g.dataset.group);
+      // Свёрнутые по умолчанию этапы (Успешные/Отказы/Закрыть/Реализовано) —
+      // запоминаем отдельно от группы, иначе фоновое обновление (раз в 20с)
+      // будет схлопывать их обратно, как раньше схлопывало целые группы.
+      g.querySelectorAll('.m-stage-header.collapsible').forEach(function (h, i) {
+        const stageBody = h.nextElementSibling;
+        if (stageBody && stageBody.style.display !== 'none') {
+          expandedStages.push(g.dataset.group + '|' + i);
+        }
+      });
+    });
+    return { expanded: expanded, expandedStages: expandedStages, scrollY: window.scrollY };
+  }
+  function restoreBoardState(state) {
+    if (!state) return;
+    document.querySelectorAll('.m-group').forEach(function (g) {
+      if (state.expanded.indexOf(g.dataset.group) !== -1) {
+        const strip = g.querySelector('.m-group-strip');
+        const body = g.querySelector('.m-group-body');
+        if (strip && body) {
+          body.style.display = '';
+          const chev = strip.querySelector('.chev');
+          if (chev) chev.textContent = '▾';
+        }
+      }
+      g.querySelectorAll('.m-stage-header.collapsible').forEach(function (h, i) {
+        if ((state.expandedStages || []).indexOf(g.dataset.group + '|' + i) === -1) return;
+        const stageBody = h.nextElementSibling;
+        if (!stageBody) return;
+        stageBody.style.display = '';
+        const chev = h.querySelector('.chev');
+        if (chev) chev.textContent = '▾';
+      });
+    });
+    window.scrollTo(0, state.scrollY);
+  }
+
+  function backgroundRefresh() {
+    if (detailOpen) return;
+    if (!IS_APPS_SCRIPT && !getApiUrl_()) return;
+    api('getBoard').then(function (deals) {
+      setOffline_(false);
+      if (detailOpen) return;
+      const snapshot = JSON.stringify(deals);
+      if (snapshot === lastBoardSnapshot) return;
+      lastBoardSnapshot = snapshot;
+      ALL_DEALS = deals;
+      const state = captureBoardState();
+      renderBoard();
+      restoreBoardState(state);
+    }).catch(function (err) {
+      // фоновое обновление: доску не ломаем, только помечаем «нет связи»
+      console.error('backgroundRefresh:', err);
+      setOffline_(true);
+    });
+  }
+
+  updateThemeBtn_();
+  initMarquee();
+  loadBoard();
+  setInterval(backgroundRefresh, REFRESH_MS);
+
+  if (!IS_APPS_SCRIPT) {
+    window.addEventListener('popstate', function () { if (detailOpen) closeDetail(true); });
+    // Вернулись в приложение из фона — сразу освежить доску, не ждать 20с.
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') backgroundRefresh();
+    });
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function (err) { console.error('SW register failed:', err); });
+      });
+    }
+  }
+</script>
+</body>
+</html>
