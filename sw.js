@@ -1,7 +1,7 @@
 // Service worker PWA DM_CRM Mobile.
 // CACHE_NAME ставит build-pwa.js по версии из Code.gs — руками не менять.
 // Новая версия = новое имя кэша: старый удаляется в activate.
-const CACHE_NAME = 'dmcrm-mobile-v2.2';
+const CACHE_NAME = 'dmcrm-mobile-v2.3';
 const APP_SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (event) {
@@ -35,6 +35,17 @@ function networkFirst(req) {
   });
 }
 
+const NAV_TIMEOUT_MS = 3000;
+function navigateWithTimeout(req) {
+  const network = networkFirst(req);
+  const timeout = new Promise(function (resolve) {
+    setTimeout(function () {
+      caches.match(req, { ignoreSearch: true }).then(function (cached) { if (cached) resolve(cached); });
+    }, NAV_TIMEOUT_MS);
+  });
+  return Promise.race([network, timeout]);
+}
+
 // Сначала кэш (быстрый старт), в фоне обновляем.
 function cacheFirst(req) {
   return caches.match(req).then(function (cached) {
@@ -63,8 +74,9 @@ self.addEventListener('fetch', function (event) {
     // без связи — последний сохранённый ответ (доска откроется офлайн).
     event.respondWith(networkFirst(req));
   } else if (req.mode === 'navigate') {
-    // Сама страница — тоже из сети: новая версия видна сразу, без второго запуска.
-    event.respondWith(networkFirst(req));
+    // Сама страница — из сети (новая версия видна сразу), но на медленной
+    // сети не дольше NAV_TIMEOUT_MS: дальше — из кэша, сеть докэширует в фоне.
+    event.respondWith(navigateWithTimeout(req));
   } else {
     event.respondWith(cacheFirst(req));
   }

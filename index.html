@@ -286,7 +286,17 @@
   }
   .m-pwa-btn.secondary { background: transparent; color: var(--accent); border-color: var(--border); }
   html[data-theme="graphite"] .m-pwa-btn:not(.secondary) { color: #121215; }
+  body.m-busy .summary-bar::after { content: ' · обновляю…'; color: var(--accent); font-weight: 600; }
   body.m-offline .summary-bar::after { content: ' · нет связи'; color: #c0392b; font-weight: 600; }
+  /* бегущая полоска под шапкой, пока идёт запрос (mobile-v2.3) */
+  body.m-busy #topbar::after {
+    content: ''; position: absolute; left: 0; bottom: -1px; height: 2px; width: 35%;
+    background: var(--accent); border-radius: 2px;
+    animation: m-busy-run 1.1s ease-in-out infinite;
+  }
+  @keyframes m-busy-run { 0% { left: -35%; } 100% { left: 100%; } }
+  #topbar { overflow: hidden; }
+  .m-slow-hint { margin-top: 8px; font-size: 11.5px; opacity: .85; }
 
   /* ---------- кнопка темы в шапке ---------- */
   .m-topbar-right { display: flex; align-items: center; gap: 8px; }
@@ -485,7 +495,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1>DM_CRM<span class="version-badge">mobile-v2.2 · pwa</span></h1>
+    <h1>DM_CRM<span class="version-badge">mobile-v2.3 · pwa</span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
       <div class="device-badge"><span class="dot"></span>Mobile</div>
@@ -766,6 +776,7 @@
   // вида .../#exec=<ссылка>, хранится в localStorage.
   const IS_APPS_SCRIPT = !!(window.google && google.script && google.script.run);
   const API_URL_KEY = 'dmcrm_m_api_url';
+  const API_TIMEOUT_MS = 30000;
   function getApiUrl_() {
     try { return localStorage.getItem(API_URL_KEY) || ''; } catch (e) { console.error(e); return ''; }
   }
@@ -782,8 +793,16 @@
       });
     }
     const qs = new URLSearchParams(Object.assign({ action: action }, params || {}));
-    return fetch(getApiUrl_() + '?' + qs.toString())
+    // Не ждать вечно: через API_TIMEOUT_MS — понятная ошибка с «Повторить».
+    const ctrl = window.AbortController ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(function () { ctrl.abort(); }, API_TIMEOUT_MS) : null;
+    return fetch(getApiUrl_() + '?' + qs.toString(), ctrl ? { signal: ctrl.signal } : undefined)
+      .catch(function (err) {
+        if (err && err.name === 'AbortError') throw new Error('Сервер не ответил за ' + (API_TIMEOUT_MS / 1000) + ' секунд');
+        throw err;
+      })
       .then(function (res) {
+        clearTimeout(timer);
         if (!res.ok) throw new Error('Сервер ответил ' + res.status);
         return res.json();
       })
@@ -831,15 +850,65 @@
     document.body.classList.toggle('m-offline', !!off);
   }
 
+  // ---------- быстрый старт (mobile-v2.3) ----------
+  // Последняя полученная доска хранится на телефоне: при запуске показываем
+  // её сразу, а свежую подтягиваем в фоне (полоска под шапкой + «обновляю…»).
+  // Холодный старт Apps Script — несколько секунд, смотреть на пустой экран
+  // всё это время не нужно.
+  const BOARD_CACHE_LS = 'dmcrm_m_board_cache';
+  function readBoardCache_() {
+    try {
+      const raw = localStorage.getItem(BOARD_CACHE_LS);
+      const c = raw ? JSON.parse(raw) : null;
+      return c && Array.isArray(c.deals) ? c : null;
+    } catch (e) { console.error(e); return null; }
+  }
+  function saveBoardCache_(deals) {
+    try { localStorage.setItem(BOARD_CACHE_LS, JSON.stringify({ t: Date.now(), deals: deals })); } catch (e) { console.error(e); }
+  }
+  let busyCount = 0;
+  function setBusy_(on) {
+    busyCount = Math.max(0, busyCount + (on ? 1 : -1));
+    document.body.classList.toggle('m-busy', busyCount > 0);
+  }
+  // Новая доска пришла: сохранить и перерисовать (если изменилась),
+  // не сворачивая открытые группы и не сбрасывая скролл.
+  function applyFreshBoard_(deals) {
+    saveBoardCache_(deals);
+    setOffline_(false);
+    const snapshot = JSON.stringify(deals);
+    if (snapshot === lastBoardSnapshot) return;
+    lastBoardSnapshot = snapshot;
+    ALL_DEALS = deals;
+    const hadBoard = !!document.querySelector('.m-group');
+    const state = hadBoard ? captureBoardState() : null;
+    document.querySelector('.m-dash').hidden = false;
+    renderBoard();
+    if (state) restoreBoardState(state);
+  }
+
   function loadBoard() {
     if (!IS_APPS_SCRIPT && !getApiUrl_()) { showPwaSetup_(); return; }
-    api('getBoard').then(function (deals) {
-      ALL_DEALS = deals;
-      lastBoardSnapshot = JSON.stringify(deals);
-      setOffline_(false);
+    const cached = readBoardCache_();
+    let slowHint = null;
+    if (cached && !document.querySelector('.m-group')) {
+      ALL_DEALS = cached.deals;
+      lastBoardSnapshot = JSON.stringify(cached.deals);
       document.querySelector('.m-dash').hidden = false;
       renderBoard();
-    }).catch(showLoadError);
+    } else if (!cached) {
+      document.getElementById('boardBody').innerHTML = '<div class="state-msg">Загрузка сделок…<div class="m-slow-hint" id="slowHint" hidden>Сервер Google просыпается — первый запуск бывает до 10–20 секунд.</div></div>';
+      slowHint = setTimeout(function () { const h = document.getElementById('slowHint'); if (h) h.hidden = false; }, 4000);
+    }
+    setBusy_(true);
+    api('getBoard').then(applyFreshBoard_).catch(function (err) {
+      console.error('loadBoard:', err);
+      // доска из прошлого запуска уже на экране — не прячем её за ошибкой
+      if (cached) setOffline_(true); else showLoadError(err);
+    }).then(function () {
+      clearTimeout(slowHint);
+      setBusy_(false);
+    });
   }
 
   function renderBoard() {
@@ -1191,36 +1260,35 @@
     window.scrollTo(0, state.scrollY);
   }
 
-  function backgroundRefresh() {
+  // showBusy — показать полоску загрузки (возврат в приложение); плановое
+  // обновление раз в 20с идёт тихо, чтобы полоска не мигала постоянно.
+  function backgroundRefresh(showBusy) {
     if (detailOpen) return;
     if (!IS_APPS_SCRIPT && !getApiUrl_()) return;
+    if (!document.querySelector('.m-group')) return; // первая загрузка ещё идёт или упала — это loadBoard
+    if (showBusy) setBusy_(true);
     api('getBoard').then(function (deals) {
-      setOffline_(false);
-      if (detailOpen) return;
-      const snapshot = JSON.stringify(deals);
-      if (snapshot === lastBoardSnapshot) return;
-      lastBoardSnapshot = snapshot;
-      ALL_DEALS = deals;
-      const state = captureBoardState();
-      renderBoard();
-      restoreBoardState(state);
+      if (detailOpen) { saveBoardCache_(deals); setOffline_(false); return; }
+      applyFreshBoard_(deals);
     }).catch(function (err) {
       // фоновое обновление: доску не ломаем, только помечаем «нет связи»
       console.error('backgroundRefresh:', err);
       setOffline_(true);
+    }).then(function () {
+      if (showBusy) setBusy_(false);
     });
   }
 
   updateThemeBtn_();
   initMarquee();
   loadBoard();
-  setInterval(backgroundRefresh, REFRESH_MS);
+  setInterval(function () { backgroundRefresh(false); }, REFRESH_MS);
 
   if (!IS_APPS_SCRIPT) {
     window.addEventListener('popstate', function () { if (detailOpen) closeDetail(true); });
     // Вернулись в приложение из фона — сразу освежить доску, не ждать 20с.
     document.addEventListener('visibilitychange', function () {
-      if (document.visibilityState === 'visible') backgroundRefresh();
+      if (document.visibilityState === 'visible') backgroundRefresh(true);
     });
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
