@@ -1,7 +1,7 @@
 // Service worker PWA DM_CRM Mobile.
 // CACHE_NAME ставит build-pwa.js по версии из Code.gs — руками не менять.
 // Новая версия = новое имя кэша: старый удаляется в activate.
-const CACHE_NAME = 'dmcrm-mobile-v2.11';
+const CACHE_NAME = 'dmcrm-mobile-v2.20';
 const APP_SHELL = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (event) {
@@ -68,6 +68,9 @@ self.addEventListener('fetch', function (event) {
   const req = event.request;
   if (req.method !== 'GET') return;
   const isOwnOrigin = req.url.indexOf(self.location.origin) === 0;
+
+  // «Бонусы»/«Остатки» (запросы с ключом пароля) — только сеть, в кэш телефона не кладём.
+  if (req.url.indexOf('token=') !== -1) return;
 
   if (!isOwnOrigin) {
     // Данные из Apps Script (?action=getBoard/getDealDetail): свежие из сети,
