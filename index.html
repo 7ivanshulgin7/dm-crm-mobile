@@ -655,7 +655,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1>DM_CRM<span class="version-badge">v2.20 · pwa</span></h1>
+    <h1>DM_CRM<span class="version-badge">v2.21 · pwa</span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
     </div>
@@ -701,7 +701,7 @@
   <div id="bonusView" hidden>
     <div class="m-hero">
       <div class="m-hero-title">Бонусы</div>
-      <div class="m-hero-sub summary-bar" id="bonusSub">Закрыто паролем</div>
+      <div class="m-hero-sub summary-bar" id="bonusSub">Загрузка…</div>
     </div>
     <div class="m-pwa-setup" id="bonusLock" hidden></div>
     <div id="bonusContent">
@@ -727,7 +727,7 @@
   <div id="debtsView" hidden>
     <div class="m-hero">
       <div class="m-hero-title">Остатки</div>
-      <div class="m-hero-sub summary-bar" id="debtsSub">Закрыто паролем</div>
+      <div class="m-hero-sub summary-bar" id="debtsSub">Загрузка…</div>
     </div>
     <div class="m-pwa-setup" id="debtsLock" hidden></div>
     <div id="debtsContent">
@@ -1061,7 +1061,7 @@
   try { localStorage.removeItem('dmcrm_m_bonus_cache'); } catch (e) { console.error(e); } // до v2.12 бонусы сохранялись без пароля
   function loadRegistry_(kind, showBusy) {
     const r = REG[kind];
-    if (r.gated && !gateToken_()) { showGateLock_(kind, ''); return; }
+    if (r.gated && GATE_ON && !gateToken_()) { showGateLock_(kind, ''); return; }
     if (r.gated) hideGateLock_(kind);
     if (!r.rows && r.ls) {
       try { const c = JSON.parse(localStorage.getItem(r.ls) || 'null'); if (c && Array.isArray(c.rows)) r.rows = c.rows; } catch (e) { console.error(e); }
@@ -1098,6 +1098,9 @@
   // Тот же пароль, что на десктопе. Проверяет сервер (unlockGate) и выдаёт
   // временный ключ; ключ живёт в sessionStorage — до закрытия приложения.
   const GATED_KINDS = ['bonus', 'debts'];
+  // v2.21: пароль «пока» выключен по просьбе пользователя. Включить — true
+  // здесь и GATE_ENABLED = true в Code.gs (сервер проверяет сам).
+  const GATE_ON = false;
   const GATE_SS = 'dmcrm_m_gate';
   const GATE_NEED_PASSWORD = 'NEED_PASSWORD';
   function gateToken_() {
@@ -1306,7 +1309,7 @@
     window.scrollTo(0, 0);
   }
   function loadDesigners_() {
-    if (!gateToken_()) return;
+    if (GATE_ON && !gateToken_()) return;
     api('getDesignerSummary', { token: gateToken_() }).then(function (rows) {
       BONUS_DSGN = rows || [];
       if (REG.bonus.tab === 'designers') renderBonus_();
@@ -2111,7 +2114,7 @@
   renderTabBadges_();
   if (IS_APPS_SCRIPT || getApiUrl_()) {
     loadRegistry_('purchase', false);
-    if (gateToken_()) GATED_KINDS.forEach(function (k) { loadRegistry_(k, false); }); // счётчики — только после пароля
+    if (!GATE_ON || gateToken_()) GATED_KINDS.forEach(function (k) { loadRegistry_(k, false); }); // с паролем — счётчики только после него
   }
   setInterval(function () { backgroundRefresh(false); }, REFRESH_MS);
 
