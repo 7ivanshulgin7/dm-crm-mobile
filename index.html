@@ -655,7 +655,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1>DM_CRM<span class="version-badge">v2.21 · pwa</span></h1>
+    <h1>DM_CRM<span class="version-badge">v2.22 · pwa</span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
     </div>
@@ -1053,18 +1053,22 @@
   // Как доска: сразу из сохранённого на телефоне, свежие — с сервера.
   // ls — ключ сохранения на телефоне; у «Бонусов»/«Остатков» null: под
   // паролем данные живут только в памяти, на телефоне не остаются (v2.12).
+  // lsOpen — их ключ, пока пароль выключен (GATE_ON = false, v2.22): тогда
+  // открываются сразу из сохранённого, как «Закупка».
   const REG = {
     purchase: { action: 'getPurchaseRegistry', ls: 'dmcrm_m_purchase_cache', rows: null, filter: 'unpaid', q: '', loading: false },
-    bonus: { action: 'getBonusRegistry', ls: null, gated: true, rows: null, tab: 'deals', status: 'due', stage: null, q: '', loading: false },
-    debts: { action: 'getDebtsRegistry', ls: null, gated: true, rows: null, filter: 'owe', q: '', stage: null, loading: false }
+    bonus: { action: 'getBonusRegistry', ls: null, lsOpen: 'dmcrm_m_bonus_open', gated: true, rows: null, tab: 'deals', status: 'due', stage: null, q: '', loading: false },
+    debts: { action: 'getDebtsRegistry', ls: null, lsOpen: 'dmcrm_m_debts_open', gated: true, rows: null, filter: 'owe', q: '', stage: null, loading: false }
   };
   try { localStorage.removeItem('dmcrm_m_bonus_cache'); } catch (e) { console.error(e); } // до v2.12 бонусы сохранялись без пароля
+  function regLs_(r) { return r.ls || (!GATE_ON && r.lsOpen) || null; }
   function loadRegistry_(kind, showBusy) {
     const r = REG[kind];
+    const ls = regLs_(r);
     if (r.gated && GATE_ON && !gateToken_()) { showGateLock_(kind, ''); return; }
     if (r.gated) hideGateLock_(kind);
-    if (!r.rows && r.ls) {
-      try { const c = JSON.parse(localStorage.getItem(r.ls) || 'null'); if (c && Array.isArray(c.rows)) r.rows = c.rows; } catch (e) { console.error(e); }
+    if (!r.rows && ls) {
+      try { const c = JSON.parse(localStorage.getItem(ls) || 'null'); if (c && Array.isArray(c.rows)) r.rows = c.rows; } catch (e) { console.error(e); }
       if (r.rows) renderRegistry_(kind);
     }
     if (r.loading) return;
@@ -1072,7 +1076,7 @@
     if (showBusy) setBusy_(true);
     api(r.action, r.gated ? { token: gateToken_() } : null).then(function (rows) {
       r.rows = rows || [];
-      if (r.ls) { try { localStorage.setItem(r.ls, JSON.stringify({ t: Date.now(), rows: r.rows })); } catch (e) { console.error(e); } }
+      if (ls) { try { localStorage.setItem(ls, JSON.stringify({ t: Date.now(), rows: r.rows })); } catch (e) { console.error(e); } }
       setOffline_(false);
       renderRegistry_(kind);
     }).catch(function (err) {
@@ -1101,6 +1105,9 @@
   // v2.21: пароль «пока» выключен по просьбе пользователя. Включить — true
   // здесь и GATE_ENABLED = true в Code.gs (сервер проверяет сам).
   const GATE_ON = false;
+  const DSGN_LS = 'dmcrm_m_dsgn_open'; // сводка «По дизайнерам», пока пароль выключен
+  // пароль снова включили — сохранённое без пароля с телефона убрать
+  if (GATE_ON) { try { ['dmcrm_m_bonus_open', 'dmcrm_m_debts_open', DSGN_LS].forEach(function (k) { localStorage.removeItem(k); }); } catch (e) { console.error(e); } }
   const GATE_SS = 'dmcrm_m_gate';
   const GATE_NEED_PASSWORD = 'NEED_PASSWORD';
   function gateToken_() {
@@ -1283,7 +1290,7 @@
     if (b.undatedPaid > 0) return 'undated';
     return 'paid';
   }
-  let BONUS_DSGN = null; // сводка «По дизайнерам» (getDesignerSummary), только в памяти
+  let BONUS_DSGN = null; // сводка «По дизайнерам» (getDesignerSummary); без пароля — ещё и на телефоне (DSGN_LS)
   function setBonusTab_(tab) {
     REG.bonus.tab = tab;
     document.querySelectorAll('#bonusSeg button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === tab); });
@@ -1310,8 +1317,12 @@
   }
   function loadDesigners_() {
     if (GATE_ON && !gateToken_()) return;
+    if (!BONUS_DSGN && !GATE_ON) {
+      try { const c = JSON.parse(localStorage.getItem(DSGN_LS) || 'null'); if (c && Array.isArray(c.rows)) { BONUS_DSGN = c.rows; if (REG.bonus.tab === 'designers') renderBonus_(); } } catch (e) { console.error(e); }
+    }
     api('getDesignerSummary', { token: gateToken_() }).then(function (rows) {
       BONUS_DSGN = rows || [];
+      if (!GATE_ON) { try { localStorage.setItem(DSGN_LS, JSON.stringify({ t: Date.now(), rows: BONUS_DSGN })); } catch (e) { console.error(e); } }
       if (REG.bonus.tab === 'designers') renderBonus_();
     }).catch(function (err) {
       console.error('loadDesigners_:', err);
