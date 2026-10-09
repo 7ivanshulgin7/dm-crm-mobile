@@ -365,6 +365,55 @@
   .m-chip.due { background: rgba(224, 128, 32, .16); color: #b8620a; }
   .m-chip.off { background: rgba(138, 148, 161, .16); color: var(--muted); }
   html[data-theme="graphite"] .m-chip.ok { color: #6fd08a; }
+  /* mobile-v2.23: «Остатки» по клиентам — строка клиента, платежи сделки */
+  .m-dcl { padding: 0; overflow: hidden; }
+  .m-dcl-head { padding: 12px 14px; cursor: pointer; }
+  .m-dcl-head:active { background: var(--badge-bg); }
+  .m-dcl-caret { display: inline-block; width: 14px; color: var(--muted); font-size: 11px; }
+  .m-dcl-deals { border-top: 1px solid var(--border); padding: 4px 0 6px; }
+  .m-dcl-deals .m-reg-item { margin: 0; border: none; border-radius: 0; box-shadow: none; background: transparent; padding: 10px 14px 10px 28px; }
+  .m-dcl-deals .m-reg-item + .m-reg-item { border-top: 1px dashed var(--border); }
+  .m-pays-btn { border: none; font-family: inherit; cursor: pointer; }
+  .m-pays { margin-top: 8px; padding: 6px 10px; border-radius: 10px; background: var(--badge-bg); font-size: 12px; }
+  .m-pays div { display: flex; justify-content: space-between; padding: 2px 0; }
+  .m-pays b { font-weight: 700; }
+  /* mobile-v2.23: «Жуть» (скрытый экран, 5 тапов по заголовку) */
+  .m-seg.m-seg-scroll { overflow-x: auto; scrollbar-width: none; }
+  .m-seg.m-seg-scroll::-webkit-scrollbar { display: none; }
+  .m-seg.m-seg-scroll button { flex: 0 0 auto; padding: 7px 12px; white-space: nowrap; }
+  .m-zh-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; }
+  .m-zh-lockbtn { border: 1px solid var(--border); background: var(--card); color: var(--text); font-family: inherit; font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 10px; cursor: pointer; }
+  .m-zh-h { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin: 14px 14px 6px; }
+  .m-zh-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 12px 8px; }
+  .m-zh-v { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 8px; color: #1d1d1f; }
+  .m-zh-vA { background: #f4a7a7; } .m-zh-vR { background: #a8dcb0; } .m-zh-vC { background: #f7e08c; } .m-zh-vI { background: #a9d4f2; }
+  .m-zh-group { margin: 10px 12px 6px; padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; color: #1d1d1f; background: var(--zc); }
+  .m-zh-row { margin: 0 12px 6px; padding: 9px 12px; border-left: 4px solid var(--zc); }
+  .m-zh-row-name { font-size: 13.5px; font-weight: 700; }
+  .m-zh-row-cells { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .m-zh-warn { color: #c0392b; font-size: 11.5px; font-weight: 600; margin-top: 4px; }
+  .m-zh-org ul { list-style: none; margin: 0; padding: 0 0 0 16px; border-left: 2px solid var(--border); }
+  .m-zh-org > ul { padding-left: 0; border-left: none; }
+  .m-zh-org li { margin: 6px 0; }
+  .m-zh-org-node { padding: 8px 12px; margin: 0; }
+  .m-zh-org-name { font-size: 13.5px; font-weight: 700; }
+  .m-zh-org-pos { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .m-zh-org-wrap { margin: 0 12px; }
+  .m-zh-zone { margin: 14px 12px 6px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: var(--zc); }
+  .m-zh-zone span { font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--muted); }
+  .m-zh-step { margin: 0 12px 6px; padding: 10px 12px; display: flex; gap: 10px; border-left: 4px solid var(--zc); }
+  .m-zh-n { flex: 0 0 24px; height: 24px; border-radius: 12px; background: var(--zc); color: #fff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .m-zh-t { font-size: 13.5px; font-weight: 700; }
+  .m-zh-note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .m-zh-who { display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 700; color: var(--zc); }
+  .m-zh-q { margin: 0 12px 6px; padding: 10px 12px; border: 1.5px dashed var(--zc); border-radius: 14px; }
+  .m-zh-qt { font-size: 13.5px; font-weight: 700; }
+  .m-zh-yes { font-size: 12px; font-weight: 700; color: #2e9147; margin-top: 5px; }
+  .m-zh-no { font-size: 12px; color: var(--text); margin-top: 3px; }
+  .m-zh-no b { color: #c0392b; }
+  .m-zh-foot { margin: 10px 12px 6px; padding: 10px 12px; font-size: 12.5px; line-height: 1.45; }
+  .m-zh-reg-head { cursor: pointer; }
+  .m-zh-text { white-space: pre-wrap; font-size: 13px; line-height: 1.5; margin-top: 8px; }
   html[data-theme="graphite"] .m-chip.due { color: #f3b26b; }
   .m-dgroup { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 16px 16px 2px; }
   .m-dgroup-name { font-size: 15px; font-weight: 800; letter-spacing: -.3px; }
@@ -655,7 +704,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1>DM_CRM<span class="version-badge">v2.22 · pwa</span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.23 · pwa</span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
     </div>
@@ -735,10 +784,14 @@
         <button type="button" class="on" data-v="owe" onclick="setRegFilter_('debts', 'owe')">Должны</button>
         <button type="button" data-v="all" onclick="setRegFilter_('debts', 'all')">Все</button>
       </div>
+      <div class="m-seg" id="debtsGroupSeg">
+        <button type="button" data-v="client" onclick="setDebtsGroup_(true)">По клиентам</button>
+        <button type="button" data-v="deal" onclick="setDebtsGroup_(false)">По сделкам</button>
+      </div>
       <div class="m-dash">
         <div class="m-dash-search">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.2" y2="16.2"></line></svg>
-          <input type="text" id="debtsSearch" placeholder="Сделка, договор, этап…" oninput="setRegSearch_('debts', this.value)">
+          <input type="text" id="debtsSearch" placeholder="Клиент, сделка, договор, этап…" oninput="setRegSearch_('debts', this.value)">
         </div>
       </div>
       <div class="m-kpis" id="debtsKpis"></div>
@@ -787,6 +840,26 @@
 
 
   <!-- Нижняя панель вкладок (mobile-v2.4) -->
+  <!-- Экран «Жуть» (mobile-v2.23): скрытый, без вкладки — 5 тапов по
+       заголовку DM_CRM, PIN как на десктопе. Только просмотр. -->
+  <div id="zhutView" hidden>
+    <div class="m-hero m-zh-hero">
+      <div><div class="m-hero-title">Жуть</div><div class="m-hero-sub summary-bar" id="zhutSub"></div></div>
+      <button type="button" class="m-zh-lockbtn" id="zhutLockBtn" onclick="zhutLock_()" hidden>🔒 Закрыть</button>
+    </div>
+    <div class="m-pwa-setup" id="zhutLock" hidden></div>
+    <div id="zhutContent" hidden>
+      <div class="m-seg m-seg-scroll" id="zhutSeg">
+        <button type="button" data-v="raci" onclick="setZhutTab_('raci')">RACI</button>
+        <button type="button" data-v="org" onclick="setZhutTab_('org')">Структура</button>
+        <button type="button" data-v="algo" onclick="setZhutTab_('algo')">Процесс</button>
+        <button type="button" data-v="reg" onclick="setZhutTab_('reg')">Регламенты</button>
+        <button type="button" data-v="note" onclick="setZhutTab_('note')">Заметки</button>
+      </div>
+      <div id="zhutBody"></div>
+    </div>
+  </div>
+
   <nav id="tabbar">
     <button type="button" class="m-tab on" data-tab="board" onclick="switchTab('board')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="16" rx="1.5"></rect><rect x="10" y="4" width="5" height="11" rx="1.5"></rect><rect x="17" y="4" width="4" height="7" rx="1.5"></rect></svg>
@@ -1003,8 +1076,8 @@
 
   // ---------- вкладки (mobile-v2.4) ----------
   const EDGE_SWIPE_PX = 24; // ширина зоны у левого края для жеста «назад» (iPhone)
-  const VIEW_IDS = ['boardView', 'purchaseView', 'bonusView', 'debtsView'];
-  const VIEW_BY_TAB = { board: 'boardView', purchase: 'purchaseView', bonus: 'bonusView', debts: 'debtsView' };
+  const VIEW_IDS = ['boardView', 'purchaseView', 'bonusView', 'debtsView', 'zhutView'];
+  const VIEW_BY_TAB = { board: 'boardView', purchase: 'purchaseView', bonus: 'bonusView', debts: 'debtsView', zhut: 'zhutView' }; // zhut — без кнопки внизу
   let currentTab = 'board';
   // fromPopstate — переключение пришло из «назад» (историю не трогаем).
   function switchTab(tab, fromPopstate) {
@@ -1058,7 +1131,8 @@
   const REG = {
     purchase: { action: 'getPurchaseRegistry', ls: 'dmcrm_m_purchase_cache', rows: null, filter: 'unpaid', q: '', loading: false },
     bonus: { action: 'getBonusRegistry', ls: null, lsOpen: 'dmcrm_m_bonus_open', gated: true, rows: null, tab: 'deals', status: 'due', stage: null, q: '', loading: false },
-    debts: { action: 'getDebtsRegistry', ls: null, lsOpen: 'dmcrm_m_debts_open', gated: true, rows: null, filter: 'owe', q: '', stage: null, loading: false }
+    debts: { action: 'getDebtsRegistry', ls: null, lsOpen: 'dmcrm_m_debts_open', gated: true, rows: null, filter: 'owe', q: '', stage: null, loading: false,
+      byClient: true, openClients: {}, openPays: {} }
   };
   try { localStorage.removeItem('dmcrm_m_bonus_cache'); } catch (e) { console.error(e); } // до v2.12 бонусы сохранялись без пароля
   function regLs_(r) { return r.ls || (!GATE_ON && r.lsOpen) || null; }
@@ -1194,6 +1268,74 @@
       due: Math.max(0, Math.round(d.sum * share - d.paid))
     });
   }
+  // mobile-v2.23: группировка «по клиентам» (как десктоп v4.59), по умолчанию вкл.
+  const DEBTS_GROUP_LS = 'dmcrm_m_debts_byclient';
+  try { REG.debts.byClient = localStorage.getItem(DEBTS_GROUP_LS) !== '0'; } catch (e) { console.error(e); }
+  function setDebtsGroup_(on) {
+    REG.debts.byClient = !!on;
+    try { localStorage.setItem(DEBTS_GROUP_LS, on ? '1' : '0'); } catch (e) { console.error(e); }
+    renderDebts_();
+  }
+  let DEBT_GROUPS = [];
+  function debtToggleClient_(i) {
+    const g = DEBT_GROUPS[i];
+    if (!g) return;
+    REG.debts.openClients[g.name] = !REG.debts.openClients[g.name];
+    renderDebts_();
+  }
+  function debtTogglePays_(id) {
+    REG.debts.openPays[id] = !REG.debts.openPays[id];
+    renderDebts_();
+  }
+  function ruDateTs_(s) {
+    const m = /^(\d{2})\.(\d{2})\.(\d{4})/.exec(String(s || ''));
+    return m ? new Date(+m[3], +m[2] - 1, +m[1]).getTime() : 0;
+  }
+  function debtCardHtml_(d, inGroup) {
+    const r = REG.debts;
+    const pays = d.payments || [];
+    const chips = (d.remainder > 0 ? '<span class="m-chip">остаток ' + esc(fmtMoney(d.remainder)) + '</span>' : '<span class="m-chip ok">оплачено полностью</span>') +
+      (d.due > 0 ? '<span class="m-chip due">по графику должны ' + esc(fmtMoney(d.due)) + '</span>' : '') +
+      (pays.length ? '<button type="button" class="m-chip m-pays-btn" onclick="event.stopPropagation(); debtTogglePays_(\'' + esc(d.dealId) + '\')">платежи · ' + pays.length + (r.openPays[d.dealId] ? ' ▴' : ' ▾') + '</button>' : '');
+    const paysHtml = r.openPays[d.dealId] && pays.length ? '<div class="m-pays" onclick="event.stopPropagation()">' + pays.map(function (p) {
+      return '<div><span>' + esc(p.date || '—') + '</span><b>' + esc(fmtMoney(p.sum)) + '</b></div>';
+    }).join('') + '</div>' : '';
+    return '<div class="m-section m-reg-item" onclick="openDetail(\'' + esc(d.dealId) + '\')">' +
+      '<div class="m-reg-top"><span class="m-reg-name">' + esc(d.name || '—') + '</span><span class="m-reg-amount">' + esc(fmtMoney(d.sum)) + '</span></div>' +
+      '<div class="m-reg-meta">' + esc([inGroup ? '' : d.client, d.contractNo, d.stage].filter(Boolean).join(' · ')) + '</div>' +
+      '<div class="m-debt-bar" title="по графику ' + Math.round(d.share * 100) + '%"><div class="m-debt-fill" style="width:' + (d.pct * 100).toFixed(1) + '%"></div>' +
+      '<span class="m-debt-mark" style="left:' + (d.share * 100) + '%"></span></div>' +
+      '<div class="m-reg-meta">оплачено ' + esc(fmtMoney(d.paid)) + ' · ' + Math.round(d.pct * 100) + '%' + (d.lastPayDate ? ' · последний платёж ' + esc(d.lastPayDate) : '') + '</div>' +
+      '<div class="m-reg-bottom">' + chips + '</div>' + paysHtml +
+      '</div>';
+  }
+  function debtClientsHtml_(list) {
+    const r = REG.debts;
+    const byName = {};
+    DEBT_GROUPS = [];
+    list.forEach(function (d) {
+      const name = d.client || 'Без клиента';
+      let g = byName[name];
+      if (!g) { g = byName[name] = { name: name, deals: [], sum: 0, paid: 0, rem: 0, due: 0, last: '' }; DEBT_GROUPS.push(g); }
+      g.deals.push(d);
+      g.sum += d.sum; g.paid += d.paid; g.rem += Math.max(0, d.remainder); g.due += d.due;
+      if (ruDateTs_(d.lastPayDate) > ruDateTs_(g.last)) g.last = d.lastPayDate;
+    });
+    DEBT_GROUPS.sort(function (a, b) { return (b.due - a.due) || (b.rem - a.rem); });
+    return DEBT_GROUPS.map(function (g, i) {
+      const open = !!r.q || !!r.openClients[g.name]; // при поиске — раскрыты
+      const pct = g.sum ? Math.round(Math.min(1, g.paid / g.sum) * 100) : 0;
+      const chips = (g.rem > 0 ? '<span class="m-chip">остаток ' + esc(fmtMoney(g.rem)) + '</span>' : '<span class="m-chip ok">оплачено полностью</span>') +
+        (g.due > 0 ? '<span class="m-chip due">по графику должны ' + esc(fmtMoney(g.due)) + '</span>' : '');
+      return '<div class="m-section m-dcl"><div class="m-dcl-head" onclick="debtToggleClient_(' + i + ')">' +
+        '<div class="m-reg-top"><span class="m-reg-name"><span class="m-dcl-caret">' + (open ? '▾' : '▸') + '</span>' + esc(g.name) + '</span><span class="m-reg-amount">' + esc(fmtMoney(g.sum)) + '</span></div>' +
+        '<div class="m-reg-meta">' + g.deals.length + ' ' + plural_(g.deals.length, 'договор', 'договора', 'договоров') + ' · оплачено ' + esc(fmtMoney(g.paid)) + ' · ' + pct + '%' +
+        (g.last ? ' · последний платёж ' + esc(g.last) : '') + '</div>' +
+        '<div class="m-reg-bottom">' + chips + '</div></div>' +
+        (open ? '<div class="m-dcl-deals">' + g.deals.map(function (d) { return debtCardHtml_(d, true); }).join('') + '</div>' : '') +
+        '</div>';
+    }).join('');
+  }
   function debtStageToggle_(i) {
     const st = STAGES[i] || 'Успешные';
     REG.debts.stage = REG.debts.stage === st ? null : st;
@@ -1203,7 +1345,8 @@
     const r = REG.debts;
     if (!r.rows) return;
     const all = r.rows.map(debtRow_);
-    const matched = all.filter(function (d) { return regMatches_(r.q, [d.contractNo, d.name, d.stage]); });
+    const matched = all.filter(function (d) { return regMatches_(r.q, [d.contractNo, d.name, d.stage, d.client]); });
+    document.querySelectorAll('#debtsGroupSeg button').forEach(function (b) { b.classList.toggle('on', (b.dataset.v === 'client') === r.byClient); });
     const totalRem = matched.reduce(function (s, d) { return s + Math.max(0, d.remainder); }, 0);
     const totalDue = matched.reduce(function (s, d) { return s + d.due; }, 0);
     document.getElementById('debtsKpis').innerHTML =
@@ -1225,18 +1368,7 @@
 
     const list = matched.filter(function (d) { return (r.filter === 'all' || d.remainder > 0) && (!r.stage || d.stage === r.stage); })
       .sort(function (a, b) { return (b.due - a.due) || (b.remainder - a.remainder); });
-    document.getElementById('debtsBody').innerHTML = list.length ? list.map(function (d) {
-      const chips = (d.remainder > 0 ? '<span class="m-chip">остаток ' + esc(fmtMoney(d.remainder)) + '</span>' : '<span class="m-chip ok">оплачено полностью</span>') +
-        (d.due > 0 ? '<span class="m-chip due">по графику должны ' + esc(fmtMoney(d.due)) + '</span>' : '');
-      return '<div class="m-section m-reg-item" onclick="openDetail(\'' + esc(d.dealId) + '\')">' +
-        '<div class="m-reg-top"><span class="m-reg-name">' + esc(d.name || '—') + '</span><span class="m-reg-amount">' + esc(fmtMoney(d.sum)) + '</span></div>' +
-        '<div class="m-reg-meta">' + esc([d.contractNo, d.stage].filter(Boolean).join(' · ')) + '</div>' +
-        '<div class="m-debt-bar" title="по графику ' + Math.round(d.share * 100) + '%"><div class="m-debt-fill" style="width:' + (d.pct * 100).toFixed(1) + '%"></div>' +
-        '<span class="m-debt-mark" style="left:' + (d.share * 100) + '%"></span></div>' +
-        '<div class="m-reg-meta">оплачено ' + esc(fmtMoney(d.paid)) + ' · ' + Math.round(d.pct * 100) + '%' + (d.lastPayDate ? ' · последний платёж ' + esc(d.lastPayDate) : '') + '</div>' +
-        '<div class="m-reg-bottom">' + chips + '</div>' +
-        '</div>';
-    }).join('') : '<div class="state-msg">' + (r.q || r.stage ? 'Ничего не найдено' : (r.filter === 'owe' ? 'Долгов нет 🎉' : 'Подписанных сделок с суммой нет')) + '</div>';
+    document.getElementById('debtsBody').innerHTML = list.length ? (r.byClient ? debtClientsHtml_(list) : list.map(function (d) { return debtCardHtml_(d, false); }).join('')) : '<div class="state-msg">' + (r.q || r.stage ? 'Ничего не найдено' : (r.filter === 'owe' ? 'Долгов нет 🎉' : 'Подписанных сделок с суммой нет')) + '</div>';
   }
 
   function renderPurchase_() {
@@ -1307,6 +1439,168 @@
     renderBonus_();
   }
   // Нажали на дизайнера — его сделки во вкладке «По сделкам».
+  // ---------- «Жуть» (mobile-v2.23): скрытый экран, только просмотр ----------
+  // Вход — 5 тапов по заголовку DM_CRM за 2 с. PIN — тот же, что на десктопе,
+  // проверяет сервер; данные — только в памяти
+  // (на телефоне не сохраняются), «Закрыть» забывает данные.
+  let ZHUT = null, ZHUT_TAB = 'raci', ZHUT_TAPS = [], ZHUT_REG_OPEN = {};
+  const ZHUT_V_LABELS = { A: 'Ответственный', R: 'Работает', C: 'Следит', I: 'Инфо' };
+  const ZHUT_GROUP_COLORS = { 'финансы': '#e06666', 'реклама': '#b4a7d6', 'продажа': '#6d9eeb', 'продажи': '#6d9eeb', 'разработка': '#f6b26b',
+    'запуск': '#f6b26b', 'закупка': '#f1c232', 'пр-во': '#93c47d', 'производство': '#93c47d', 'админка': '#e06666', 'сервис': '#8e7cc3' };
+  function zhutTap_() {
+    const now = Date.now();
+    ZHUT_TAPS = ZHUT_TAPS.filter(function (t) { return now - t < 2000; });
+    ZHUT_TAPS.push(now);
+    if (ZHUT_TAPS.length < 5) return;
+    ZHUT_TAPS = [];
+    openZhut_();
+  }
+  function openZhut_() {
+    switchTab('zhut');
+    if (ZHUT) { showZhutContent_(); return; }
+    showZhutLock_('');
+  }
+  function showZhutContent_() {
+    document.getElementById('zhutLock').hidden = true;
+    document.getElementById('zhutContent').hidden = false;
+    document.getElementById('zhutLockBtn').hidden = false;
+    document.getElementById('zhutSub').textContent = 'Только просмотр · править на компьютере';
+    renderZhut_();
+  }
+  function showZhutLock_(msg) {
+    document.getElementById('zhutContent').hidden = true;
+    document.getElementById('zhutLockBtn').hidden = true;
+    document.getElementById('zhutSub').textContent = '';
+    const lock = document.getElementById('zhutLock');
+    lock.hidden = false;
+    lock.innerHTML =
+      '<div class="m-pwa-setup-title">PIN</div>' +
+      '<div class="m-pwa-setup-hint">Тот же PIN, что для «Жути» на компьютере.</div>' +
+      '<input type="password" inputmode="numeric" id="zhutPin" autocomplete="off" placeholder="PIN" onkeydown="if (event.key === \'Enter\') submitZhutPin_()">' +
+      '<div class="m-pwa-setup-err" id="zhutPinErr">' + esc(msg || '') + '</div>' +
+      '<button type="button" class="m-pwa-btn" id="zhutPinBtn" onclick="submitZhutPin_()">Открыть</button>';
+    setTimeout(function () { const i = document.getElementById('zhutPin'); if (i) i.focus(); }, 50);
+  }
+  function submitZhutPin_() {
+    const pin = String(document.getElementById('zhutPin').value || '').trim();
+    const err = document.getElementById('zhutPinErr');
+    const btn = document.getElementById('zhutPinBtn');
+    if (!pin) { err.textContent = 'Введите PIN'; return; }
+    err.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Проверяю…';
+    setBusy_(true);
+    api('getZhut', { pin: pin }).then(function (data) {
+      ZHUT = data || null;
+      showZhutContent_();
+    }).catch(function (e) {
+      console.error('getZhut:', e);
+      err.textContent = String(e && e.message ? e.message : e);
+      btn.disabled = false;
+      btn.textContent = 'Открыть';
+    }).then(function () { setBusy_(false); });
+  }
+  function zhutLock_() {
+    ZHUT = null; ZHUT_REG_OPEN = {};
+    document.getElementById('zhutBody').innerHTML = '';
+    showZhutLock_(''); // «назад» на этот экран — снова PIN
+    switchTab('board');
+  }
+  function setZhutTab_(tab) { ZHUT_TAB = tab; renderZhut_(); window.scrollTo(0, 0); }
+  function zhutGroupColor_(g) { return ZHUT_GROUP_COLORS[String(g || '').trim().toLowerCase()] || '#b7b7b7'; }
+  function zhutV_(v) { return v === 'A/R' ? 'A' : (v || ''); }
+  function renderZhut_() {
+    if (!ZHUT) return;
+    document.querySelectorAll('#zhutSeg button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === ZHUT_TAB); });
+    const body = document.getElementById('zhutBody');
+    if (ZHUT_TAB === 'raci') body.innerHTML = zhutRaciHtml_();
+    else if (ZHUT_TAB === 'org') body.innerHTML = zhutOrgHtml_();
+    else if (ZHUT_TAB === 'algo') body.innerHTML = zhutAlgoHtml_();
+    else if (ZHUT_TAB === 'reg') body.innerHTML = zhutRegsHtml_();
+    else body.innerHTML = zhutNotesHtml_();
+  }
+  function zhutRaciHtml_() {
+    const R = ZHUT.raci || { roles: [], rows: [] };
+    const roles = R.roles || [], rows = R.rows || [];
+    if (!rows.length) return '<div class="state-msg">RACI пока пустой</div>';
+    let lastGroup = null;
+    return '<div class="m-zh-legend">' + ['A', 'R', 'C', 'I'].map(function (x) { return '<span class="m-zh-v m-zh-v' + x + '">' + ZHUT_V_LABELS[x] + '</span>'; }).join('') + '</div>' +
+      rows.map(function (row) {
+        const g = row.group || '';
+        const gc = zhutGroupColor_(g);
+        const head = g !== lastGroup ? '<div class="m-zh-group" style="--zc:' + gc + '">' + esc(g || '—') + '</div>' : '';
+        lastGroup = g;
+        const cells = roles.map(function (role) {
+          const v = zhutV_((row.cells || {})[role.id]);
+          return v ? '<span class="m-zh-v m-zh-v' + v + '">' + esc(role.name) + ' · ' + esc(ZHUT_V_LABELS[v] || v) + '</span>' : '';
+        }).join('');
+        const a = roles.filter(function (role) { return zhutV_((row.cells || {})[role.id]) === 'A'; }).length;
+        const warn = a === 0 ? '⚠ Нет ответственного' : (a > 1 ? '⚠ Больше одного ответственного' : '');
+        return head + '<div class="m-section m-zh-row" style="--zc:' + gc + '"><div class="m-zh-row-name">' + esc(row.name || '—') + '</div>' +
+          (cells ? '<div class="m-zh-row-cells">' + cells + '</div>' : '') + (warn ? '<div class="m-zh-warn">' + warn + '</div>' : '') + '</div>';
+      }).join('');
+  }
+  function zhutOrgTree_(nodes, parentId) {
+    const kids = nodes.filter(function (n) { return (n.parentId || '') === parentId; });
+    if (!kids.length) return '';
+    return '<ul>' + kids.map(function (n) {
+      return '<li><div class="m-section m-zh-org-node"><div class="m-zh-org-name">' + esc(n.name || '—') + '</div>' +
+        (n.position ? '<div class="m-zh-org-pos">' + esc(n.position) + '</div>' : '') + (n.note ? '<div class="m-zh-org-pos">' + esc(n.note) + '</div>' : '') + '</div>' +
+        zhutOrgTree_(nodes, n.id) + '</li>';
+    }).join('') + '</ul>';
+  }
+  function zhutOrgHtml_() {
+    const nodes = ZHUT.org || [];
+    const ids = {};
+    nodes.forEach(function (n) { ids[n.id] = true; });
+    // руководитель не найден — узел наверх, чтобы не потерялся (как десктоп)
+    const norm = nodes.map(function (n) { return Object.assign({}, n, { parentId: n.parentId && ids[n.parentId] && n.parentId !== n.id ? n.parentId : '' }); });
+    return norm.length ? '<div class="m-zh-org-wrap m-zh-org">' + zhutOrgTree_(norm, '') + '</div>' : '<div class="state-msg">Оргструктура пока пустая</div>';
+  }
+  function zhutAlgoHtml_() {
+    const A = ZHUT.algo || { zones: {}, steps: [] };
+    const zones = A.zones || {};
+    let lastZone = null;
+    return (A.steps || []).map(function (st) {
+      const z = zones[st.z] || { name: st.z, color: '#b7b7b7' };
+      let head = '';
+      if (st.z !== 'fin' && st.z !== lastZone) { // финансы — внутри текущего этапа, как на десктопе
+        const whos = [];
+        (A.steps || []).forEach(function (x) { if (x.z === st.z && x.who && whos.indexOf(x.who) === -1) whos.push(x.who); });
+        head = '<div class="m-zh-zone" style="--zc:' + z.color + '">' + esc(z.name) + (whos.length ? '<span>' + esc(whos.join(' · ')) + '</span>' : '') + '</div>';
+        lastZone = st.z;
+      }
+      if (st.q) {
+        return head + '<div class="m-zh-q" style="--zc:' + z.color + '"><div class="m-zh-qt">? ' + esc(st.q) + '</div><div class="m-zh-yes">да ↓</div>' +
+          (st.no || []).map(function (t, k) { return '<div class="m-zh-no">' + (k ? '' : '<b>нет →</b> ') + esc(t) + '</div>'; }).join('') +
+          (st.silent ? '<div class="m-zh-no"><b>молчит →</b> ' + esc(st.silent) + '</div>' : '') + '</div>';
+      }
+      return head + '<div class="m-section m-zh-step" style="--zc:' + z.color + '"><span class="m-zh-n">' + st.n + '</span><div><div class="m-zh-t">' + esc(st.t) + '</div>' +
+        (st.note ? '<div class="m-zh-note">' + esc(st.note) + '</div>' : '') + (st.who ? '<span class="m-zh-who">' + esc(st.who) + '</span>' : '') + '</div></div>';
+    }).join('') +
+      (A.loop ? '<div class="m-section m-zh-foot">↻ ' + esc(A.loop) + '</div>' : '') +
+      (A.reject ? '<div class="m-section m-zh-foot">' + esc(A.reject) + '</div>' : '');
+  }
+  function zhutToggleReg_(i) { ZHUT_REG_OPEN[i] = !ZHUT_REG_OPEN[i]; renderZhut_(); }
+  function zhutRegsHtml_() {
+    const regs = ZHUT.reg || [];
+    if (!regs.length) return '<div class="state-msg">Регламентов пока нет</div>';
+    return regs.map(function (r, i) {
+      const meta = [r.owner, r.review ? 'пересмотр ' + r.review.split('-').reverse().join('.') : ''].filter(Boolean).join(' · ');
+      return '<div class="m-section m-reg-item m-zh-reg-head" onclick="zhutToggleReg_(' + i + ')">' +
+        '<div class="m-reg-top"><span class="m-reg-name"><span class="m-dcl-caret">' + (ZHUT_REG_OPEN[i] ? '▾' : '▸') + '</span>' + esc(r.title || 'Без названия') + '</span></div>' +
+        (meta ? '<div class="m-reg-meta">' + esc(meta) + '</div>' : '') +
+        (ZHUT_REG_OPEN[i] ? '<div class="m-zh-text">' + esc(r.text || '') + '</div>' : '') + '</div>';
+    }).join('');
+  }
+  function zhutNotesHtml_() {
+    const notes = (ZHUT.note || []).slice().reverse();
+    if (!notes.length) return '<div class="state-msg">Заметок пока нет</div>';
+    return notes.map(function (n) {
+      return '<div class="m-section m-reg-item"><div class="m-reg-meta">' + esc(n.date || '') + '</div><div class="m-zh-text">' + esc(n.text || '') + '</div></div>';
+    }).join('');
+  }
+
   function bonusDesignerDeals_(name) {
     REG.bonus.status = null;
     REG.bonus.stage = null;
@@ -1460,12 +1754,14 @@
   function isValidExecUrl_(u) {
     return /^https:\/\/script\.google\.com\/.+\/exec$/.test(String(u || '').trim());
   }
+  const POST_ACTIONS = ['unlockGate', 'getZhut']; // пароль/PIN — не в адрес запроса
   function api(action, params) {
     if (IS_APPS_SCRIPT) {
       return new Promise(function (resolve, reject) {
         const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);
         if (action === 'getDealDetail') runner.getDealDetail(params.id);
         else if (action === 'unlockGate') runner.unlockGate(params.pw);
+        else if (action === 'getZhut') runner.getZhut(params.pin);
         else if (['getBonusRegistry', 'getDebtsRegistry', 'getDesignerSummary'].indexOf(action) !== -1) runner[action](params.token);
         else if (['getBoard', 'getPurchaseRegistry', 'getAllDealDetails'].indexOf(action) !== -1) runner[action]();
         else reject(new Error('Неизвестное действие: ' + action));
@@ -1476,8 +1772,8 @@
     const timer = ctrl ? setTimeout(function () { ctrl.abort(); }, API_TIMEOUT_MS) : null;
     const opts = ctrl ? { signal: ctrl.signal } : {};
     // Пароль — только POST-ом (в адрес запроса не кладём), остальное — GET.
-    const req = action === 'unlockGate'
-      ? fetch(getApiUrl_(), Object.assign({ method: 'POST', body: JSON.stringify({ action: action, pw: params.pw }) }, opts))
+    const req = POST_ACTIONS.indexOf(action) !== -1
+      ? fetch(getApiUrl_(), Object.assign({ method: 'POST', body: JSON.stringify(Object.assign({ action: action }, params || {})) }, opts))
       : fetch(getApiUrl_() + '?' + new URLSearchParams(Object.assign({ action: action }, params || {})).toString(), opts);
     return req
       .catch(function (err) {
