@@ -697,7 +697,7 @@
   }
   html[data-theme="graphite"] ::selection { background: rgba(95, 191, 159, .35); }
 
-  /* mobile-v2.25: подпись автора itivan (как в «Монетках») — внизу доски и первые 10 с в шапке вместо версии.
+  /* mobile-v2.25: подпись автора itivan (как в «Монетках») — первые 4 с в шапке вместо версии (v2.26; подпись внизу доски убрана).
      V всегда розовая; на светлых темах — чёрная окантовка V, на «Графите» нет.
      Зазор между T и V — var(--bg). */
   .sig .vo { stroke: #0E0F12; }
@@ -713,7 +713,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.25 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.26 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
     </div>
@@ -2440,14 +2440,14 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   updateThemeBtn_();
   initMarquee();
   loadBoard();
-  // пасхалка: первые 10 с в шапке вместо версии — логотип автора
+  // пасхалка: первые 4 с в шапке вместо версии — логотип автора
   (function () {
     const badge = document.querySelector('#topbar .version-badge'), hs = document.getElementById('hdrSig');
     if (!badge || !hs) return;
     hs.innerHTML = SIG;
     hs.hidden = false;
     badge.hidden = true;
-    setTimeout(function () { hs.remove(); badge.hidden = false; }, 10000);
+    setTimeout(function () { hs.remove(); badge.hidden = false; }, 4000);
   })();
   // счётчики на вкладках — сразу из сохранённого, свежие — после доски (startRegistries_)
   renderTabBadges_();
