@@ -751,6 +751,10 @@
   .vs-mic.on { background: #e5484d; color: #fff; border-color: #e5484d; animation: vs-pulse 1s ease-in-out infinite; }
   @keyframes vs-pulse { 50% { box-shadow: 0 0 0 8px rgba(229, 72, 77, .25); } }
   .vs-hint { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+  /* mobile-v2.40: выбор голоса */
+  .vs-voice { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .vs-voice select { flex: 1; min-width: 0; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 15px; }
+  .vs-play { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; padding: 0; }
   @media (prefers-reduced-motion:reduce){#splash,#splash .spl-in,#splash .shine{animation-duration:.01s;animation-delay:0s}#splash{animation-delay:.3s}}
   #topbar .version-badge[hidden] { display: none; }
 </style>
@@ -762,7 +766,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.39 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v3.1 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="voiceBtn" onclick="openVoice_()" title="Спросить голосом" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
@@ -934,6 +938,7 @@
         <button type="button" class="vs-send" onclick="voiceAsk_(document.getElementById('vsInput').value)">→</button>
       </div>
       <div class="vs-hint">этап · адрес · что купить · остаток · телефон</div>
+      <div class="vs-voice"><label for="vsVoice">Голос</label><select id="vsVoice" onchange="voiceSetChoice_(this.value)"></select><button type="button" class="vs-play" onclick="voicePreview_()" title="Прослушать">▶</button></div>
     </div>
   </div>
 
@@ -2351,7 +2356,8 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   function voiceSay_(text) {
     // v2.33: на iOS после озвучки следующий сеанс микрофона глохнет («работает через раз») —
     // там отвечаем только текстом
-    if (IS_IOS_) { if (voiceCanRecord_()) voiceSayIos_(text); return; } // v2.39: голос SpeechKit
+    // v2.40: голос Яндекса (выбран в панели) везде, где можно писать звук; иначе — встроенный голос
+    if (voiceCanRecord_()) { voiceSayIos_(text); return; }
     if (!window.speechSynthesis) return;
     try {
       speechSynthesis.cancel();
@@ -2370,8 +2376,10 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     document.getElementById('vsInput').value = '';
     // v2.37: на iOS в установленном приложении распознавание спрашивает разрешение каждый раз
     // и слышит один раз — там диктовка с клавиатуры: поле в фокусе, вопрос уходит сам через 1,5 с тишины
+    voiceFillVoices_();
+    if (voiceCanRecord_()) voiceAudioUnlock_(); // v2.40: голос Яндекса играет и на Android
     const hasRec = !!voiceRecCtor_() && !IS_IOS_;
-    const iosRec = IS_IOS_ && voiceCanRecord_(); // v2.39: iOS — запись → SpeechKit
+    const iosRec = voiceCanRecord_(); // v2.39 iOS, с v2.40 и Android — запись → SpeechKit (одинаково везде)
     document.getElementById('vsMic').hidden = !hasRec && !iosRec;
     if (iosRec) { voiceAudioUnlock_(); voiceRecordIos_(); }
     else if (hasRec) voiceListen_();
@@ -2387,7 +2395,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (e) { console.error(e); } }
   }
   function voiceListen_() {
-    if (IS_IOS_ && voiceCanRecord_()) { voiceAudioUnlock_(); voiceRecordIos_(); return; } // v2.39
+    if (voiceCanRecord_()) { voiceAudioUnlock_(); voiceRecordIos_(); return; } // v2.39/v2.40: везде через SpeechKit
     const Ctor = voiceRecCtor_();
     if (!Ctor) return;
     if (voiceListening) { try { voiceRec.stop(); } catch (e) { console.error(e); } return; }
@@ -2530,8 +2538,9 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   let voiceSpeakSrc = null, voiceSpeakSeq = 0;
   function voiceSayIos_(text) {
     const seq = ++voiceSpeakSeq;
-    api('speechSynth', { text: String(text).replace(/₽/g, 'рублей').replace(/№/g, 'номер') }).then(function (b64) {
+    api('speechSynth', { text: String(text).replace(/₽/g, 'рублей').replace(/№/g, 'номер'), voice: voiceChoice_() }).then(function (b64) {
       if (seq !== voiceSpeakSeq || !voiceCtx || document.getElementById('voiceSheet').hidden) return;
+      if (voiceSpeakSrc) { try { voiceSpeakSrc.stop(); } catch (e) { console.error(e); } voiceSpeakSrc = null; }
       const bin = atob(b64), buf = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
       return new Promise(function (res, rej) { voiceCtx.decodeAudioData(buf.buffer, res, rej); }).then(function (audio) {
@@ -2542,6 +2551,33 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
         src.onended = function () { if (voiceSpeakSrc === src) voiceSpeakSrc = null; };
       });
     }).catch(function (err) { console.error('voiceSayIos_:', err); }); // голос не обязателен — ответ уже на экране
+  }
+
+  // ---------- выбор голоса (mobile-v2.40) ----------
+  // Голоса Яндекс SpeechKit, одинаково на iOS и Android.
+  // Выбор хранится в телефоне (localStorage).
+  const VOICE_LS = 'dmcrm_m_voice';
+  const VOICE_LIST = [['alena', 'Алёна'], ['jane', 'Джейн'], ['omazh', 'Омаж'], ['marina', 'Марина'],
+    ['filipp', 'Филипп'], ['ermil', 'Ермил'], ['zahar', 'Захар'], ['madirus', 'Мадирус']]; // v3.1: только рабочие в API v1
+  function voiceChoice_() {
+    let v = '';
+    try { v = localStorage.getItem(VOICE_LS) || ''; } catch (e) { console.error(e); }
+    if (!VOICE_LIST.some(function (x) { return x[0] === v; })) v = 'filipp';
+    return v;
+  }
+  function voiceSetChoice_(v) {
+    try { localStorage.setItem(VOICE_LS, v); } catch (e) { console.error(e); }
+    voicePreview_();
+  }
+  function voiceFillVoices_() {
+    const sel = document.getElementById('vsVoice'), cur = voiceChoice_();
+    sel.innerHTML = VOICE_LIST.map(function (x) {
+      return '<option value="' + x[0] + '"' + (x[0] === cur ? ' selected' : '') + '>' + esc(x[1]) + '</option>';
+    }).join('');
+  }
+  function voicePreview_() { // из нажатия — звук разблокирован
+    if (voiceCanRecord_()) voiceAudioUnlock_();
+    voiceSay_('Я Иван. Остаток по договору сто двадцать тысяч рублей.');
   }
 
   let voiceIdleTimer = null;
