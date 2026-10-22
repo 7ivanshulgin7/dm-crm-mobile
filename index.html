@@ -712,6 +712,11 @@
   #splash .shine :is(polyline,line):not([style*="--bg"]):not(.vo){stroke:#fff!important}#splash .shine path{fill:#fff}#splash .shine .vo{display:none}
   @keyframes spl-shine{to{-webkit-mask-position:0 0;mask-position:0 0}}
   @keyframes spl-out{to{opacity:0;visibility:hidden}}
+  /* mobile-v2.31: кнопка помощника — знак T/V из точек под доской (canvas, см. voiceDots_) */
+  .m-voice-logo { display: block; margin: 22px auto 8px; padding: 6px; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .m-voice-logo[hidden] { display: none; }
+  .m-voice-logo .vl-dots { display: block; width: 120px; height: 110px; }
+  .m-voice-logo:active .vl-dots { transform: scale(.94); }
   /* mobile-v2.28: голосовой помощник — панель снизу */
   #voiceSheet { position: fixed; inset: 0; z-index: 60; }
   #voiceSheet .vs-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, .35); }
@@ -744,7 +749,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.28 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.32 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="voiceBtn" onclick="openVoice_()" title="Спросить голосом" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
@@ -765,6 +770,7 @@
       </div>
     </div>
     <div id="boardBody"><div class="state-msg">Загрузка сделок…</div></div>
+    <button type="button" class="m-voice-logo" id="voiceLogo" onclick="openVoice_()" hidden><canvas class="vl-dots" id="voiceLogoDots" width="120" height="110" aria-label="Спросить голосом"></canvas></button>
   </div>
 
   <!-- Экран «Закупка» (mobile-v2.4): все счета по всем сделкам -->
@@ -2265,6 +2271,61 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     });
   }
 
+  // ---------- знак T/V из точек — кнопка помощника (mobile-v2.31) ----------
+  // Знак из SIG рисуем в скрытый canvas, берём точки по сетке; при показе точки
+  // слетаются, потом тихо колышутся; пока помощник слушает — волна сильнее.
+  // ~30 кадров/с и только пока кнопка на экране (IntersectionObserver).
+  let voiceDotsListening = false;
+  function voiceDots_() {
+    const cv = document.getElementById('voiceLogoDots');
+    const m = /<svg x="2"[^>]*>[\s\S]*?<\/svg>/.exec(SIG);
+    if (!cv || !m || !cv.getContext) return;
+    const cs = getComputedStyle(document.body);
+    const fg = cs.color || '#222', bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#fff';
+    const mark = m[0].replace('<svg x="2" y="5" width="80" height="74"', '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="222"')
+      .replace(/currentColor/g, fg).replace(/var\(--bg\)/g, bg);
+    const img = new Image();
+    img.onload = function () {
+      const W = 120, H = 110, dpr = Math.min(2, window.devicePixelRatio || 1), STEP = 5; // v2.32: реже сетка — меньше точек
+      const off = document.createElement('canvas'); off.width = W; off.height = H;
+      const oc = off.getContext('2d'); oc.drawImage(img, 0, 0, W, H);
+      const px = oc.getImageData(0, 0, W, H).data, pts = [];
+      for (let y = 0; y < H; y += STEP) for (let x = 0; x < W; x += STEP) {
+        const k = (Math.round(y) * W + Math.round(x)) * 4;
+        if (px[k + 3] > 140) pts.push({ x: x, y: y, c: 'rgb(' + px[k] + ',' + px[k + 1] + ',' + px[k + 2] + ')',
+          sx: Math.random() * W, sy: Math.random() * H, ph: Math.random() * 6.28 });
+      }
+      cv.width = W * dpr; cv.height = H * dpr;
+      const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+      let t0 = 0, last = 0, raf = 0, visible = false;
+      function frame(now) {
+        raf = 0;
+        if (!visible) return;
+        if (now - last >= 33) {
+          last = now;
+          if (!t0) t0 = now;
+          const t = (now - t0) / 1000, a = Math.min(1, t / 1.4), e = 1 - Math.pow(1 - a, 3); // слёт 1,4 с
+          const amp = voiceDotsListening ? 3 : 1.8, sp = voiceDotsListening ? 6 : 2.2; // v2.32: шевелятся заметнее
+          ctx.clearRect(0, 0, W, H);
+          pts.forEach(function (p) {
+            const w = Math.sin(t * sp + p.ph + p.x * 0.08) * amp, wx = Math.cos(t * sp * 0.8 + p.ph * 1.7) * amp * 0.7;
+            ctx.fillStyle = p.c;
+            ctx.beginPath();
+            ctx.arc(p.sx + (p.x - p.sx) * e + wx, p.sy + (p.y - p.sy) * e + w, voiceDotsListening ? 2 + Math.abs(w) * 0.15 : 1.8, 0, 6.283);
+            ctx.fill();
+          });
+        }
+        raf = requestAnimationFrame(frame);
+      }
+      function setVisible(v) { visible = v; if (v && !raf) raf = requestAnimationFrame(frame); }
+      if (window.IntersectionObserver) new IntersectionObserver(function (en) { setVisible(en[0].isIntersecting); }).observe(cv);
+      else setVisible(true);
+      document.addEventListener('visibilitychange', function () { if (document.hidden) visible = false; else setVisible(true); });
+    };
+    img.onerror = function (e) { console.error('voiceDots_: знак не нарисовался', e); };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(mark);
+  }
+
   // ---------- голосовой помощник (mobile-v2.28) ----------
   // Только PWA и только чтение: «сделка + тема» по ключевым словам, без ИИ и
   // без сервера — ответ из карточек, уже лежащих в телефоне (detailsCache_);
@@ -2280,6 +2341,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     'сделка', 'сделке', 'сделки', 'сделку', 'клиент', 'клиента', 'клиенту', 'скажи', 'покажи', 'подскажи', 'мне', 'нам', 'осталось', 'надо',
     'нужно', 'для', 'про', 'кто', 'был', 'была', 'все'];
   let voiceRec = null, voiceListening = false, voiceLast = null; // voiceLast: { topic } — для выбора из списка
+  const IS_IOS_ = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function voiceNorm_(t) { return String(t || '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]+/g, ' ').trim(); }
   function voiceRecCtor_() { return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
   function voiceIsTopicWord_(w, t) {
@@ -2357,35 +2419,52 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     if (!Ctor) return;
     if (voiceListening) { try { voiceRec.stop(); } catch (e) { console.error(e); } return; }
     if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (e) { console.error(e); } }
-    const rec = new Ctor();
+    // v2.29: iOS слышит только первый раз — там один объект на всё время, старый
+    // сеанс гасим abort(), старт — после паузы, если только что говорил голос
+    const rec = IS_IOS_ && voiceRec ? voiceRec : new Ctor();
+    if (IS_IOS_ && voiceRec) { try { voiceRec.abort(); } catch (e) { console.error(e); } }
     voiceRec = rec;
+    let heard = false, watchdog = null;
     rec.lang = 'ru-RU';
     rec.interimResults = true;
     rec.maxAlternatives = 3;
     const mic = document.getElementById('vsMic');
     let finalAlts = null;
-    rec.onstart = function () { voiceListening = true; mic.classList.add('on'); voiceStatus_('Слушаю…'); };
+    rec.onstart = function () { voiceListening = true; mic.classList.add('on'); voiceDotsListening = true; voiceStatus_('Слушаю…'); };
     rec.onresult = function (ev) {
+      heard = true;
       const r = ev.results[ev.results.length - 1];
       document.getElementById('vsHeard').textContent = r[0].transcript;
       if (r.isFinal) { finalAlts = []; for (let i = 0; i < r.length; i++) finalAlts.push(r[i].transcript); }
     };
     rec.onerror = function (ev) {
       console.error('voice rec:', ev.error);
+      if (ev.error === 'aborted') return; // сами погасили (повторный старт / сторож)
       voiceStatus_(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'
         ? 'Нет доступа к микрофону — разрешите его для этого приложения'
         : ev.error === 'no-speech' ? 'Не расслышал — нажмите микрофон ещё раз' : 'Ошибка распознавания: ' + ev.error);
     };
     rec.onend = function () {
+      clearTimeout(watchdog);
       voiceListening = false;
       mic.classList.remove('on');
+      voiceDotsListening = false;
       if (finalAlts && finalAlts.length) {
         // из вариантов распознавания берём первый, где нашлась сделка
         const pick = finalAlts.find(function (t) { return voiceFindDeals_(voiceNorm_(t)).length; }) || finalAlts[0];
         voiceAsk_(pick);
       } else if (document.getElementById('vsStatus').textContent === 'Слушаю…') voiceStatus_('');
     };
-    try { rec.start(); } catch (e) { console.error('voiceListen_:', e); voiceStatus_('Не удалось включить микрофон'); }
+    function go() {
+      try { rec.start(); } catch (e) { console.error('voiceListen_:', e); voiceStatus_('Не удалось включить микрофон — нажмите ещё раз'); return; }
+      // нет ни слова за 8 с — сеанс завис (бывает на iOS): гасим, чтобы следующий старт сработал
+      watchdog = setTimeout(function () {
+        if (heard || !voiceListening) return;
+        try { rec.abort(); } catch (e) { console.error(e); }
+        voiceStatus_('Не слышу — нажмите микрофон ещё раз');
+      }, 8000);
+    }
+    if (IS_IOS_) { voiceStatus_('Включаю микрофон…'); setTimeout(go, 350); } else go();
   }
   function voiceAnswer_(html, speech) {
     document.getElementById('vsAnswer').innerHTML = html;
@@ -2696,7 +2775,8 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   initMarquee();
   loadBoard();
   setTimeout(function () { const sp = document.getElementById('splash'); if (sp) sp.remove(); }, 1200);
-  if (!IS_APPS_SCRIPT) document.getElementById('voiceBtn').hidden = false; // v2.28: в iframe Apps Script микрофон не дают
+  if (!IS_APPS_SCRIPT) document.getElementById('voiceBtn').hidden = false;
+  if (!IS_APPS_SCRIPT) { document.getElementById('voiceLogo').hidden = false; voiceDots_(); } // v2.31: знак из точек под доской
   // пасхалка: первые 4 с в шапке вместо версии — логотип автора
   (function () {
     const badge = document.querySelector('#topbar .version-badge'), hs = document.getElementById('hdrSig');
