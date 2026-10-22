@@ -712,11 +712,24 @@
   #splash .shine :is(polyline,line):not([style*="--bg"]):not(.vo){stroke:#fff!important}#splash .shine path{fill:#fff}#splash .shine .vo{display:none}
   @keyframes spl-shine{to{-webkit-mask-position:0 0;mask-position:0 0}}
   @keyframes spl-out{to{opacity:0;visibility:hidden}}
-  /* mobile-v2.34: кнопка помощника — вращающаяся пирамида из точек под доской (canvas, см. voiceDots_) */
-  .m-voice-logo { display: block; margin: 22px auto 8px; padding: 6px; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  /* mobile-v2.37: кнопка помощника под доской — «кибер-ассистент» (всегда тёмная, неон, моно-шрифт); пока слушает — эквалайзер и свечение сильнее */
+  .m-voice-logo { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; margin: 24px auto 10px; padding: 12px 18px 13px; min-width: 250px; background: linear-gradient(135deg, #0b0d18, #161028); border: 1px solid rgba(255, 46, 147, .55); border-radius: 12px; color: #e8f6ff; font: 600 13px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; box-shadow: 0 0 0 1px rgba(0, 229, 255, .18) inset, 0 0 18px rgba(255, 46, 147, .25), 0 0 32px rgba(0, 229, 255, .12); overflow: hidden; }
+  .m-voice-logo::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px); pointer-events: none; }
   .m-voice-logo[hidden] { display: none; }
-  .m-voice-logo .vl-dots { display: block; width: 150px; height: 140px; }
-  .m-voice-logo:active .vl-dots { transform: scale(.94); }
+  .m-voice-logo .vl-tag { font-size: 10px; letter-spacing: .08em; color: #00e5ff; opacity: .8; }
+  .m-voice-logo .vl-row { display: flex; align-items: center; gap: 10px; }
+  .m-voice-logo .vl-title { font-size: 16px; letter-spacing: .06em; color: #fff; text-shadow: 0 0 6px rgba(255, 46, 147, .9), 0 0 14px rgba(255, 46, 147, .5); }
+  .m-voice-logo .vl-cur { color: #00e5ff; animation: vl-blink 1s steps(1) infinite; }
+  .m-voice-logo .vl-sub { font-size: 11px; color: #8fa3c7; }
+  .m-voice-logo .vl-eq { display: flex; align-items: center; gap: 2px; height: 18px; }
+  .m-voice-logo .vl-eq i { width: 3px; height: 30%; border-radius: 2px; background: linear-gradient(#00e5ff, #FF2E93); animation: vl-eq 1.4s ease-in-out infinite; }
+  .m-voice-logo .vl-eq i:nth-child(2) { animation-delay: -.3s; } .m-voice-logo .vl-eq i:nth-child(3) { animation-delay: -.6s; } .m-voice-logo .vl-eq i:nth-child(4) { animation-delay: -.9s; } .m-voice-logo .vl-eq i:nth-child(5) { animation-delay: -1.2s; }
+  .m-voice-logo:active { transform: scale(.97); }
+  .m-voice-logo.listening { border-color: #00e5ff; box-shadow: 0 0 0 1px rgba(0, 229, 255, .5) inset, 0 0 24px rgba(0, 229, 255, .45), 0 0 40px rgba(255, 46, 147, .3); }
+  .m-voice-logo.listening .vl-eq i { animation-duration: .45s; }
+  @keyframes vl-blink { 50% { opacity: 0; } }
+  @keyframes vl-eq { 0%, 100% { height: 25%; } 50% { height: 100%; } }
+  @media (prefers-reduced-motion: reduce) { .m-voice-logo .vl-eq i, .m-voice-logo .vl-cur { animation: none; } }
   /* mobile-v2.28: голосовой помощник — панель снизу */
   #voiceSheet { position: fixed; inset: 0; z-index: 60; }
   #voiceSheet .vs-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, .35); }
@@ -749,7 +762,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.36 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.38 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="voiceBtn" onclick="openVoice_()" title="Спросить голосом" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
@@ -770,7 +783,7 @@
       </div>
     </div>
     <div id="boardBody"><div class="state-msg">Загрузка сделок…</div></div>
-    <button type="button" class="m-voice-logo" id="voiceLogo" onclick="openVoice_()" hidden><canvas class="vl-dots" id="voiceLogoDots" width="150" height="140" aria-label="Спросить голосом"></canvas></button>
+    <button type="button" class="m-voice-logo" id="voiceLogo" onclick="openVoice_()" hidden><span class="vl-tag">// голосовой ассистент</span><span class="vl-row"><span class="vl-eq"><i></i><i></i><i></i><i></i><i></i></span><span class="vl-title">ИВАН, СКАЖИ НАМ<span class="vl-cur">_</span></span></span><span class="vl-sub">&gt; нажми и говори</span></button>
   </div>
 
   <!-- Экран «Закупка» (mobile-v2.4): все счета по всем сделкам -->
@@ -917,7 +930,7 @@
       <div class="vs-answer" id="vsAnswer"></div>
       <div class="vs-ask">
         <button type="button" class="vs-mic" id="vsMic" onclick="voiceListen_()"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
-        <input type="text" id="vsInput" placeholder="Например: остаток Иванов" enterkeyhint="send" onkeydown="if (event.key === 'Enter') voiceAsk_(this.value)">
+        <input type="text" id="vsInput" placeholder="Например: остаток Иванов" enterkeyhint="send" onkeydown="if (event.key === 'Enter') voiceAsk_(this.value)" oninput="voiceInputIdle_()">
         <button type="button" class="vs-send" onclick="voiceAsk_(document.getElementById('vsInput').value)">→</button>
       </div>
       <div class="vs-hint">этап · адрес · что купить · остаток · телефон</div>
@@ -2271,72 +2284,8 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     });
   }
 
-  // ---------- кнопка помощника: вращающаяся трёхгранная пирамида из точек (mobile-v2.34, v2.35 — вершиной вниз, T/V на гранях) ----------
-  // Точки по рёбрам и граням, вращение вокруг вертикали, лёгкий наклон; ближние
-  // точки крупнее и ярче. Пока помощник слушает — крутится быстрее и точки дрожат.
-  // ~30 кадров/с и только пока кнопка на экране (IntersectionObserver).
-  let voiceDotsListening = false;
-  function voiceDots_() {
-    const cv = document.getElementById('voiceLogoDots');
-    if (!cv || !cv.getContext) return;
-    const W = 150, H = 140, dpr = Math.min(2, window.devicePixelRatio || 1), PINK = '#FF2E93'; // v2.36: крупнее
-    const fg = getComputedStyle(document.body).color || '#222';
-    // v2.35: правильный тетраэдр вершиной вниз (y вниз). На каждой боковой грани —
-    // как в лого: розовые боковые рёбра = V, верхнее ребро + медиана к вершине = T
-    const A = 1.6, R = A / Math.sqrt(3), HH = A * Math.sqrt(2 / 3), Y0 = -HH / 2 + 0.05;
-    const tip = [0, Y0 + HH, 0], ring = [0, 1, 2].map(function (k) { const a = k * 2.0944; return [R * Math.cos(a), Y0, R * Math.sin(a)]; });
-    const pts = [];
-    function lerp(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
-    function edge(a, b, n, c) { for (let i = 0; i <= n; i++) pts.push({ p: lerp(a, b, i / n), c: c, ph: Math.random() * 6.28 }); }
-    ring.forEach(function (b, k) {
-      const b2 = ring[(k + 1) % 3];
-      edge(tip, b, 10, PINK);                     // боковое ребро — плечо V
-      edge(b, b2, 10, fg);                        // верхнее ребро — перекладина T
-      edge(lerp(b, b2, 0.5), tip, 8, fg);         // медиана грани — ножка T
-    });
-    // v2.36: точки в толще пирамиды — случайные внутри тетраэдра, мельче и бледнее
-    for (let n = 0; n < 28; n++) {
-      let u = Math.random(), v = Math.random(), w = Math.random(), x = Math.random();
-      const sum = -Math.log(u) - Math.log(v) - Math.log(w) - Math.log(x);
-      u = -Math.log(u) / sum; v = -Math.log(v) / sum; w = -Math.log(w) / sum; x = 1 - u - v - w;
-      const p = [0, 1, 2].map(function (c) { return tip[c] * u + ring[0][c] * v + ring[1][c] * w + ring[2][c] * x; });
-      pts.push({ p: p, c: n % 3 ? PINK : fg, ph: Math.random() * 6.28, inner: true });
-    }
-    cv.width = W * dpr; cv.height = H * dpr;
-    const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
-    let ang = 0, last = 0, raf = 0, visible = false;
-    function frame(now) {
-      raf = 0;
-      if (!visible) return;
-      if (now - last >= 33) {
-        const dt = last ? Math.min(100, now - last) / 1000 : 0;
-        last = now;
-        ang += dt * (voiceDotsListening ? 2.6 : 0.8);
-        const ca = Math.cos(ang), sa = Math.sin(ang), tilt = 0.5, ct = Math.cos(tilt), st = Math.sin(tilt);
-        const jit = voiceDotsListening ? 1.6 : 0, t = now / 1000;
-        ctx.clearRect(0, 0, W, H);
-        pts.map(function (o) {
-          const x = o.p[0] * ca - o.p[2] * sa, z0 = o.p[0] * sa + o.p[2] * ca;
-          const y = o.p[1] * ct - z0 * st, z = o.p[1] * st + z0 * ct;
-          return { o: o, x: x, y: y, z: z };
-        }).sort(function (a, b) { return a.z - b.z; }).forEach(function (q) {
-          const k = 1 / (1 + q.z * 0.35), near = (q.z + 1) / 2; // near: 0 — дальняя, 1 — ближняя
-          const j = jit ? Math.sin(t * 9 + q.o.ph) * jit : 0;
-          ctx.globalAlpha = q.o.inner ? 0.25 + 0.3 * near : 0.5 + 0.5 * near;
-          ctx.fillStyle = q.o.c;
-          ctx.beginPath();
-          ctx.arc(W / 2 + q.x * 52 * k + j, H / 2 + 8 + q.y * 52 * k, (q.o.inner ? 1.1 : 1.5) + near * 0.9, 0, 6.283);
-          ctx.fill();
-        });
-        ctx.globalAlpha = 1;
-      }
-      raf = requestAnimationFrame(frame);
-    }
-    function setVisible(v) { visible = v; if (v && !raf) { last = 0; raf = requestAnimationFrame(frame); } }
-    if (window.IntersectionObserver) new IntersectionObserver(function (en) { setVisible(en[0].isIntersecting); }).observe(cv);
-    else setVisible(true);
-    document.addEventListener('visibilitychange', function () { if (document.hidden) visible = false; else setVisible(true); });
-  }
+  let voiceDotsListening = false; // v2.37: пирамиду убрали — флаг только красит кнопку (voiceLogoState_)
+  function voiceLogoState_(on) { voiceDotsListening = on; const b = document.getElementById('voiceLogo'); if (b) b.classList.toggle('listening', on); }
 
   // ---------- голосовой помощник (mobile-v2.28) ----------
   // Только PWA и только чтение: «сделка + тема» по ключевым словам, без ИИ и
@@ -2418,10 +2367,15 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     document.getElementById('vsAnswer').innerHTML = '';
     document.getElementById('vsHeard').textContent = '';
     document.getElementById('vsInput').value = '';
-    const hasRec = !!voiceRecCtor_();
+    // v2.37: на iOS в установленном приложении распознавание спрашивает разрешение каждый раз
+    // и слышит один раз — там диктовка с клавиатуры: поле в фокусе, вопрос уходит сам через 1,5 с тишины
+    const hasRec = !!voiceRecCtor_() && !IS_IOS_;
     document.getElementById('vsMic').hidden = !hasRec;
     if (hasRec) voiceListen_();
-    else { voiceStatus_('Голосовой ввод тут недоступен — напишите вопрос'); document.getElementById('vsInput').focus(); }
+    else {
+      voiceStatus_(IS_IOS_ ? 'Нажмите 🎤 на клавиатуре и скажите вопрос' : 'Голосовой ввод тут недоступен — напишите вопрос');
+      document.getElementById('vsInput').focus();
+    }
   }
   function closeVoice_() {
     document.getElementById('voiceSheet').hidden = true;
@@ -2443,7 +2397,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     rec.maxAlternatives = 3;
     const mic = document.getElementById('vsMic');
     let finalAlts = null;
-    rec.onstart = function () { voiceListening = true; mic.classList.add('on'); voiceDotsListening = true; voiceStatus_('Слушаю…'); };
+    rec.onstart = function () { voiceListening = true; mic.classList.add('on'); voiceLogoState_(true); voiceStatus_('Слушаю…'); };
     rec.onresult = function (ev) {
       heard = true;
       const r = ev.results[ev.results.length - 1];
@@ -2461,7 +2415,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
       clearTimeout(watchdog);
       voiceListening = false;
       mic.classList.remove('on');
-      voiceDotsListening = false;
+      voiceLogoState_(false);
       if (finalAlts && finalAlts.length) {
         // из вариантов распознавания берём первый, где нашлась сделка
         const pick = finalAlts.find(function (t) { return voiceFindDeals_(voiceNorm_(t)).length; }) || finalAlts[0];
@@ -2478,6 +2432,15 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
       }, 8000);
     }
     if (IS_IOS_) { voiceStatus_('Включаю микрофон…'); setTimeout(go, 350); } else go();
+  }
+  let voiceIdleTimer = null;
+  function voiceInputIdle_() { // только iOS: диктовка вставила текст — спрашиваем после паузы
+    if (!IS_IOS_) return;
+    clearTimeout(voiceIdleTimer);
+    voiceIdleTimer = setTimeout(function () {
+      const el = document.getElementById('vsInput');
+      if (el.value.trim()) { voiceAsk_(el.value); el.blur(); }
+    }, 1500);
   }
   function voiceAnswer_(html, speech) {
     document.getElementById('vsAnswer').innerHTML = html;
@@ -2789,7 +2752,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   loadBoard();
   setTimeout(function () { const sp = document.getElementById('splash'); if (sp) sp.remove(); }, 1200);
   if (!IS_APPS_SCRIPT) document.getElementById('voiceBtn').hidden = false;
-  if (!IS_APPS_SCRIPT) { document.getElementById('voiceLogo').hidden = false; voiceDots_(); } // v2.34: пирамида из точек под доской
+  if (!IS_APPS_SCRIPT) { document.getElementById('voiceLogo').hidden = false; } // v2.37: кнопка-надпись под доской
   // пасхалка: первые 4 с в шапке вместо версии — логотип автора
   (function () {
     const badge = document.querySelector('#topbar .version-badge'), hs = document.getElementById('hdrSig');
