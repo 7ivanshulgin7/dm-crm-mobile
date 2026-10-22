@@ -713,7 +713,7 @@
   @keyframes spl-shine{to{-webkit-mask-position:0 0;mask-position:0 0}}
   @keyframes spl-out{to{opacity:0;visibility:hidden}}
   /* mobile-v2.37: кнопка помощника под доской — «кибер-ассистент» (всегда тёмная, неон, моно-шрифт); пока слушает — эквалайзер и свечение сильнее */
-  .m-voice-logo { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; margin: 24px auto 10px; padding: 12px 18px 13px; min-width: 250px; background: linear-gradient(135deg, #0b0d18, #161028); border: 1px solid rgba(255, 46, 147, .55); border-radius: 12px; color: #e8f6ff; font: 600 13px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; box-shadow: 0 0 0 1px rgba(0, 229, 255, .18) inset, 0 0 18px rgba(255, 46, 147, .25), 0 0 32px rgba(0, 229, 255, .12); overflow: hidden; }
+  .m-voice-logo { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; width: fit-content; margin: 24px auto 10px; padding: 12px 18px 13px; min-width: 250px; background: linear-gradient(135deg, #0b0d18, #161028); border: 1px solid rgba(255, 46, 147, .55); border-radius: 12px; color: #e8f6ff; font: 600 13px/1.2 ui-monospace, "SF Mono", Menlo, Consolas, monospace; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; box-shadow: 0 0 0 1px rgba(0, 229, 255, .18) inset, 0 0 18px rgba(255, 46, 147, .25), 0 0 32px rgba(0, 229, 255, .12); overflow: hidden; }
   .m-voice-logo::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px); pointer-events: none; }
   .m-voice-logo[hidden] { display: none; }
   .m-voice-logo .vl-tag { font-size: 10px; letter-spacing: .08em; color: #00e5ff; opacity: .8; }
@@ -766,7 +766,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v3.1 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v3.4 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="voiceBtn" onclick="openVoice_()" title="Спросить голосом" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
@@ -787,7 +787,7 @@
       </div>
     </div>
     <div id="boardBody"><div class="state-msg">Загрузка сделок…</div></div>
-    <button type="button" class="m-voice-logo" id="voiceLogo" onclick="openVoice_()" hidden><span class="vl-tag">// голосовой ассистент</span><span class="vl-row"><span class="vl-eq"><i></i><i></i><i></i><i></i><i></i></span><span class="vl-title">ИВАН, СКАЖИ НАМ<span class="vl-cur">_</span></span></span><span class="vl-sub">&gt; нажми и говори</span></button>
+    <button type="button" class="m-voice-logo" id="voiceLogo" onclick="openVoice_()" hidden><span class="vl-tag">// голосовой ассистент</span><span class="vl-row"><span class="vl-eq"><i></i><i></i><i></i><i></i><i></i></span><span class="vl-title">ИВАН, СКАЖИ НАМ<span class="vl-cur">_</span></span></span><span class="vl-sub">&gt; что нам делать? куда бежать?</span></button>
   </div>
 
   <!-- Экран «Закупка» (mobile-v2.4): все счета по всем сделкам -->
@@ -937,8 +937,7 @@
         <input type="text" id="vsInput" placeholder="Например: остаток Иванов" enterkeyhint="send" onkeydown="if (event.key === 'Enter') voiceAsk_(this.value)" oninput="voiceInputIdle_()">
         <button type="button" class="vs-send" onclick="voiceAsk_(document.getElementById('vsInput').value)">→</button>
       </div>
-      <div class="vs-hint">этап · адрес · что купить · остаток · телефон</div>
-      <div class="vs-voice"><label for="vsVoice">Голос</label><select id="vsVoice" onchange="voiceSetChoice_(this.value)"></select><button type="button" class="vs-play" onclick="voicePreview_()" title="Прослушать">▶</button></div>
+      <div class="vs-hint">про сделку: этап · адрес · что купить · остаток · телефон<br>общее: сделки на этапе · сколько заплатить поставщику · сколько всего должны</div>
     </div>
   </div>
 
@@ -2299,13 +2298,13 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   const VOICE_TOPICS = [ // порядок важен: первая совпавшая тема
     { key: 'phone', stems: ['телефон', 'позвон', 'звонит', 'набрат', 'контакт'] },
     { key: 'buy', stems: ['купит', 'куплен', 'закуп', 'заказат', 'докуп', 'покуп'] },
-    { key: 'rem', stems: ['остат', 'должн', 'долг', 'доплат', 'оплат', 'деньг', 'денег'] },
+    { key: 'rem', stems: ['остат', 'долж', 'долг', 'доплат', 'оплат', 'деньг', 'денег'] },
     { key: 'addr', stems: ['адрес', 'куда', 'объект', 'ехат'] },
     { key: 'stage', stems: ['этап', 'стади', 'статус', 'где', 'каком'] }
   ];
   const VOICE_STOP = ['что', 'как', 'какой', 'какая', 'какие', 'какое', 'сколько', 'есть', 'еще', 'там', 'это', 'эта', 'этот',
     'сделка', 'сделке', 'сделки', 'сделку', 'клиент', 'клиента', 'клиенту', 'скажи', 'покажи', 'подскажи', 'мне', 'нам', 'осталось', 'надо',
-    'нужно', 'для', 'про', 'кто', 'был', 'была', 'все'];
+    'нужно', 'для', 'про', 'кто', 'был', 'была', 'все', 'всего', 'всем', 'итого', 'должен', 'должна', 'нам', 'наш'];
   let voiceRec = null, voiceListening = false, voiceLast = null; // voiceLast: { topic } — для выбора из списка
   const IS_IOS_ = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   function voiceNorm_(t) { return String(t || '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]+/g, ' ').trim(); }
@@ -2376,7 +2375,6 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     document.getElementById('vsInput').value = '';
     // v2.37: на iOS в установленном приложении распознавание спрашивает разрешение каждый раз
     // и слышит один раз — там диктовка с клавиатуры: поле в фокусе, вопрос уходит сам через 1,5 с тишины
-    voiceFillVoices_();
     if (voiceCanRecord_()) voiceAudioUnlock_(); // v2.40: голос Яндекса играет и на Android
     const hasRec = !!voiceRecCtor_() && !IS_IOS_;
     const iosRec = voiceCanRecord_(); // v2.39 iOS, с v2.40 и Android — запись → SpeechKit (одинаково везде)
@@ -2536,7 +2534,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     return btoa(bin);
   }
   let voiceSpeakSrc = null, voiceSpeakSeq = 0;
-  function voiceSayIos_(text) {
+  function voiceSayIos_(text, onStart) { // onStart — звучит (или не вышло) — v3.3
     const seq = ++voiceSpeakSeq;
     api('speechSynth', { text: String(text).replace(/₽/g, 'рублей').replace(/№/g, 'номер'), voice: voiceChoice_() }).then(function (b64) {
       if (seq !== voiceSpeakSeq || !voiceCtx || document.getElementById('voiceSheet').hidden) return;
@@ -2547,10 +2545,11 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
         if (seq !== voiceSpeakSeq) return;
         const src = voiceCtx.createBufferSource();
         src.buffer = audio; src.connect(voiceCtx.destination); src.start(0);
+        if (onStart) onStart();
         voiceSpeakSrc = src;
         src.onended = function () { if (voiceSpeakSrc === src) voiceSpeakSrc = null; };
       });
-    }).catch(function (err) { console.error('voiceSayIos_:', err); }); // голос не обязателен — ответ уже на экране
+    }).catch(function (err) { console.error('voiceSayIos_:', err); if (onStart) onStart(); }); // голос не обязателен — покажем текст
   }
 
   // ---------- выбор голоса (mobile-v2.40) ----------
@@ -2559,12 +2558,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   const VOICE_LS = 'dmcrm_m_voice';
   const VOICE_LIST = [['alena', 'Алёна'], ['jane', 'Джейн'], ['omazh', 'Омаж'], ['marina', 'Марина'],
     ['filipp', 'Филипп'], ['ermil', 'Ермил'], ['zahar', 'Захар'], ['madirus', 'Мадирус']]; // v3.1: только рабочие в API v1
-  function voiceChoice_() {
-    let v = '';
-    try { v = localStorage.getItem(VOICE_LS) || ''; } catch (e) { console.error(e); }
-    if (!VOICE_LIST.some(function (x) { return x[0] === v; })) v = 'filipp';
-    return v;
-  }
+  function voiceChoice_() { return 'madirus'; } // v3.2: выбор убран — всегда Мадирус; вернуть выбор — читать VOICE_LS и показать #vsVoice
   function voiceSetChoice_(v) {
     try { localStorage.setItem(VOICE_LS, v); } catch (e) { console.error(e); }
     voicePreview_();
@@ -2589,10 +2583,23 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
       if (el.value.trim()) { voiceAsk_(el.value); el.blur(); }
     }, 1500);
   }
+  // v3.3: голос Яндекса приходит вторым запросом — чтобы не было «ответ есть, а он молчит»,
+  // текст показываем в момент, когда голос начал звучать (не дольше 5 с ожидания)
+  let voiceAnswerSeq = 0;
   function voiceAnswer_(html, speech) {
-    document.getElementById('vsAnswer').innerHTML = html;
-    voiceStatus_('');
-    if (speech) voiceSay_(speech);
+    const seq = ++voiceAnswerSeq;
+    let shown = false;
+    function show() {
+      if (shown || seq !== voiceAnswerSeq) return;
+      shown = true;
+      document.getElementById('vsAnswer').innerHTML = html;
+      voiceStatus_('');
+    }
+    if (!speech || !voiceCanRecord_()) { show(); if (speech) voiceSay_(speech); return; }
+    document.getElementById('vsAnswer').innerHTML = '';
+    voiceStatus_('Готовлю ответ…');
+    setTimeout(show, 5000);
+    voiceSayIos_(speech, show);
   }
   function voiceAsk_(text) {
     const norm = voiceNorm_(text);
@@ -2600,8 +2607,11 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     document.getElementById('vsInput').value = '';
     document.getElementById('vsHeard').textContent = text;
     if (!ALL_DEALS.length) { voiceAnswer_('Доска ещё не загрузилась — попробуйте через пару секунд.', 'Доска ещё не загрузилась'); return; }
+    if (voiceAskGeneral_(norm)) return; // v3.3: поставщик / этап / итоги
     const deals = voiceFindDeals_(norm);
     voiceLast = { topic: voiceTopic_(norm) };
+    // v3.3: «сколько должен Иванов» и нашлось несколько сделок — сумма по всем, а не выбор
+    if (voiceLast.topic === 'rem' && deals.length > 1) { voiceClientTotal_(deals); return; }
     if (!deals.length) { voiceAnswer_('Не нашёл сделку. Назовите клиента или название сделки.', 'Не нашёл сделку'); return; }
     if (deals.length > 1) {
       voiceAnswer_('Нашлось несколько (' + deals.length + '), выберите:' + deals.slice(0, 8).map(function (d) {
@@ -2624,6 +2634,119 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     const t = String(p).replace(/[^\d+]/g, ''), m = /^(\+7|8)(\d{3})(\d{3})(\d{2})(\d{2})$/.exec(t);
     return m ? m.slice(1).join(' ') : t.replace(/(\d)(?=(\d{2})+$)/g, '$1 ');
   }
+  // ---------- общие вопросы помощника (mobile-v3.3) ----------
+  // Не про одну сделку: «сколько сделок на монтаже», «сколько взять денег в Blum»,
+  // «сколько всего нам должны», «сколько всего должны поставщикам». Всё из того,
+  // что уже лежит в телефоне: доска (ALL_DEALS) и реестры «Закупка»/«Остатки» (REG).
+  const VOICE_MONEY = ['сколько', 'денег', 'деньг', 'заплат', 'платит', 'оплат', 'долж', 'долг', 'остат', 'взять', 'отдат', 'нужно', 'надо'];
+  function voiceHas_(norm, stems) { return norm.split(' ').some(function (w) { return stems.some(function (st) { return w.indexOf(st) === 0; }); }); }
+  // кириллица/латиница к одному «скелету» согласных: «блюм» = Blum, «хеттих» = Hettich
+  function voiceSkel_(w) {
+    const T = { а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ж: 'zh', з: 'z', и: 'i', й: 'i', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't',
+      у: 'u', ф: 'f', х: 'h', ц: 'c', ч: 'ch', ш: 'sh', щ: 'sh', ъ: '', ы: 'i', ь: '', э: 'e', ю: 'u', я: 'a' };
+    let t = String(w).split('').map(function (c) { return T[c] != null ? T[c] : c; }).join('');
+    t = t.replace(/ck/g, 'k').replace(/ch/g, 'h').replace(/w/g, 'v').replace(/x/g, 'ks').replace(/qu/g, 'kv').replace(/[aeiouy]/g, '');
+    return t.replace(/(.)\1+/g, '$1');
+  }
+  function voiceSkelMatch_(a, b) {
+    const x = voiceSkel_(a), y = voiceSkel_(b);
+    if (x.length < 2 || y.length < 2) return false;
+    return x === y || (Math.min(x.length, y.length) >= 3 && (x.indexOf(y) === 0 || y.indexOf(x) === 0));
+  }
+  function voiceSupplierRows_(norm) {
+    const rows = REG.purchase.rows;
+    if (!rows) return null;
+    const words = norm.split(' ').filter(function (w) { return w.length >= 3 && VOICE_STOP.indexOf(w) === -1 && !voiceHas_(w, VOICE_MONEY); });
+    let name = '';
+    const hit = rows.filter(function (r) {
+      if (!r.supplierName) return false;
+      const sw = voiceNorm_(r.supplierName).split(' ').filter(function (x) { return x.length >= 3; });
+      const ok = words.some(function (w) { return sw.some(function (x) { return voiceSkelMatch_(w, x); }); });
+      if (ok && !name) name = r.supplierName;
+      return ok;
+    });
+    return hit.length ? { name: name, rows: hit } : [];
+  }
+  function voiceStageFromText_(norm) {
+    const words = norm.split(' ');
+    const names = STAGES.concat(['Успешные', 'Отказы']);
+    for (let i = 0; i < names.length; i++) {
+      const sw = voiceNorm_(names[i]);
+      if (words.some(function (w) { return voiceWordMatch_(w, sw) > 0; })) return { stage: names[i] };
+    }
+    for (let i = 0; i < STAGE_GROUPS.length; i++) {
+      const gw = voiceNorm_(STAGE_GROUPS[i].name);
+      if (words.some(function (w) { return voiceWordMatch_(w, gw) > 0; })) return { group: STAGE_GROUPS[i] };
+    }
+    return null;
+  }
+  function voiceList_(names, max) { // для голоса: первые max и «и ещё N»
+    const head = names.slice(0, max).join(', ');
+    return names.length > max ? head + ' и ещё ' + (names.length - max) : head;
+  }
+  function voiceAskGeneral_(norm) {
+    const money = voiceHas_(norm, VOICE_MONEY);
+    const all = voiceHas_(norm, ['всего', 'всем', 'итого', 'общ', 'все']);
+    // 1) поставщик: «сколько денег в Blum», «сколько должны Хеттиху»
+    // поставщика ищем, только если спрашивают про оплату ему или сделка по словам не нашлась
+    // (чтобы «остаток Иванов» не ушёл к поставщику с похожим именем)
+    const sup = voiceHas_(norm, ['взять', 'заплат', 'отдат', 'поставщ', 'счет', 'денег', 'деньг']) || !voiceFindDeals_(norm).length ? voiceSupplierRows_(norm) : null;
+    if (sup && sup.rows) {
+      const due = sup.rows.filter(function (r) { return r.remainder > 0; });
+      const sum = due.reduce(function (s, r) { return s + r.remainder; }, 0);
+      if (!due.length) { voiceAnswer_('<div class="vs-deal">' + esc(sup.name) + '</div>Всё оплачено.', sup.name + ': всё оплачено'); return true; }
+      const deals = due.map(function (r) { return r.dealName || 'общий счёт'; }).filter(function (x, i, a) { return a.indexOf(x) === i; });
+      voiceAnswer_('<div class="vs-deal">' + esc(sup.name) + '</div>Нужно заплатить: <b>' + esc(fmtMoney(sum)) + '</b> (' + due.length + ' поз.)<ul>' +
+        due.slice(0, 15).map(function (r) {
+          return '<li>' + esc(r.name || '—') + ' — ' + esc(fmtMoney(r.remainder)) + ' <span class="vs-sub">' + esc([r.dealName, r.invoiceNo ? 'счёт ' + r.invoiceNo : ''].filter(Boolean).join(' · ')) + '</span></li>';
+        }).join('') + '</ul>',
+        sup.name + ': нужно заплатить ' + fmtMoney(sum) + '. По сделкам: ' + voiceList_(deals, 3));
+      return true;
+    }
+    // 2) этап или группа: «сколько сделок на монтаже», «какие сделки в цеху», «остаток по производству»
+    const st = voiceStageFromText_(norm);
+    if (st && (voiceHas_(norm, ['сколько', 'какие', 'какая', 'кто', 'сделк', 'список']) || money)) {
+      const label = st.stage || st.group.name;
+      const deals = st.stage ? stageDeals_(st.stage)
+        : ALL_DEALS.filter(function (d) { return st.group.stages.some(function (x) { return (st.group.excludedFromGroupSum || []).indexOf(x) === -1 && dealAtStage_(d, x); }); });
+      const rem = deals.reduce(function (s, d) { return s + Math.max(0, Number(d.remainder) || 0); }, 0);
+      const names = deals.map(function (d) { return d.name; });
+      const remTxt = money && rem > 0 ? ' Остаток по ним: <b>' + esc(fmtMoney(rem)) + '</b>.' : '';
+      voiceAnswer_('<div class="vs-deal">' + esc(label) + ': ' + deals.length + '</div>' + remTxt +
+        (deals.length ? '<ul>' + deals.slice(0, 25).map(function (d) { return '<li>' + esc(d.name) + (d.remainder > 0 ? ' <span class="vs-sub">остаток ' + esc(fmtMoney(d.remainder)) + '</span>' : '') + '</li>'; }).join('') + '</ul>' : ''),
+        label + ': ' + (deals.length ? deals.length + ' ' + voicePlural_(deals.length, 'сделка', 'сделки', 'сделок') + '. ' + voiceList_(names, 4) : 'сделок нет') +
+        (money && rem > 0 ? '. Остаток ' + fmtMoney(rem) : ''));
+      return true;
+    }
+    // 3) итоги: «сколько всего нам должны», «сколько всего должны поставщикам»
+    if (all && money) {
+      if (voiceHas_(norm, ['поставщ', 'закуп', 'счет', 'счёт'])) {
+        const rows = REG.purchase.rows;
+        if (!rows) { voiceAnswer_('Реестр закупки ещё грузится — спросите через пару секунд.', 'Закупка ещё грузится'); return true; }
+        const due = rows.filter(function (r) { return r.remainder > 0; });
+        const sum = due.reduce(function (s, r) { return s + r.remainder; }, 0);
+        voiceAnswer_('Поставщикам нужно заплатить всего: <b>' + esc(fmtMoney(sum)) + '</b> (' + due.length + ' поз.)', 'Поставщикам всего ' + fmtMoney(sum));
+        return true;
+      }
+      const due = ALL_DEALS.filter(function (d) { return d.remainder > 0 && d.stage !== 'Отказы'; });
+      const sum = due.reduce(function (s, d) { return s + d.remainder; }, 0);
+      voiceAnswer_('Клиенты должны всего: <b>' + esc(fmtMoney(sum)) + '</b> (' + due.length + ' ' + voicePlural_(due.length, 'сделка', 'сделки', 'сделок') + ')', 'Клиенты должны всего ' + fmtMoney(sum));
+      return true;
+    }
+    return false;
+  }
+  function voicePlural_(n, one, few, many) {
+    const a = n % 10, b = n % 100;
+    return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 12 || b > 14) ? few : many;
+  }
+  function voiceClientTotal_(deals) { // «сколько должен Иванов» по всем его сделкам
+    const due = deals.filter(function (d) { return d.remainder > 0; });
+    const sum = due.reduce(function (s, d) { return s + d.remainder; }, 0);
+    voiceAnswer_('По ' + deals.length + ' ' + voicePlural_(deals.length, 'сделке', 'сделкам', 'сделкам') + ' остаток всего: <b>' + esc(fmtMoney(sum)) + '</b>' +
+      '<ul>' + deals.map(function (d) { return '<li>' + esc(d.name) + ' — ' + esc(d.remainder > 0 ? fmtMoney(d.remainder) : 'оплачено') + '</li>'; }).join('') + '</ul>',
+      'Всего остаток ' + fmtMoney(sum) + ' по ' + deals.length + ' ' + voicePlural_(deals.length, 'сделке', 'сделкам', 'сделкам'));
+  }
+
   function voiceAnswerDeal_(id) {
     const topic = voiceLast ? voiceLast.topic : '';
     const d = ALL_DEALS.find(function (x) { return String(x.id) === String(id); });
@@ -2653,7 +2776,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
         else if (!left.length) { html = 'Всё заказано (' + pur.length + ' поз.).'; say = 'Всё заказано'; }
         else {
           html = 'Осталось купить: <b>' + left.length + '</b><ul>' + left.map(function (p) { return '<li>' + esc(p.name || '—') + '</li>'; }).join('') + '</ul>';
-          say = 'Осталось купить ' + left.length + ': ' + left.map(function (p) { return p.name || ''; }).filter(Boolean).join(', ');
+          say = 'Осталось купить ' + left.length + ': ' + voiceList_(left.map(function (p) { return p.name || ''; }).filter(Boolean), 3);
         }
       } else if (topic === 'phone') {
         const cs = ((det && det.contacts) || []).filter(function (c) { return c.phone; });
