@@ -712,10 +712,10 @@
   #splash .shine :is(polyline,line):not([style*="--bg"]):not(.vo){stroke:#fff!important}#splash .shine path{fill:#fff}#splash .shine .vo{display:none}
   @keyframes spl-shine{to{-webkit-mask-position:0 0;mask-position:0 0}}
   @keyframes spl-out{to{opacity:0;visibility:hidden}}
-  /* mobile-v2.31: кнопка помощника — знак T/V из точек под доской (canvas, см. voiceDots_) */
+  /* mobile-v2.34: кнопка помощника — вращающаяся пирамида из точек под доской (canvas, см. voiceDots_) */
   .m-voice-logo { display: block; margin: 22px auto 8px; padding: 6px; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .m-voice-logo[hidden] { display: none; }
-  .m-voice-logo .vl-dots { display: block; width: 120px; height: 110px; }
+  .m-voice-logo .vl-dots { display: block; width: 150px; height: 140px; }
   .m-voice-logo:active .vl-dots { transform: scale(.94); }
   /* mobile-v2.28: голосовой помощник — панель снизу */
   #voiceSheet { position: fixed; inset: 0; z-index: 60; }
@@ -749,7 +749,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.32 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.36 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="voiceBtn" onclick="openVoice_()" title="Спросить голосом" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
@@ -770,7 +770,7 @@
       </div>
     </div>
     <div id="boardBody"><div class="state-msg">Загрузка сделок…</div></div>
-    <button type="button" class="m-voice-logo" id="voiceLogo" onclick="openVoice_()" hidden><canvas class="vl-dots" id="voiceLogoDots" width="120" height="110" aria-label="Спросить голосом"></canvas></button>
+    <button type="button" class="m-voice-logo" id="voiceLogo" onclick="openVoice_()" hidden><canvas class="vl-dots" id="voiceLogoDots" width="150" height="140" aria-label="Спросить голосом"></canvas></button>
   </div>
 
   <!-- Экран «Закупка» (mobile-v2.4): все счета по всем сделкам -->
@@ -2271,59 +2271,71 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     });
   }
 
-  // ---------- знак T/V из точек — кнопка помощника (mobile-v2.31) ----------
-  // Знак из SIG рисуем в скрытый canvas, берём точки по сетке; при показе точки
-  // слетаются, потом тихо колышутся; пока помощник слушает — волна сильнее.
+  // ---------- кнопка помощника: вращающаяся трёхгранная пирамида из точек (mobile-v2.34, v2.35 — вершиной вниз, T/V на гранях) ----------
+  // Точки по рёбрам и граням, вращение вокруг вертикали, лёгкий наклон; ближние
+  // точки крупнее и ярче. Пока помощник слушает — крутится быстрее и точки дрожат.
   // ~30 кадров/с и только пока кнопка на экране (IntersectionObserver).
   let voiceDotsListening = false;
   function voiceDots_() {
     const cv = document.getElementById('voiceLogoDots');
-    const m = /<svg x="2"[^>]*>[\s\S]*?<\/svg>/.exec(SIG);
-    if (!cv || !m || !cv.getContext) return;
-    const cs = getComputedStyle(document.body);
-    const fg = cs.color || '#222', bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#fff';
-    const mark = m[0].replace('<svg x="2" y="5" width="80" height="74"', '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="222"')
-      .replace(/currentColor/g, fg).replace(/var\(--bg\)/g, bg);
-    const img = new Image();
-    img.onload = function () {
-      const W = 120, H = 110, dpr = Math.min(2, window.devicePixelRatio || 1), STEP = 5; // v2.32: реже сетка — меньше точек
-      const off = document.createElement('canvas'); off.width = W; off.height = H;
-      const oc = off.getContext('2d'); oc.drawImage(img, 0, 0, W, H);
-      const px = oc.getImageData(0, 0, W, H).data, pts = [];
-      for (let y = 0; y < H; y += STEP) for (let x = 0; x < W; x += STEP) {
-        const k = (Math.round(y) * W + Math.round(x)) * 4;
-        if (px[k + 3] > 140) pts.push({ x: x, y: y, c: 'rgb(' + px[k] + ',' + px[k + 1] + ',' + px[k + 2] + ')',
-          sx: Math.random() * W, sy: Math.random() * H, ph: Math.random() * 6.28 });
+    if (!cv || !cv.getContext) return;
+    const W = 150, H = 140, dpr = Math.min(2, window.devicePixelRatio || 1), PINK = '#FF2E93'; // v2.36: крупнее
+    const fg = getComputedStyle(document.body).color || '#222';
+    // v2.35: правильный тетраэдр вершиной вниз (y вниз). На каждой боковой грани —
+    // как в лого: розовые боковые рёбра = V, верхнее ребро + медиана к вершине = T
+    const A = 1.6, R = A / Math.sqrt(3), HH = A * Math.sqrt(2 / 3), Y0 = -HH / 2 + 0.05;
+    const tip = [0, Y0 + HH, 0], ring = [0, 1, 2].map(function (k) { const a = k * 2.0944; return [R * Math.cos(a), Y0, R * Math.sin(a)]; });
+    const pts = [];
+    function lerp(a, b, t) { return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; }
+    function edge(a, b, n, c) { for (let i = 0; i <= n; i++) pts.push({ p: lerp(a, b, i / n), c: c, ph: Math.random() * 6.28 }); }
+    ring.forEach(function (b, k) {
+      const b2 = ring[(k + 1) % 3];
+      edge(tip, b, 10, PINK);                     // боковое ребро — плечо V
+      edge(b, b2, 10, fg);                        // верхнее ребро — перекладина T
+      edge(lerp(b, b2, 0.5), tip, 8, fg);         // медиана грани — ножка T
+    });
+    // v2.36: точки в толще пирамиды — случайные внутри тетраэдра, мельче и бледнее
+    for (let n = 0; n < 28; n++) {
+      let u = Math.random(), v = Math.random(), w = Math.random(), x = Math.random();
+      const sum = -Math.log(u) - Math.log(v) - Math.log(w) - Math.log(x);
+      u = -Math.log(u) / sum; v = -Math.log(v) / sum; w = -Math.log(w) / sum; x = 1 - u - v - w;
+      const p = [0, 1, 2].map(function (c) { return tip[c] * u + ring[0][c] * v + ring[1][c] * w + ring[2][c] * x; });
+      pts.push({ p: p, c: n % 3 ? PINK : fg, ph: Math.random() * 6.28, inner: true });
+    }
+    cv.width = W * dpr; cv.height = H * dpr;
+    const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+    let ang = 0, last = 0, raf = 0, visible = false;
+    function frame(now) {
+      raf = 0;
+      if (!visible) return;
+      if (now - last >= 33) {
+        const dt = last ? Math.min(100, now - last) / 1000 : 0;
+        last = now;
+        ang += dt * (voiceDotsListening ? 2.6 : 0.8);
+        const ca = Math.cos(ang), sa = Math.sin(ang), tilt = 0.5, ct = Math.cos(tilt), st = Math.sin(tilt);
+        const jit = voiceDotsListening ? 1.6 : 0, t = now / 1000;
+        ctx.clearRect(0, 0, W, H);
+        pts.map(function (o) {
+          const x = o.p[0] * ca - o.p[2] * sa, z0 = o.p[0] * sa + o.p[2] * ca;
+          const y = o.p[1] * ct - z0 * st, z = o.p[1] * st + z0 * ct;
+          return { o: o, x: x, y: y, z: z };
+        }).sort(function (a, b) { return a.z - b.z; }).forEach(function (q) {
+          const k = 1 / (1 + q.z * 0.35), near = (q.z + 1) / 2; // near: 0 — дальняя, 1 — ближняя
+          const j = jit ? Math.sin(t * 9 + q.o.ph) * jit : 0;
+          ctx.globalAlpha = q.o.inner ? 0.25 + 0.3 * near : 0.5 + 0.5 * near;
+          ctx.fillStyle = q.o.c;
+          ctx.beginPath();
+          ctx.arc(W / 2 + q.x * 52 * k + j, H / 2 + 8 + q.y * 52 * k, (q.o.inner ? 1.1 : 1.5) + near * 0.9, 0, 6.283);
+          ctx.fill();
+        });
+        ctx.globalAlpha = 1;
       }
-      cv.width = W * dpr; cv.height = H * dpr;
-      const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
-      let t0 = 0, last = 0, raf = 0, visible = false;
-      function frame(now) {
-        raf = 0;
-        if (!visible) return;
-        if (now - last >= 33) {
-          last = now;
-          if (!t0) t0 = now;
-          const t = (now - t0) / 1000, a = Math.min(1, t / 1.4), e = 1 - Math.pow(1 - a, 3); // слёт 1,4 с
-          const amp = voiceDotsListening ? 3 : 1.8, sp = voiceDotsListening ? 6 : 2.2; // v2.32: шевелятся заметнее
-          ctx.clearRect(0, 0, W, H);
-          pts.forEach(function (p) {
-            const w = Math.sin(t * sp + p.ph + p.x * 0.08) * amp, wx = Math.cos(t * sp * 0.8 + p.ph * 1.7) * amp * 0.7;
-            ctx.fillStyle = p.c;
-            ctx.beginPath();
-            ctx.arc(p.sx + (p.x - p.sx) * e + wx, p.sy + (p.y - p.sy) * e + w, voiceDotsListening ? 2 + Math.abs(w) * 0.15 : 1.8, 0, 6.283);
-            ctx.fill();
-          });
-        }
-        raf = requestAnimationFrame(frame);
-      }
-      function setVisible(v) { visible = v; if (v && !raf) raf = requestAnimationFrame(frame); }
-      if (window.IntersectionObserver) new IntersectionObserver(function (en) { setVisible(en[0].isIntersecting); }).observe(cv);
-      else setVisible(true);
-      document.addEventListener('visibilitychange', function () { if (document.hidden) visible = false; else setVisible(true); });
-    };
-    img.onerror = function (e) { console.error('voiceDots_: знак не нарисовался', e); };
-    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(mark);
+      raf = requestAnimationFrame(frame);
+    }
+    function setVisible(v) { visible = v; if (v && !raf) { last = 0; raf = requestAnimationFrame(frame); } }
+    if (window.IntersectionObserver) new IntersectionObserver(function (en) { setVisible(en[0].isIntersecting); }).observe(cv);
+    else setVisible(true);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) visible = false; else setVisible(true); });
   }
 
   // ---------- голосовой помощник (mobile-v2.28) ----------
@@ -2388,7 +2400,9 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     return found;
   }
   function voiceSay_(text) {
-    if (!window.speechSynthesis) return;
+    // v2.33: на iOS после озвучки следующий сеанс микрофона глохнет («работает через раз») —
+    // там отвечаем только текстом
+    if (!window.speechSynthesis || IS_IOS_) return;
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(String(text).replace(/₽/g, 'рублей').replace(/№/g, 'номер'));
@@ -2419,10 +2433,9 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     if (!Ctor) return;
     if (voiceListening) { try { voiceRec.stop(); } catch (e) { console.error(e); } return; }
     if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (e) { console.error(e); } }
-    // v2.29: iOS слышит только первый раз — там один объект на всё время, старый
-    // сеанс гасим abort(), старт — после паузы, если только что говорил голос
-    const rec = IS_IOS_ && voiceRec ? voiceRec : new Ctor();
-    if (IS_IOS_ && voiceRec) { try { voiceRec.abort(); } catch (e) { console.error(e); } }
+    // v2.33: на iOS снова новый объект на каждый вопрос (общий объект из v2.29 не помог),
+    // старт — после паузы 0,35 с; виновник «через раз» — озвучка, она на iOS выключена
+    const rec = new Ctor();
     voiceRec = rec;
     let heard = false, watchdog = null;
     rec.lang = 'ru-RU';
@@ -2776,7 +2789,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   loadBoard();
   setTimeout(function () { const sp = document.getElementById('splash'); if (sp) sp.remove(); }, 1200);
   if (!IS_APPS_SCRIPT) document.getElementById('voiceBtn').hidden = false;
-  if (!IS_APPS_SCRIPT) { document.getElementById('voiceLogo').hidden = false; voiceDots_(); } // v2.31: знак из точек под доской
+  if (!IS_APPS_SCRIPT) { document.getElementById('voiceLogo').hidden = false; voiceDots_(); } // v2.34: пирамида из точек под доской
   // пасхалка: первые 4 с в шапке вместо версии — логотип автора
   (function () {
     const badge = document.querySelector('#topbar .version-badge'), hs = document.getElementById('hdrSig');
