@@ -762,7 +762,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.38 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.39 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="voiceBtn" onclick="openVoice_()" title="Спросить голосом" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
@@ -1834,7 +1834,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   function isValidExecUrl_(u) {
     return /^https:\/\/script\.google\.com\/.+\/exec$/.test(String(u || '').trim());
   }
-  const POST_ACTIONS = ['unlockGate', 'getZhut']; // пароль/PIN — не в адрес запроса
+  const POST_ACTIONS = ['unlockGate', 'getZhut', 'speechToText', 'speechSynth']; // пароль/PIN/звук — не в адрес запроса
   function api(action, params) {
     if (IS_APPS_SCRIPT) {
       return new Promise(function (resolve, reject) {
@@ -2351,7 +2351,8 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   function voiceSay_(text) {
     // v2.33: на iOS после озвучки следующий сеанс микрофона глохнет («работает через раз») —
     // там отвечаем только текстом
-    if (!window.speechSynthesis || IS_IOS_) return;
+    if (IS_IOS_) { if (voiceCanRecord_()) voiceSayIos_(text); return; } // v2.39: голос SpeechKit
+    if (!window.speechSynthesis) return;
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(String(text).replace(/₽/g, 'рублей').replace(/№/g, 'номер'));
@@ -2370,8 +2371,10 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     // v2.37: на iOS в установленном приложении распознавание спрашивает разрешение каждый раз
     // и слышит один раз — там диктовка с клавиатуры: поле в фокусе, вопрос уходит сам через 1,5 с тишины
     const hasRec = !!voiceRecCtor_() && !IS_IOS_;
-    document.getElementById('vsMic').hidden = !hasRec;
-    if (hasRec) voiceListen_();
+    const iosRec = IS_IOS_ && voiceCanRecord_(); // v2.39: iOS — запись → SpeechKit
+    document.getElementById('vsMic').hidden = !hasRec && !iosRec;
+    if (iosRec) { voiceAudioUnlock_(); voiceRecordIos_(); }
+    else if (hasRec) voiceListen_();
     else {
       voiceStatus_(IS_IOS_ ? 'Нажмите 🎤 на клавиатуре и скажите вопрос' : 'Голосовой ввод тут недоступен — напишите вопрос');
       document.getElementById('vsInput').focus();
@@ -2379,10 +2382,12 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   }
   function closeVoice_() {
     document.getElementById('voiceSheet').hidden = true;
+    voiceIosStop_(true);
     if (voiceRec && voiceListening) { try { voiceRec.abort(); } catch (e) { console.error(e); } }
     if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (e) { console.error(e); } }
   }
   function voiceListen_() {
+    if (IS_IOS_ && voiceCanRecord_()) { voiceAudioUnlock_(); voiceRecordIos_(); return; } // v2.39
     const Ctor = voiceRecCtor_();
     if (!Ctor) return;
     if (voiceListening) { try { voiceRec.stop(); } catch (e) { console.error(e); } return; }
@@ -2433,6 +2438,112 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     }
     if (IS_IOS_) { voiceStatus_('Включаю микрофон…'); setTimeout(go, 350); } else go();
   }
+  // ---------- iOS: запись вопроса → Яндекс SpeechKit (mobile-v2.39) ----------
+  // Встроенное распознавание Safari в установленном PWA глохнет и спрашивает
+  // разрешение каждый раз — поэтому пишем звук сами (WebAudio, PCM 16 кГц моно),
+  // конец фразы — по тишине 1,2 с (до 12 с), и шлём через Apps Script в SpeechKit.
+  // Микрофон держим открытым, пока открыта панель (меньше вопросов о разрешении).
+  // Голос ответа — mp3 от SpeechKit, играет через тот же AudioContext,
+  // разблокированный нажатием.
+  let voiceCtx = null, voiceStream = null, voiceRecState = null;
+  function voiceCanRecord_() { return !IS_APPS_SCRIPT && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && !!(window.AudioContext || window.webkitAudioContext); }
+  function voiceAudioUnlock_() { // строго из нажатия: иначе iOS не даст ни писать, ни играть
+    try {
+      if (!voiceCtx) voiceCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (voiceCtx.state === 'suspended') voiceCtx.resume();
+    } catch (e) { console.error('voiceAudioUnlock_:', e); }
+  }
+  function voiceRecUi_(on) {
+    document.getElementById('vsMic').classList.toggle('on', on);
+    voiceLogoState_(on);
+  }
+  function voiceIosStop_(closeMic) {
+    const st = voiceRecState;
+    voiceRecState = null;
+    if (st) { clearTimeout(st.maxTimer); try { st.proc.disconnect(); st.src.disconnect(); } catch (e) { console.error(e); } voiceRecUi_(false); }
+    if (closeMic && voiceStream) { voiceStream.getTracks().forEach(function (t) { t.stop(); }); voiceStream = null; }
+    if (closeMic && voiceSpeakSrc) { try { voiceSpeakSrc.stop(); } catch (e) { console.error(e); } voiceSpeakSrc = null; }
+    return st;
+  }
+  function voiceRecordIos_() {
+    if (voiceRecState) { voiceIosFinish_(); return; } // повторное нажатие — «готово»
+    if (voiceSpeakSrc) { try { voiceSpeakSrc.stop(); } catch (e) { console.error(e); } voiceSpeakSrc = null; }
+    voiceStatus_('Включаю микрофон…');
+    const got = voiceStream ? Promise.resolve(voiceStream) : navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    got.then(function (stream) {
+      voiceStream = stream;
+      const ctx = voiceCtx, src = ctx.createMediaStreamSource(stream), proc = ctx.createScriptProcessor(4096, 1, 1);
+      const st = { src: src, proc: proc, chunks: [], rate: ctx.sampleRate, spoke: false, quietMs: 0, totalMs: 0, maxTimer: 0 };
+      voiceRecState = st;
+      proc.onaudioprocess = function (ev) {
+        if (voiceRecState !== st) return;
+        const d = ev.inputBuffer.getChannelData(0);
+        st.chunks.push(new Float32Array(d));
+        let sum = 0; for (let i = 0; i < d.length; i++) sum += d[i] * d[i];
+        const rms = Math.sqrt(sum / d.length), ms = d.length / st.rate * 1000;
+        st.totalMs += ms;
+        if (rms > 0.02) { st.spoke = true; st.quietMs = 0; } else if (st.spoke) st.quietMs += ms;
+        if (st.spoke && st.quietMs > 1200) voiceIosFinish_();
+        else if (!st.spoke && st.totalMs > 6000) { voiceIosStop_(false); voiceStatus_('Не слышу — нажмите микрофон ещё раз'); }
+      };
+      src.connect(proc); proc.connect(ctx.destination);
+      st.maxTimer = setTimeout(function () { if (voiceRecState === st) voiceIosFinish_(); }, 12000);
+      voiceRecUi_(true);
+      voiceStatus_('Слушаю… (нажмите микрофон, когда закончите)');
+    }).catch(function (err) {
+      console.error('getUserMedia:', err);
+      voiceStatus_('Нет доступа к микрофону — разрешите его для этого приложения');
+    });
+  }
+  function voiceIosFinish_() {
+    const st = voiceIosStop_(false);
+    if (!st || !st.spoke) { voiceStatus_(''); return; }
+    voiceStatus_('Распознаю…');
+    api('speechToText', { audio: voicePcm16kB64_(st.chunks, st.rate) }).then(function (r) {
+      const text = r && r.text;
+      if (!text) { voiceStatus_('Не разобрал — нажмите микрофон и повторите'); return; }
+      voiceAsk_(text);
+    }).catch(function (err) {
+      console.error('speechToText:', err);
+      voiceStatus_('Ошибка распознавания: ' + (err && err.message ? err.message : err));
+    });
+  }
+  function voicePcm16kB64_(chunks, rate) { // Float32 (44,1/48 кГц) → Int16 LE 16 кГц → base64
+    let n = 0; chunks.forEach(function (c) { n += c.length; });
+    const ratio = rate / 16000, outLen = Math.floor(n / ratio), out = new Int16Array(outLen);
+    let ci = 0, off = 0, pos = 0;
+    for (let i = 0; i < outLen; i++) {
+      const target = Math.floor((i + 1) * ratio);
+      let sum = 0, cnt = 0;
+      while (pos < target && ci < chunks.length) {
+        sum += chunks[ci][off]; cnt++; pos++; off++;
+        if (off >= chunks[ci].length) { ci++; off = 0; }
+      }
+      const v = Math.max(-1, Math.min(1, cnt ? sum / cnt : 0));
+      out[i] = v < 0 ? v * 0x8000 : v * 0x7fff;
+    }
+    const bytes = new Uint8Array(out.buffer);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+  let voiceSpeakSrc = null, voiceSpeakSeq = 0;
+  function voiceSayIos_(text) {
+    const seq = ++voiceSpeakSeq;
+    api('speechSynth', { text: String(text).replace(/₽/g, 'рублей').replace(/№/g, 'номер') }).then(function (b64) {
+      if (seq !== voiceSpeakSeq || !voiceCtx || document.getElementById('voiceSheet').hidden) return;
+      const bin = atob(b64), buf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      return new Promise(function (res, rej) { voiceCtx.decodeAudioData(buf.buffer, res, rej); }).then(function (audio) {
+        if (seq !== voiceSpeakSeq) return;
+        const src = voiceCtx.createBufferSource();
+        src.buffer = audio; src.connect(voiceCtx.destination); src.start(0);
+        voiceSpeakSrc = src;
+        src.onended = function () { if (voiceSpeakSrc === src) voiceSpeakSrc = null; };
+      });
+    }).catch(function (err) { console.error('voiceSayIos_:', err); }); // голос не обязателен — ответ уже на экране
+  }
+
   let voiceIdleTimer = null;
   function voiceInputIdle_() { // только iOS: диктовка вставила текст — спрашиваем после паузы
     if (!IS_IOS_) return;
