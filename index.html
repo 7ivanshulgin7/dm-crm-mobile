@@ -712,6 +712,27 @@
   #splash .shine :is(polyline,line):not([style*="--bg"]):not(.vo){stroke:#fff!important}#splash .shine path{fill:#fff}#splash .shine .vo{display:none}
   @keyframes spl-shine{to{-webkit-mask-position:0 0;mask-position:0 0}}
   @keyframes spl-out{to{opacity:0;visibility:hidden}}
+  /* mobile-v2.28: голосовой помощник — панель снизу */
+  #voiceSheet { position: fixed; inset: 0; z-index: 60; }
+  #voiceSheet .vs-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, .35); }
+  #voiceSheet .vs-panel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 80vh; overflow-y: auto; background: var(--bg); color: var(--text); border-top: 1px solid var(--border); border-radius: 16px 16px 0 0; padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 30px rgba(0, 0, 0, .25); }
+  .vs-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .vs-title { font-weight: 700; font-size: 16px; }
+  .vs-x { background: none; border: none; color: var(--muted); font-size: 18px; padding: 4px 8px; cursor: pointer; }
+  .vs-status { font-size: 12px; color: var(--muted); min-height: 16px; }
+  .vs-heard { font-size: 14px; font-style: italic; margin: 4px 0; min-height: 18px; }
+  .vs-answer { font-size: 15px; line-height: 1.45; margin: 6px 0 10px; }
+  .vs-answer .vs-deal { font-weight: 700; }
+  .vs-answer ul { margin: 4px 0 0; padding-left: 18px; }
+  .vs-btn { display: block; width: 100%; box-sizing: border-box; text-align: left; margin-top: 6px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 14px; text-decoration: none; cursor: pointer; }
+  .vs-btn .vs-sub { color: var(--muted); font-size: 12px; }
+  .vs-ask { display: flex; gap: 8px; align-items: center; }
+  .vs-ask input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 16px; }
+  .vs-mic, .vs-send { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+  .vs-mic[hidden], #voiceBtn[hidden] { display: none; }
+  .vs-mic.on { background: #e5484d; color: #fff; border-color: #e5484d; animation: vs-pulse 1s ease-in-out infinite; }
+  @keyframes vs-pulse { 50% { box-shadow: 0 0 0 8px rgba(229, 72, 77, .25); } }
+  .vs-hint { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
   @media (prefers-reduced-motion:reduce){#splash,#splash .spl-in,#splash .shine{animation-duration:.01s;animation-delay:0s}#splash{animation-delay:.3s}}
   #topbar .version-badge[hidden] { display: none; }
 </style>
@@ -723,8 +744,9 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.27 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v2.28 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
+      <button type="button" class="m-theme-btn" id="voiceBtn" onclick="openVoice_()" title="Спросить голосом" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
     </div>
   </div>
@@ -876,6 +898,23 @@
         <button type="button" data-v="note" onclick="setZhutTab_('note')">Заметки</button>
       </div>
       <div id="zhutBody"></div>
+    </div>
+  </div>
+
+  <!-- mobile-v2.28: голосовой помощник (только PWA, только чтение) -->
+  <div id="voiceSheet" hidden>
+    <div class="vs-backdrop" onclick="closeVoice_()"></div>
+    <div class="vs-panel">
+      <div class="vs-head"><span class="vs-title">Спросить</span><button type="button" class="vs-x" onclick="closeVoice_()">✕</button></div>
+      <div class="vs-status" id="vsStatus"></div>
+      <div class="vs-heard" id="vsHeard"></div>
+      <div class="vs-answer" id="vsAnswer"></div>
+      <div class="vs-ask">
+        <button type="button" class="vs-mic" id="vsMic" onclick="voiceListen_()"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+        <input type="text" id="vsInput" placeholder="Например: остаток Иванов" enterkeyhint="send" onkeydown="if (event.key === 'Enter') voiceAsk_(this.value)">
+        <button type="button" class="vs-send" onclick="voiceAsk_(document.getElementById('vsInput').value)">→</button>
+      </div>
+      <div class="vs-hint">этап · адрес · что купить · остаток · телефон</div>
     </div>
   </div>
 
@@ -2226,6 +2265,212 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     });
   }
 
+  // ---------- голосовой помощник (mobile-v2.28) ----------
+  // Только PWA и только чтение: «сделка + тема» по ключевым словам, без ИИ и
+  // без сервера — ответ из карточек, уже лежащих в телефоне (detailsCache_);
+  // нет карточки в памяти — один getDealDetail. Ответ текстом и вслух.
+  const VOICE_TOPICS = [ // порядок важен: первая совпавшая тема
+    { key: 'phone', stems: ['телефон', 'позвон', 'звонит', 'набрат', 'контакт'] },
+    { key: 'buy', stems: ['купит', 'куплен', 'закуп', 'заказат', 'докуп', 'покуп'] },
+    { key: 'rem', stems: ['остат', 'должн', 'долг', 'доплат', 'оплат', 'деньг', 'денег'] },
+    { key: 'addr', stems: ['адрес', 'куда', 'объект', 'ехат'] },
+    { key: 'stage', stems: ['этап', 'стади', 'статус', 'где', 'каком'] }
+  ];
+  const VOICE_STOP = ['что', 'как', 'какой', 'какая', 'какие', 'какое', 'сколько', 'есть', 'еще', 'там', 'это', 'эта', 'этот',
+    'сделка', 'сделке', 'сделки', 'сделку', 'клиент', 'клиента', 'клиенту', 'скажи', 'покажи', 'подскажи', 'мне', 'нам', 'осталось', 'надо',
+    'нужно', 'для', 'про', 'кто', 'был', 'была', 'все'];
+  let voiceRec = null, voiceListening = false, voiceLast = null; // voiceLast: { topic } — для выбора из списка
+  function voiceNorm_(t) { return String(t || '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]+/g, ' ').trim(); }
+  function voiceRecCtor_() { return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+  function voiceIsTopicWord_(w, t) {
+    return (t ? [t] : VOICE_TOPICS).some(function (x) { return x.stems.some(function (st) { return w.indexOf(st) === 0; }); });
+  }
+  function voiceTopic_(norm) {
+    const words = norm.split(' ');
+    const t = VOICE_TOPICS.find(function (x) { return words.some(function (w) { return voiceIsTopicWord_(w, x); }); });
+    return t ? t.key : '';
+  }
+  // «иванова» ~ «иванов», «кухни» ~ «кухня»: общее начало длиной max(3, короткое−2)
+  function voiceWordMatch_(a, b) {
+    if (a === b) return 2;
+    const n = Math.min(a.length, b.length);
+    if (n < 3) return 0;
+    const k = Math.max(3, n - 2);
+    return a.slice(0, k) === b.slice(0, k) ? 1 : 0;
+  }
+  function voiceDealWords_(d) {
+    const det = detailsCache_().byId[d.id];
+    const parts = [d.name, d.contractNo];
+    if (det) {
+      (det.contacts || []).forEach(function (c) { parts.push(c.name); });
+      if (det.deal && det.deal.client) parts.push(det.deal.client.name);
+    }
+    return voiceNorm_(parts.join(' ')).split(' ').filter(function (w) { return w.length >= 2; });
+  }
+  function voiceFindDeals_(norm) {
+    const q = norm.split(' ').filter(function (w) {
+      return (w.length >= 3 || /^\d+$/.test(w)) && VOICE_STOP.indexOf(w) === -1 && !voiceIsTopicWord_(w);
+    });
+    if (!q.length) return [];
+    let best = 0, found = [];
+    ALL_DEALS.forEach(function (d) {
+      const words = voiceDealWords_(d);
+      let score = 0;
+      q.forEach(function (w) {
+        let m = 0;
+        words.forEach(function (x) { m = Math.max(m, voiceWordMatch_(w, x)); });
+        score += m;
+      });
+      if (score > best) { best = score; found = [d]; } else if (score && score === best) found.push(d);
+    });
+    return found;
+  }
+  function voiceSay_(text) {
+    if (!window.speechSynthesis) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(String(text).replace(/₽/g, 'рублей').replace(/№/g, 'номер'));
+      u.lang = 'ru-RU';
+      const v = speechSynthesis.getVoices().find(function (x) { return /^ru/i.test(x.lang); });
+      if (v) u.voice = v;
+      speechSynthesis.speak(u);
+    } catch (e) { console.error('voiceSay_:', e); }
+  }
+  function voiceStatus_(t) { document.getElementById('vsStatus').textContent = t || ''; }
+  function openVoice_() {
+    document.getElementById('voiceSheet').hidden = false;
+    document.getElementById('vsAnswer').innerHTML = '';
+    document.getElementById('vsHeard').textContent = '';
+    document.getElementById('vsInput').value = '';
+    const hasRec = !!voiceRecCtor_();
+    document.getElementById('vsMic').hidden = !hasRec;
+    if (hasRec) voiceListen_();
+    else { voiceStatus_('Голосовой ввод тут недоступен — напишите вопрос'); document.getElementById('vsInput').focus(); }
+  }
+  function closeVoice_() {
+    document.getElementById('voiceSheet').hidden = true;
+    if (voiceRec && voiceListening) { try { voiceRec.abort(); } catch (e) { console.error(e); } }
+    if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (e) { console.error(e); } }
+  }
+  function voiceListen_() {
+    const Ctor = voiceRecCtor_();
+    if (!Ctor) return;
+    if (voiceListening) { try { voiceRec.stop(); } catch (e) { console.error(e); } return; }
+    if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (e) { console.error(e); } }
+    const rec = new Ctor();
+    voiceRec = rec;
+    rec.lang = 'ru-RU';
+    rec.interimResults = true;
+    rec.maxAlternatives = 3;
+    const mic = document.getElementById('vsMic');
+    let finalAlts = null;
+    rec.onstart = function () { voiceListening = true; mic.classList.add('on'); voiceStatus_('Слушаю…'); };
+    rec.onresult = function (ev) {
+      const r = ev.results[ev.results.length - 1];
+      document.getElementById('vsHeard').textContent = r[0].transcript;
+      if (r.isFinal) { finalAlts = []; for (let i = 0; i < r.length; i++) finalAlts.push(r[i].transcript); }
+    };
+    rec.onerror = function (ev) {
+      console.error('voice rec:', ev.error);
+      voiceStatus_(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'
+        ? 'Нет доступа к микрофону — разрешите его для этого приложения'
+        : ev.error === 'no-speech' ? 'Не расслышал — нажмите микрофон ещё раз' : 'Ошибка распознавания: ' + ev.error);
+    };
+    rec.onend = function () {
+      voiceListening = false;
+      mic.classList.remove('on');
+      if (finalAlts && finalAlts.length) {
+        // из вариантов распознавания берём первый, где нашлась сделка
+        const pick = finalAlts.find(function (t) { return voiceFindDeals_(voiceNorm_(t)).length; }) || finalAlts[0];
+        voiceAsk_(pick);
+      } else if (document.getElementById('vsStatus').textContent === 'Слушаю…') voiceStatus_('');
+    };
+    try { rec.start(); } catch (e) { console.error('voiceListen_:', e); voiceStatus_('Не удалось включить микрофон'); }
+  }
+  function voiceAnswer_(html, speech) {
+    document.getElementById('vsAnswer').innerHTML = html;
+    voiceStatus_('');
+    if (speech) voiceSay_(speech);
+  }
+  function voiceAsk_(text) {
+    const norm = voiceNorm_(text);
+    if (!norm) return;
+    document.getElementById('vsInput').value = '';
+    document.getElementById('vsHeard').textContent = text;
+    if (!ALL_DEALS.length) { voiceAnswer_('Доска ещё не загрузилась — попробуйте через пару секунд.', 'Доска ещё не загрузилась'); return; }
+    const deals = voiceFindDeals_(norm);
+    voiceLast = { topic: voiceTopic_(norm) };
+    if (!deals.length) { voiceAnswer_('Не нашёл сделку. Назовите клиента или название сделки.', 'Не нашёл сделку'); return; }
+    if (deals.length > 1) {
+      voiceAnswer_('Нашлось несколько (' + deals.length + '), выберите:' + deals.slice(0, 8).map(function (d) {
+        return '<button type="button" class="vs-btn" onclick="voiceAnswerDeal_(\'' + esc(String(d.id)) + '\')">' + esc(d.name) +
+          ' <span class="vs-sub">' + esc(d.stage || '') + '</span></button>';
+      }).join(''), 'Нашлось несколько сделок, выберите');
+      return;
+    }
+    voiceAnswerDeal_(deals[0].id);
+  }
+  function voiceDetail_(id) {
+    const det = detailsCache_().byId[id];
+    if (det) return Promise.resolve(det);
+    return api('getDealDetail', { id: id }).then(function (data) {
+      if (data) { detailsCache_().byId[id] = data; saveDetailsCache_(); }
+      return data;
+    });
+  }
+  function voicePhoneSpeech_(p) { // «+7 916 123 45 67» — читается группами, а не одним числом
+    const t = String(p).replace(/[^\d+]/g, ''), m = /^(\+7|8)(\d{3})(\d{3})(\d{2})(\d{2})$/.exec(t);
+    return m ? m.slice(1).join(' ') : t.replace(/(\d)(?=(\d{2})+$)/g, '$1 ');
+  }
+  function voiceAnswerDeal_(id) {
+    const topic = voiceLast ? voiceLast.topic : '';
+    const d = ALL_DEALS.find(function (x) { return String(x.id) === String(id); });
+    if (!d) return;
+    if (!topic) { closeVoice_(); openDetail(d.id); return; } // тема не понята — просто карточка
+    voiceStatus_('Ищу…');
+    voiceDetail_(d.id).then(function (det) {
+      const deal = (det && det.deal) || d;
+      const head = '<div class="vs-deal">' + esc(d.name) + '</div>';
+      const openBtn = '<button type="button" class="vs-btn" onclick="closeVoice_(); openDetail(\'' + esc(String(d.id)) + '\')">Открыть карточку →</button>';
+      let html = '', say = '';
+      if (topic === 'stage') {
+        const extra = d.extraStages && d.extraStages.length ? ' Также: ' + d.extraStages.join(', ') + '.' : '';
+        html = 'Этап: <b>' + esc(d.stage || '—') + '</b>.' + esc(extra);
+        say = d.name + '. Этап ' + (d.stage || 'не указан') + '.' + extra;
+      } else if (topic === 'addr') {
+        html = deal.address ? 'Адрес: <b>' + esc(deal.address) + '</b>' : 'Адрес не указан.';
+        say = deal.address ? 'Адрес: ' + deal.address : 'Адрес не указан';
+      } else if (topic === 'rem') {
+        const rem = Number(deal.remainder != null ? deal.remainder : d.remainder) || 0;
+        html = rem > 0 ? 'Остаток по договору: <b>' + esc(fmtMoney(rem)) + '</b>' : 'Оплачено полностью.';
+        say = rem > 0 ? 'Остаток ' + fmtMoney(rem) : 'Оплачено полностью';
+      } else if (topic === 'buy') {
+        const pur = (det && det.purchase) || [];
+        const left = pur.filter(function (p) { return !p.status; }); // «Корзина» — ещё не заказано
+        if (!pur.length) { html = 'Закупка по сделке не заведена.'; say = 'Закупка не заведена'; }
+        else if (!left.length) { html = 'Всё заказано (' + pur.length + ' поз.).'; say = 'Всё заказано'; }
+        else {
+          html = 'Осталось купить: <b>' + left.length + '</b><ul>' + left.map(function (p) { return '<li>' + esc(p.name || '—') + '</li>'; }).join('') + '</ul>';
+          say = 'Осталось купить ' + left.length + ': ' + left.map(function (p) { return p.name || ''; }).filter(Boolean).join(', ');
+        }
+      } else if (topic === 'phone') {
+        const cs = ((det && det.contacts) || []).filter(function (c) { return c.phone; });
+        if (!cs.length) { html = 'Телефонов в карточке нет.'; say = 'Телефонов нет'; }
+        else {
+          html = cs.map(function (c) {
+            return '<a class="vs-btn" href="tel:' + esc(String(c.phone).replace(/[^\d+]/g, '')) + '">📞 ' + esc(c.phone) +
+              ' <span class="vs-sub">' + esc([c.name, c.role].filter(Boolean).join(' · ')) + '</span></a>';
+          }).join('');
+          say = cs.map(function (c) { return (c.name || c.role || '') + ': ' + voicePhoneSpeech_(c.phone); }).join('. ');
+        }
+      }
+      voiceAnswer_(head + html + openBtn, say);
+    }).catch(function (err) {
+      console.error('voiceAnswerDeal_:', err);
+      voiceAnswer_('Не удалось загрузить карточку: ' + esc(err && err.message ? err.message : err), 'Не удалось загрузить карточку');
+    });
+  }
+
   // ---------- карточки сделок в памяти телефона (mobile-v2.5) ----------
   // После загрузки доски все карточки тихо подтягиваются ОДНИМ запросом
   // (getAllDealDetails: сервер читает каждый лист один раз) не чаще раза в
@@ -2451,6 +2696,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   initMarquee();
   loadBoard();
   setTimeout(function () { const sp = document.getElementById('splash'); if (sp) sp.remove(); }, 1200);
+  if (!IS_APPS_SCRIPT) document.getElementById('voiceBtn').hidden = false; // v2.28: в iframe Apps Script микрофон не дают
   // пасхалка: первые 4 с в шапке вместо версии — логотип автора
   (function () {
     const badge = document.querySelector('#topbar .version-badge'), hs = document.getElementById('hdrSig');
