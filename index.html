@@ -736,6 +736,8 @@
   #voiceSheet .vs-panel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 80vh; overflow-y: auto; background: var(--bg); color: var(--text); border-top: 1px solid var(--border); border-radius: 16px 16px 0 0; padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 30px rgba(0, 0, 0, .25); }
   .vs-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
   .vs-title { font-weight: 700; font-size: 16px; }
+  .vs-snd { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 15px; padding: 2px 8px; margin-right: 4px; cursor: pointer; }
+  .vs-snd.on { color: var(--text); border-color: var(--text); }
   .vs-x { background: none; border: none; color: var(--muted); font-size: 18px; padding: 4px 8px; cursor: pointer; }
   .vs-status { font-size: 12px; color: var(--muted); min-height: 16px; }
   .vs-heard { font-size: 14px; font-style: italic; margin: 4px 0; min-height: 18px; }
@@ -747,9 +749,11 @@
   .vs-ask { display: flex; gap: 8px; align-items: center; }
   .vs-ask input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 16px; }
   .vs-mic, .vs-send { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
-  .vs-mic[hidden], #voiceBtn[hidden] { display: none; }
+  .vs-mic[hidden] { display: none; }
   .vs-mic.on { background: #e5484d; color: #fff; border-color: #e5484d; animation: vs-pulse 1s ease-in-out infinite; }
   @keyframes vs-pulse { 50% { box-shadow: 0 0 0 8px rgba(229, 72, 77, .25); } }
+  .vs-miss { background: none; border: none; color: var(--muted); text-decoration: underline; font-size: 11px; margin-top: 6px; padding: 4px; cursor: pointer; }
+  .vs-miss[hidden] { display: none; }
   .vs-hint { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
   /* mobile-v2.40: выбор голоса */
   .vs-voice { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
@@ -766,9 +770,8 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v3.4 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v3.8 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
-      <button type="button" class="m-theme-btn" id="voiceBtn" onclick="openVoice_()" title="Спросить голосом" hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
     </div>
   </div>
@@ -928,7 +931,7 @@
   <div id="voiceSheet" hidden>
     <div class="vs-backdrop" onclick="closeVoice_()"></div>
     <div class="vs-panel">
-      <div class="vs-head"><span class="vs-title">Спросить</span><button type="button" class="vs-x" onclick="closeVoice_()">✕</button></div>
+      <div class="vs-head"><span class="vs-title">Спросить</span><span><button type="button" class="vs-snd" id="vsSnd" onclick="voiceToggleSpeak_()" title="Читать ответ вслух">🔇</button><button type="button" class="vs-x" onclick="closeVoice_()">✕</button></span></div>
       <div class="vs-status" id="vsStatus"></div>
       <div class="vs-heard" id="vsHeard"></div>
       <div class="vs-answer" id="vsAnswer"></div>
@@ -937,7 +940,7 @@
         <input type="text" id="vsInput" placeholder="Например: остаток Иванов" enterkeyhint="send" onkeydown="if (event.key === 'Enter') voiceAsk_(this.value)" oninput="voiceInputIdle_()">
         <button type="button" class="vs-send" onclick="voiceAsk_(document.getElementById('vsInput').value)">→</button>
       </div>
-      <div class="vs-hint">про сделку: этап · адрес · что купить · остаток · телефон<br>общее: сделки на этапе · сколько заплатить поставщику · сколько всего должны</div>
+      <div class="vs-hint">про сделку: этап · адрес · что купить · остаток · телефон<br>общее: сделки на этапе · сколько заплатить поставщику · сколько всего должны<br><button type="button" class="vs-miss" id="vsMiss" onclick="voiceMissShow_()" hidden></button></div>
     </div>
   </div>
 
@@ -1838,7 +1841,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   function isValidExecUrl_(u) {
     return /^https:\/\/script\.google\.com\/.+\/exec$/.test(String(u || '').trim());
   }
-  const POST_ACTIONS = ['unlockGate', 'getZhut', 'speechToText', 'speechSynth']; // пароль/PIN/звук — не в адрес запроса
+  const POST_ACTIONS = ['unlockGate', 'getZhut', 'speechToText', 'speechSynth', 'voiceIntent']; // пароль/PIN/звук — не в адрес запроса
   function api(action, params) {
     if (IS_APPS_SCRIPT) {
       return new Promise(function (resolve, reject) {
@@ -2370,6 +2373,8 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   function voiceStatus_(t) { document.getElementById('vsStatus').textContent = t || ''; }
   function openVoice_() {
     document.getElementById('voiceSheet').hidden = false;
+    voiceSpeakBtn_(); // v3.6
+    voiceMissBtn_(); // v3.7
     document.getElementById('vsAnswer').innerHTML = '';
     document.getElementById('vsHeard').textContent = '';
     document.getElementById('vsInput').value = '';
@@ -2586,33 +2591,57 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   // v3.3: голос Яндекса приходит вторым запросом — чтобы не было «ответ есть, а он молчит»,
   // текст показываем в момент, когда голос начал звучать (не дольше 5 с ожидания)
   let voiceAnswerSeq = 0;
-  function voiceAnswer_(html, speech) {
-    const seq = ++voiceAnswerSeq;
-    let shown = false;
-    function show() {
-      if (shown || seq !== voiceAnswerSeq) return;
-      shown = true;
-      document.getElementById('vsAnswer').innerHTML = html;
-      voiceStatus_('');
+  // v3.6: ответ — сразу текстом; вслух — только если включён 🔊 в панели (для машины), выбор помнит телефон
+  const VOICE_SPEAK_LS = 'dmcrm_m_speak';
+  function voiceSpeakOn_() { try { return localStorage.getItem(VOICE_SPEAK_LS) === '1'; } catch (e) { console.error(e); return false; } }
+  function voiceSpeakBtn_() { const b = document.getElementById('vsSnd'), on = voiceSpeakOn_(); b.textContent = on ? '🔊' : '🔇'; b.classList.toggle('on', on); }
+  function voiceToggleSpeak_() {
+    const on = !voiceSpeakOn_();
+    try { localStorage.setItem(VOICE_SPEAK_LS, on ? '1' : '0'); } catch (e) { console.error(e); }
+    if (on) voiceAudioUnlock_(); // из нажатия — iOS потом даст играть
+    else {
+      voiceSpeakSeq++;
+      if (voiceSpeakSrc) { try { voiceSpeakSrc.stop(); } catch (e) { console.error(e); } voiceSpeakSrc = null; }
+      if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch (e) { console.error(e); } }
     }
-    if (!speech || !voiceCanRecord_()) { show(); if (speech) voiceSay_(speech); return; }
-    document.getElementById('vsAnswer').innerHTML = '';
-    voiceStatus_('Готовлю ответ…');
-    setTimeout(show, 5000);
-    voiceSayIos_(speech, show);
+    voiceSpeakBtn_();
   }
-  function voiceAsk_(text) {
+  function voiceAnswer_(html, speech) {
+    voiceAnswerSeq++;
+    document.getElementById('vsAnswer').innerHTML = html;
+    voiceStatus_('');
+    if (speech && voiceSpeakOn_()) voiceSay_(speech);
+  }
+  function voiceAsk_(text, gpt) { // gpt — v3.7: { orig } — фраза уже переписана YandexGPT
     const norm = voiceNorm_(text);
     if (!norm) return;
     document.getElementById('vsInput').value = '';
-    document.getElementById('vsHeard').textContent = text;
+    document.getElementById('vsHeard').textContent = gpt ? gpt.orig + ' → ' + text : text;
     if (!ALL_DEALS.length) { voiceAnswer_('Доска ещё не загрузилась — попробуйте через пару секунд.', 'Доска ещё не загрузилась'); return; }
     if (voiceAskGeneral_(norm)) return; // v3.3: поставщик / этап / итоги
     const deals = voiceFindDeals_(norm);
     voiceLast = { topic: voiceTopic_(norm) };
     // v3.3: «сколько должен Иванов» и нашлось несколько сделок — сумма по всем, а не выбор
     if (voiceLast.topic === 'rem' && deals.length > 1) { voiceClientTotal_(deals); return; }
-    if (!deals.length) { voiceAnswer_('Не нашёл сделку. Назовите клиента или название сделки.', 'Не нашёл сделку'); return; }
+    if (!deals.length) { voiceNotFound_(text, gpt); return; }
+    // v3.7: сделка есть, а что спрашивают — не понятно, и в фразе есть лишние слова — спросить ИИ;
+    // не помог — как раньше (карточка или выбор)
+    if (!voiceLast.topic && !gpt && !IS_APPS_SCRIPT && voiceExtraWords_(norm, deals[0])) {
+      const keep = voiceLast;
+      voiceNotFound_(text, null, function () { voiceLast = keep; voiceAnswerDeals_(deals); });
+      return;
+    }
+    if (gpt) voiceMissAdd_(gpt.orig, text, true);
+    voiceAnswerDeals_(deals);
+  }
+  function voiceExtraWords_(norm, deal) { // есть ли в вопросе слова, которых нет в сделке
+    const words = voiceDealWords_(deal);
+    return norm.split(' ').some(function (w) {
+      if (w.length < 3 || VOICE_STOP.indexOf(w) !== -1) return false;
+      return !words.some(function (x) { return voiceWordMatch_(w, x) > 0; });
+    });
+  }
+  function voiceAnswerDeals_(deals) {
     if (deals.length > 1) {
       voiceAnswer_('Нашлось несколько (' + deals.length + '), выберите:' + deals.slice(0, 8).map(function (d) {
         return '<button type="button" class="vs-btn" onclick="voiceAnswerDeal_(\'' + esc(String(d.id)) + '\')">' + esc(d.name) +
@@ -2621,6 +2650,66 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
       return;
     }
     voiceAnswerDeal_(deals[0].id);
+  }
+  // ---------- v3.7: правила не поняли — спросить YandexGPT; список «трудных вопросов» ----------
+  function voiceNotFound_(text, gpt, onFail) { // onFail — v3.7: свой ответ, если ИИ не помог
+    const fail = function (q) {
+      if (onFail) { onFail(); return; }
+      voiceMissAdd_(gpt ? gpt.orig : text, q || '', false);
+      voiceAnswer_('Не понял вопрос. Назовите клиента и что нужно: остаток, адрес, этап, телефон, что купить.', 'Не понял вопрос');
+    };
+    if (gpt || IS_APPS_SCRIPT) { fail(gpt ? text : ''); return; }
+    voiceStatus_('Думаю…');
+    const seq = ++voiceAnswerSeq;
+    api('voiceIntent', { text: text, stages: STAGES.concat(['Успешные', 'Отказы']).join('|') }).then(function (r) {
+      if (seq !== voiceAnswerSeq) return;
+      const q = r && r.text ? String(r.text) : '';
+      if (!q || /^не понял/.test(voiceNorm_(q)) || voiceNorm_(q) === voiceNorm_(text)) { fail(q); return; }
+      voiceAsk_(q, { orig: text });
+    }).catch(function (err) {
+      console.error('voiceIntent:', err);
+      if (seq === voiceAnswerSeq) fail('');
+    });
+  }
+  const VOICE_MISS_LS = 'dmcrm_m_voice_miss';
+  function voiceMissList_() { try { return JSON.parse(localStorage.getItem(VOICE_MISS_LS) || '[]'); } catch (e) { console.error(e); return []; } }
+  function voiceMissAdd_(q, gptText, ok) { // ok — GPT выручил (правило стоит добавить), иначе — не понял совсем
+    const list = voiceMissList_();
+    list.unshift({ d: new Date().toISOString().slice(0, 16).replace('T', ' '), q: String(q), g: String(gptText || ''), ok: !!ok });
+    try { localStorage.setItem(VOICE_MISS_LS, JSON.stringify(list.slice(0, 50))); } catch (e) { console.error(e); }
+    voiceMissBtn_();
+  }
+  function voiceMissBtn_() {
+    const n = voiceMissList_().length, b = document.getElementById('vsMiss');
+    b.hidden = !n; b.textContent = 'Трудные вопросы: ' + n;
+  }
+  function voiceMissText_() {
+    return voiceMissList_().map(function (m) { return m.d + ' | ' + m.q + (m.g ? ' → ' + m.g : '') + (m.ok ? ' ✓' : ' ✗'); }).join('\n');
+  }
+  function voiceMissShow_() {
+    const list = voiceMissList_();
+    document.getElementById('vsHeard').textContent = '';
+    voiceStatus_('');
+    document.getElementById('vsAnswer').innerHTML = '<div class="vs-deal">Трудные вопросы</div>' +
+      '<div class="vs-sub">✓ — понял через ИИ (медленнее), ✗ — не понял. Скопируйте и пришлите — научу понимать сразу.</div><ul>' +
+      list.map(function (m) { return '<li>' + esc(m.q) + (m.g ? ' <span class="vs-sub">→ ' + esc(m.g) + '</span>' : '') + ' ' + (m.ok ? '✓' : '✗') + '</li>'; }).join('') + '</ul>' +
+      '<button type="button" class="vs-btn" onclick="voiceMissCopy_()">Скопировать список</button>' +
+      '<button type="button" class="vs-btn" onclick="voiceMissClear_()">Очистить</button>';
+  }
+  function voiceMissCopy_() {
+    const t = voiceMissText_();
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject(new Error('нет буфера обмена'))).then(function () {
+      voiceStatus_('Скопировано');
+    }).catch(function (err) {
+      console.error('voiceMissCopy_:', err);
+      voiceStatus_('Не скопировалось — выделите список пальцем');
+    });
+  }
+  function voiceMissClear_() {
+    if (!confirm('Очистить список трудных вопросов?')) return;
+    try { localStorage.removeItem(VOICE_MISS_LS); } catch (e) { console.error(e); }
+    voiceMissBtn_();
+    document.getElementById('vsAnswer').innerHTML = '';
   }
   function voiceDetail_(id) {
     const det = detailsCache_().byId[id];
@@ -3021,7 +3110,6 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   initMarquee();
   loadBoard();
   setTimeout(function () { const sp = document.getElementById('splash'); if (sp) sp.remove(); }, 1200);
-  if (!IS_APPS_SCRIPT) document.getElementById('voiceBtn').hidden = false;
   if (!IS_APPS_SCRIPT) { document.getElementById('voiceLogo').hidden = false; } // v2.37: кнопка-надпись под доской
   // пасхалка: первые 4 с в шапке вместо версии — логотип автора
   (function () {
