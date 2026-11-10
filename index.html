@@ -359,6 +359,37 @@
   .m-reg-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
   .m-reg-deal { font-size: 12px; color: var(--link); margin-top: 3px; font-weight: 600; }
   .m-reg-bottom { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+  /* v3.11: «Закупка» как окно десктопа */
+  .m-pgrp-h { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin: 8px 16px 0; }
+  .m-pshow { display: flex; gap: 6px; margin: 0 12px 4px; }
+  .m-pshow button { flex: 1; min-width: 0; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 10px; padding: 6px 4px; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+  .m-pshow button b { font-size: 16px; font-weight: 800; color: #c0392b; }
+  .m-pshow button span { font-size: 10.5px; color: var(--muted); }
+  .m-pshow button.zero b { color: var(--muted); }
+  .m-pshow button.on { box-shadow: inset 0 0 0 2px var(--accent); }
+  .m-psups { display: flex; gap: 6px; overflow-x: auto; margin: 2px 12px 6px; padding-bottom: 2px; scrollbar-width: none; }
+  .m-psups::-webkit-scrollbar { display: none; }
+  .m-psup { flex: 0 0 auto; min-width: 96px; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 10px; padding: 6px 9px; font-family: inherit; text-align: left; cursor: pointer; }
+  .m-psup.on { box-shadow: inset 0 0 0 2px var(--accent); }
+  .m-psup .ps-n { display: block; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .m-psup .ps-s { display: block; font-size: 12px; font-weight: 800; margin-top: 1px; }
+  .m-psup .ps-bar { display: block; height: 3px; border-radius: 2px; background: var(--badge-bg); margin-top: 4px; overflow: hidden; }
+  .m-psup .ps-bar i { display: block; height: 100%; background: #c0392b; }
+  .m-psup-reset { font-size: 12px; color: var(--link); margin: 0 16px 4px; display: inline-block; }
+  .m-pdebt { font-size: 12.5px; color: var(--muted); margin: 0 16px 6px; text-align: right; }
+  .m-pdebt b { color: #c0392b; }
+  .m-pgroup { font-size: 12px; font-weight: 800; color: var(--text); margin: 12px 16px 4px; display: flex; gap: 6px; align-items: baseline; }
+  .m-pgroup span { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .m-ppay { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin-top: 6px; color: var(--muted); }
+  .m-ppay .due { color: #c0392b; font-weight: 700; }
+  .m-pchips { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+  .m-pchip { font-size: 11px; padding: 3px 9px; border-radius: 10px; border: 1px solid var(--border); color: var(--muted); }
+  .m-pchip.on { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+  .m-pchip.cancel { border-color: #c0392b; color: #c0392b; }
+  .m-pfiles { display: flex; gap: 6px; margin-top: 8px; }
+  .m-pfile { flex: 1; text-align: center; padding: 6px 4px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 12px; font-weight: 600; text-decoration: none; font-family: inherit; cursor: pointer; }
+  .m-reg-item.m-pcancelled { opacity: .55; }
+  .m-reg-item.m-pcancelled .m-reg-name { text-decoration: line-through; }
   .m-reg-bottom .m-cat { margin-bottom: 0; }
   .m-chip { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 10px; background: var(--badge-bg); color: var(--muted); }
   .m-chip.ok { background: rgba(46, 145, 71, .14); color: #2e9147; }
@@ -754,6 +785,12 @@
   @keyframes vs-pulse { 50% { box-shadow: 0 0 0 8px rgba(229, 72, 77, .25); } }
   .vs-miss { background: none; border: none; color: var(--muted); text-decoration: underline; font-size: 11px; margin-top: 6px; padding: 4px; cursor: pointer; }
   .vs-miss[hidden] { display: none; }
+  .vs-fb { margin-top: 10px; text-align: right; }
+  .vs-fb .vs-sub { text-align: left; color: var(--muted); font-size: 12px; }
+  .vs-fb-btn { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 12px; padding: 3px 10px; cursor: pointer; }
+  .vs-fb-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; text-align: left; }
+  .vs-fb-chip { border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 14px; padding: 4px 10px; font-size: 13px; cursor: pointer; }
+  .vs-fb-cmd { width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 15px; }
   .vs-hint { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
   /* mobile-v2.40: выбор голоса */
   .vs-voice { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
@@ -770,7 +807,7 @@
 <div id="app">
 
   <div id="topbar">
-    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v3.8 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
+    <h1 onclick="zhutTap_()">DM_CRM<span class="version-badge">v3.11 · pwa</span><span class="m-hdr-sig" id="hdrSig" hidden></span></h1>
     <div class="m-topbar-right">
       <button type="button" class="m-theme-btn" id="themeToggle" onclick="toggleTheme()" title="Тема"></button>
     </div>
@@ -799,17 +836,28 @@
       <div class="m-hero-title">Закупка</div>
       <div class="m-hero-sub summary-bar" id="purchaseSub">Загрузка…</div>
     </div>
+    <!-- v3.11: как окно «Закупка» десктопа (рельс → блоки сверху), только просмотр -->
+    <div class="m-kpis" id="purchaseKpis"></div>
+    <div class="m-pgrp-h">Показать</div>
     <div class="m-seg" id="purchaseSeg">
-      <button type="button" class="on" data-v="unpaid" onclick="setRegFilter_('purchase', 'unpaid')">Не оплачено</button>
-      <button type="button" data-v="all" onclick="setRegFilter_('purchase', 'all')">Все</button>
+      <button type="button" data-v="all" onclick="setRegFilter_('purchase', 'all')">Все счета</button>
+      <button type="button" class="on" data-v="unpaid" onclick="setRegFilter_('purchase', 'unpaid')">Неоплаченные</button>
     </div>
+    <div class="m-pshow" id="purchaseShow"></div>
+    <div class="m-pgrp-h">Сортировка</div>
+    <div class="m-seg" id="purchaseSortSeg">
+      <button type="button" class="on" data-v="date" onclick="setPurchaseSort_('date')">Новые сверху</button>
+      <button type="button" data-v="supplier" onclick="setPurchaseSort_('supplier')">По поставщикам</button>
+      <button type="button" data-v="deal" onclick="setPurchaseSort_('deal')">По сделкам</button>
+    </div>
+    <div id="purchaseSups"></div>
     <div class="m-dash">
       <div class="m-dash-search">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.2" y2="16.2"></line></svg>
-        <input type="text" id="purchaseSearch" placeholder="Позиция, поставщик, счёт, сделка…" oninput="setRegSearch_('purchase', this.value)">
+        <input type="text" id="purchaseSearch" placeholder="Поиск: сделка, поставщик, № счёта" oninput="setRegSearch_('purchase', this.value)">
       </div>
     </div>
-    <div class="m-kpis" id="purchaseKpis"></div>
+    <div class="m-pdebt">Долг по фильтру: <b id="purchaseDebt">—</b></div>
     <div id="purchaseBody"><div class="state-msg">Загрузка…</div></div>
   </div>
 
@@ -1216,7 +1264,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   // lsOpen — их ключ, пока пароль выключен (GATE_ON = false, v2.22): тогда
   // открываются сразу из сохранённого, как «Закупка».
   const REG = {
-    purchase: { action: 'getPurchaseRegistry', ls: 'dmcrm_m_purchase_cache', rows: null, filter: 'unpaid', q: '', loading: false },
+    purchase: { action: 'getPurchaseRegistry', ls: 'dmcrm_m_purchase_cache', rows: null, filter: 'unpaid', q: '', loading: false, sort: 'date', supplier: null }, // v3.11: + sort, supplier
     bonus: { action: 'getBonusRegistry', ls: null, lsOpen: 'dmcrm_m_bonus_open', gated: true, rows: null, tab: 'deals', status: 'due', stage: null, q: '', loading: false },
     debts: { action: 'getDebtsRegistry', ls: null, lsOpen: 'dmcrm_m_debts_open', gated: true, rows: null, filter: 'owe', q: '', stage: null, loading: false,
       byClient: true, openClients: {}, openPays: {} }
@@ -1458,43 +1506,146 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     document.getElementById('debtsBody').innerHTML = list.length ? (r.byClient ? debtClientsHtml_(list) : list.map(function (d) { return debtCardHtml_(d, false); }).join('')) : '<div class="state-msg">' + (r.q || r.stage ? 'Ничего не найдено' : (r.filter === 'owe' ? 'Долгов нет 🎉' : 'Подписанных сделок с суммой нет')) + '</div>';
   }
 
+  // ---------- v3.11: «Закупка» — как окно десктопа (v4.183): показать / сортировка / долг по поставщикам ----------
+  // Только просмотр: «Оплачен / Приехал / Отгружен» — отметки, менять их — на десктопе.
+  const PURCHASE_STAGE_IDX = { '': 0, ordered: 1, arrived: 2, issued: 3 };
+  function purchaseShowMatch_(p, mode) { // как pregShowMatch_ десктопа
+    if (mode === 'all') return true;
+    if (p.cancel) return false;
+    if (mode === 'unpaid') return p.remainder > 0;
+    const idx = PURCHASE_STAGE_IDX[p.status || ''] || 0;
+    if (mode === 'notArrived') return idx < 2;
+    if (mode === 'notIssued') return idx < 3;
+    return true;
+  }
+  function setPurchaseShow_(mode) {
+    const r = REG.purchase;
+    setRegFilter_('purchase', r.filter === mode && mode !== 'all' ? 'all' : mode);
+  }
+  function setPurchaseSort_(mode) {
+    REG.purchase.sort = mode;
+    document.querySelectorAll('#purchaseSortSeg button').forEach(function (b) { b.classList.toggle('on', b.dataset.v === mode); });
+    renderPurchase_();
+  }
+  let PURCHASE_SUP_KEYS = [];
+  function setPurchaseSupplier_(i) {
+    const r = REG.purchase, k = i === null ? null : PURCHASE_SUP_KEYS[i];
+    r.supplier = r.supplier === k ? null : k;
+    renderPurchase_();
+  }
+  function purchaseDlUrl_(u) { // ссылка Диска → прямое скачивание (как mailDownloadUrl_ десктопа)
+    const m = /\/d\/([-\w]{20,})/.exec(String(u || '')) || /[?&]id=([-\w]{20,})/.exec(String(u || ''));
+    return m ? 'https://drive.google.com/uc?export=download&id=' + m[1] : '';
+  }
+  let PURCHASE_LIST = [];
+  function purchaseShare_(i) {
+    const p = PURCHASE_LIST[i];
+    if (!p || !p.link) return;
+    const title = ['Счёт', p.invoiceNo ? '№ ' + p.invoiceNo : '', p.supplierName, p.name].filter(Boolean).join(' ');
+    if (navigator.share) {
+      navigator.share({ title: title, text: title, url: p.link }).catch(function (err) { if (err && err.name !== 'AbortError') console.error('purchaseShare_:', err); });
+      return;
+    }
+    (navigator.clipboard ? navigator.clipboard.writeText(p.link) : Promise.reject(new Error('нет буфера обмена')))
+      .then(function () { alert('Ссылка на счёт скопирована'); })
+      .catch(function (err) { console.error('purchaseShare_:', err); prompt('Скопируйте ссылку на счёт:', p.link); });
+  }
   function renderPurchase_() {
     const r = REG.purchase;
     if (!r.rows) return;
-    const matched = r.rows.filter(function (p) {
-      return regMatches_(r.q, [p.name, p.supplierName, p.invoiceNo, p.dealName, p.contractNo]);
+    const all = r.rows;
+    // сводка — по ВСЕМ счетам (как renderPregSummary_)
+    let debt = 0, debtN = 0, noAmount = 0;
+    const bySup = {};
+    all.forEach(function (p) {
+      if (!p.amount) noAmount++;
+      if (p.remainder > 0) {
+        debt += p.remainder; debtN++;
+        const k = p.supplierId || '';
+        const b = bySup[k] || (bySup[k] = { name: p.supplierName || 'без поставщика', n: 0, sum: 0 });
+        b.n++; b.sum += p.remainder;
+      }
     });
-    const withSum = matched.filter(function (p) { return p.amount > 0; });
-    const total = withSum.reduce(function (s, p) { return s + p.amount; }, 0);
-    const paid = withSum.reduce(function (s, p) { return s + p.paid; }, 0);
-    const due = withSum.filter(isPurchaseDue_).reduce(function (s, p) { return s + p.remainder; }, 0);
+    document.getElementById('purchaseSub').textContent = debtN ? 'Не оплачено: ' + debtN + ' ' + plural_(debtN, 'счёт', 'счёта', 'счетов') : 'Все счета оплачены';
     document.getElementById('purchaseKpis').innerHTML =
-      kpi_('Заказано', fmtMoney(total)) + kpi_('Оплачено', fmtMoney(paid)) + kpi_('Остаток', fmtMoney(due), true);
-    const dueCount = r.rows.filter(isPurchaseDue_).length;
-    document.getElementById('purchaseSub').textContent = dueCount
-      ? 'Не оплачено: ' + dueCount + ' ' + plural_(dueCount, 'счёт', 'счёта', 'счетов')
-      : 'Все счета оплачены';
-
-    let list = r.filter === 'unpaid' ? matched.filter(isPurchaseDue_) : matched.slice();
-    list.sort(r.filter === 'unpaid'
-      ? function (a, b) { return b.remainder - a.remainder; }
-      : function (a, b) { return String(a.dealName).localeCompare(String(b.dealName), 'ru') || String(a.name).localeCompare(String(b.name), 'ru'); });
-    document.getElementById('purchaseBody').innerHTML = list.length ? list.map(function (p) {
-      const cat = PURCHASE_CATEGORIES.find(function (c) { return c.key === p.category; });
-      const st = PURCHASE_STAGES.find(function (x) { return x.key === p.status; });
-      const meta = [p.supplierName, p.invoiceNo ? 'счёт № ' + p.invoiceNo : ''].filter(Boolean).join(' · ');
-      const payChip = !p.amount ? '<span class="m-chip off">без суммы</span>'
-        : (p.remainder > 0
-          ? '<span class="m-chip due">остаток ' + esc(fmtMoney(p.remainder)) + '</span>'
-          : '<span class="m-chip ok">оплачено' + (p.lastPayDate ? ' ' + esc(p.lastPayDate) : '') + '</span>');
-      return '<div class="m-section m-reg-item" onclick="openDetail(\'' + esc(p.dealId) + '\')">' +
-        '<div class="m-reg-top"><span class="m-reg-name">' + esc(p.name || '—') + '</span><span class="m-reg-amount">' + (p.amount ? esc(fmtMoney(p.amount)) : '') + '</span></div>' +
-        (meta ? '<div class="m-reg-meta">' + esc(meta) + '</div>' : '') +
-        '<div class="m-reg-deal">' + esc(p.dealName || 'Сделка не найдена') + (p.contractNo ? ' · ' + esc(p.contractNo) : '') + '</div>' +
-        '<div class="m-reg-bottom"><span class="m-cat ' + esc(p.category) + '">' + esc(cat ? cat.label : p.category) + '</span>' +
-        '<span class="m-chip">' + esc(st ? st.label : (p.status || 'Корзина')) + '</span>' + payChip + '</div>' +
-        '</div>';
-    }).join('') : '<div class="state-msg">' + (r.q ? 'Ничего не найдено' : (r.filter === 'unpaid' ? 'Неоплаченных счетов нет 🎉' : 'Позиций закупки нет')) + '</div>';
+      '<div class="m-section m-kpi-tap' + (r.filter === 'unpaid' ? ' on' : '') + '" onclick="setPurchaseShow_(\'unpaid\')"><div class="m-kpi-lbl">Долг поставщикам</div>' +
+        '<div class="m-kpi-num" style="color:#c0392b">' + esc(fmtMoney(debt)) + '</div><div class="m-kpi-sub">' + debtN + ' ' + plural_(debtN, 'неоплаченный счёт', 'неоплаченных счёта', 'неоплаченных счетов') + '</div></div>' +
+      (noAmount ? '<div class="m-section"><div class="m-kpi-lbl">Без суммы</div><div class="m-kpi-num">' + noAmount + '</div><div class="m-kpi-sub">проставить сумму</div></div>' : '');
+    PURCHASE_SUP_KEYS = Object.keys(bySup).sort(function (a, b) { return bySup[b].sum - bySup[a].sum; });
+    if (r.supplier !== null && PURCHASE_SUP_KEYS.indexOf(r.supplier) === -1) PURCHASE_SUP_KEYS.push(r.supplier);
+    const maxSum = PURCHASE_SUP_KEYS.reduce(function (m, k) { return Math.max(m, (bySup[k] || {}).sum || 0); }, 0) || 1;
+    document.getElementById('purchaseSups').innerHTML = PURCHASE_SUP_KEYS.length
+      ? '<div class="m-pgrp-h">Долг по поставщикам</div><div class="m-psups">' + PURCHASE_SUP_KEYS.map(function (k, i) {
+          const b = bySup[k] || { name: (all.filter(function (p) { return (p.supplierId || '') === k; })[0] || {}).supplierName || 'без поставщика', n: 0, sum: 0 };
+          return '<button type="button" class="m-psup' + (r.supplier === k ? ' on' : '') + '" onclick="setPurchaseSupplier_(' + i + ')">' +
+            '<span class="ps-n">' + esc(b.name) + '</span><span class="ps-s">' + esc(fmtMoney(b.sum)) + '</span>' +
+            '<span class="ps-bar"><i style="width:' + Math.max(4, Math.round(b.sum / maxSum * 100)) + '%"></i></span></button>';
+        }).join('') + '</div>' + (r.supplier !== null ? '<a href="#" class="m-psup-reset" onclick="setPurchaseSupplier_(null);return false">Сбросить поставщика</a>' : '')
+      : '';
+    // поиск + поставщик; затем «показать» (как renderPurchaseRegistry_)
+    const scope = all.filter(function (p) {
+      if (r.supplier !== null && (p.supplierId || '') !== r.supplier) return false;
+      return regMatches_(r.q, [p.contractNo, p.dealName, p.name, p.supplierName, p.invoiceNo].concat((p.alsoDeals || []).map(function (a) { return a.contractNo + ' ' + a.name; })));
+    });
+    const live = scope.filter(function (p) { return !p.cancel; });
+    const cnt = { unpaid: live.filter(function (p) { return p.remainder > 0; }).length,
+      notArrived: live.filter(function (p) { return purchaseShowMatch_(p, 'notArrived'); }).length,
+      notIssued: live.filter(function (p) { return purchaseShowMatch_(p, 'notIssued'); }).length };
+    document.getElementById('purchaseShow').innerHTML = [['unpaid', 'не оплачено'], ['notArrived', 'не приехало'], ['notIssued', 'не отгружено']].map(function (x) {
+      return '<button type="button" class="' + (r.filter === x[0] ? 'on' : '') + (cnt[x[0]] ? '' : ' zero') + '" onclick="setPurchaseShow_(\'' + x[0] + '\')"><b>' + cnt[x[0]] + '</b><span>' + x[1] + '</span></button>';
+    }).join('');
+    const rows = scope.filter(function (p) { return purchaseShowMatch_(p, r.filter); });
+    document.getElementById('purchaseDebt').textContent = fmtMoney(rows.reduce(function (s, p) { return s + (p.remainder > 0 ? p.remainder : 0); }, 0));
+    // новые сверху (порядок создания); по поставщикам / по сделкам — группы, внутри новые сверху; пустой ключ — в конце
+    const byNew = function (a, b) { return (b.seq || 0) - (a.seq || 0); };
+    const groupKey = r.sort === 'supplier' ? function (p) { return p.supplierName || ''; }
+      : r.sort === 'deal' ? function (p) { return p.dealId ? (p.contractNo || p.dealName || '') : ''; } : null;
+    const list = rows.slice().sort(groupKey ? function (a, b) {
+      const ka = groupKey(a), kb = groupKey(b);
+      if (!ka !== !kb) return ka ? -1 : 1;
+      return ka.localeCompare(kb, 'ru', { numeric: true }) || byNew(a, b);
+    } : byNew);
+    PURCHASE_LIST = list;
+    if (!list.length) {
+      document.getElementById('purchaseBody').innerHTML = '<div class="state-msg">' + (all.length ? (r.q || r.supplier !== null ? 'Ничего не найдено' : 'Таких счетов нет 🎉') : 'Позиций закупки нет') + '</div>';
+      return;
+    }
+    let html = '', cur = null;
+    list.forEach(function (p, i) {
+      if (groupKey) {
+        const k = groupKey(p);
+        if (k !== cur) {
+          cur = k;
+          const n = list.filter(function (x) { return groupKey(x) === k; }).length;
+          const title = k ? (r.sort === 'deal' && p.dealName && p.contractNo ? k + '  ' + p.dealName : k) : (r.sort === 'deal' ? 'Общие счета (без сделки)' : 'Без поставщика');
+          html += '<div class="m-pgroup">' + esc(title) + '<span>' + n + '</span></div>';
+        }
+      }
+      html += purchaseItemHtml_(p, i);
+    });
+    document.getElementById('purchaseBody').innerHTML = html;
+  }
+  function purchaseItemHtml_(p, i) {
+    const idx = PURCHASE_STAGE_IDX[p.status || ''] || 0;
+    const paid = p.amount > 0 && p.remainder <= 0;
+    const meta = [p.supplierName, p.invoiceNo ? '№ ' + p.invoiceNo : '', p.created ? 'добавлен ' + p.created : ''].filter(Boolean).join(' · ');
+    const deal = p.dealId ? [p.contractNo, p.dealName].filter(Boolean).join(' ') : 'Общий счёт (без сделки)';
+    const also = (p.alsoDeals || []).map(function (a) { return '+ ' + [a.contractNo, a.name].filter(Boolean).join(' '); }).join(', ');
+    const dl = p.link ? purchaseDlUrl_(p.link) : '';
+    return '<div class="m-section m-reg-item' + (p.cancel ? ' m-pcancelled' : '') + '"' + (p.dealId ? ' onclick="openDetail(\'' + esc(p.dealId) + '\')"' : '') + '>' +
+      '<div class="m-reg-top"><span class="m-reg-name">' + esc(p.name || '—') + '</span><span class="m-reg-amount">' + (p.amount ? esc(fmtMoney(p.amount)) : '') + '</span></div>' +
+      (meta ? '<div class="m-reg-meta">' + esc(meta) + '</div>' : '') +
+      '<div class="m-reg-deal">' + esc(deal) + (also ? ' <span class="m-reg-meta">' + esc(also) + '</span>' : '') + '</div>' +
+      (p.amount ? '<div class="m-ppay"><span>Оплачено ' + esc(fmtMoney(p.paid)) + (p.lastPayDate ? ' · ' + esc(p.lastPayDate) : '') + '</span>' +
+        (p.remainder > 0 ? '<span class="due">остаток ' + esc(fmtMoney(p.remainder)) + '</span>' : '') + '</div>'
+        : '<div class="m-ppay"><span>без суммы</span></div>') +
+      '<div class="m-pchips">' + (p.cancel ? '<span class="m-pchip cancel">' + (p.cancel === 'cancelled' ? 'отменён' : 'заменён') + '</span>' :
+        '<span class="m-pchip' + (paid ? ' on' : '') + '">Оплачен</span><span class="m-pchip' + (idx >= 2 ? ' on' : '') + '">Приехал</span><span class="m-pchip' + (idx >= 3 ? ' on' : '') + '">Отгружен</span>') + '</div>' +
+      (p.link ? '<div class="m-pfiles" onclick="event.stopPropagation()">' +
+        '<a class="m-pfile" href="' + esc(p.link) + '" target="_blank" rel="noopener">📄 Открыть</a>' +
+        (dl ? '<a class="m-pfile" href="' + esc(dl) + '" target="_blank" rel="noopener">⬇ Скачать</a>' : '') +
+        '<button type="button" class="m-pfile" onclick="purchaseShare_(' + i + ')">↗ Переслать</button></div>' : '') +
+      '</div>';
   }
 
   // ---------- «Бонусы» (mobile-v2.14) — как окно десктопа v4.51 ----------
@@ -1841,7 +1992,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   function isValidExecUrl_(u) {
     return /^https:\/\/script\.google\.com\/.+\/exec$/.test(String(u || '').trim());
   }
-  const POST_ACTIONS = ['unlockGate', 'getZhut', 'speechToText', 'speechSynth', 'voiceIntent']; // пароль/PIN/звук — не в адрес запроса
+  const POST_ACTIONS = ['unlockGate', 'getZhut', 'speechToText', 'speechSynth', 'voiceIntent', 'voiceLog', 'voiceFix']; // пароль/PIN/звук — не в адрес запроса
   function api(action, params) {
     if (IS_APPS_SCRIPT) {
       return new Promise(function (resolve, reject) {
@@ -2375,6 +2526,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     document.getElementById('voiceSheet').hidden = false;
     voiceSpeakBtn_(); // v3.6
     voiceMissBtn_(); // v3.7
+    voiceExLoad_(); // v3.9
     document.getElementById('vsAnswer').innerHTML = '';
     document.getElementById('vsHeard').textContent = '';
     document.getElementById('vsInput').value = '';
@@ -2608,21 +2760,109 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
   }
   function voiceAnswer_(html, speech) {
     voiceAnswerSeq++;
-    document.getElementById('vsAnswer').innerHTML = html;
+    document.getElementById('vsAnswer').innerHTML = html + (voiceTr && !IS_APPS_SCRIPT
+      ? '<div class="vs-fb"><button type="button" class="vs-fb-btn" onclick="voiceFbOpen_()">👎 не то</button></div>' : '');
     voiceStatus_('');
     if (speech && voiceSpeakOn_()) voiceSay_(speech);
+    voiceLogSend_(speech || html);
+  }
+
+  // ---------- v3.9: журнал, «👎 не то», выученные примеры ----------
+  let voiceTr = null; // текущий вопрос: { id, q, rules, gpt, topic, deal, t0, logged }
+  function voiceTrRules_(r) { if (voiceTr && !voiceTr.rules) voiceTr.rules = r; }
+  function voiceLogSend_(answer) { // одна строка журнала на вопрос; ошибки журнала ответу не мешают
+    const tr = voiceTr;
+    if (!tr || tr.logged || IS_APPS_SCRIPT) return;
+    tr.logged = true;
+    setTimeout(function () { // после синхронных пометок «правила»
+      api('voiceLog', {
+        id: tr.id, dev: IS_IOS_ ? 'iPhone' : (/Android/i.test(navigator.userAgent) ? 'Android' : 'другое'),
+        q: tr.q, rules: tr.rules, gpt: tr.gpt,
+        answer: String(answer || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300), ms: Date.now() - tr.t0
+      }).catch(function (err) { console.error('voiceLog:', err); });
+    }, 0);
+  }
+  const VOICE_FB_WORDS = ['остаток', 'адрес', 'этап', 'телефон', 'купить', 'сделки на этапе', 'сколько заплатить'];
+  const VOICE_TOPIC_WORD = { rem: 'остаток', addr: 'адрес', stage: 'этап', phone: 'телефон', buy: 'купить' };
+  function voiceFbStrip_(v) { // команда без слова-темы — остаётся «кто»
+    v = String(v || '').trim();
+    VOICE_FB_WORDS.slice().sort(function (a, b) { return b.length - a.length; }).some(function (w) {
+      if (v.toLowerCase().indexOf(w) === 0) { v = v.slice(w.length).trim(); return true; }
+      return false;
+    });
+    return v;
+  }
+  function voiceFbOpen_() {
+    const tr = voiceTr;
+    if (!tr) return;
+    const pre = tr.gpt || (tr.deal ? (VOICE_TOPIC_WORD[tr.topic] || 'этап') + ' ' + tr.deal : tr.q);
+    const box = document.querySelector('#vsAnswer .vs-fb');
+    box.innerHTML = '<div class="vs-sub">Как надо было понять? Выберите, что нужно, и поправьте, про кого:</div>' +
+      '<div class="vs-fb-chips">' + VOICE_FB_WORDS.map(function (w, i) {
+        return '<button type="button" class="vs-fb-chip" onclick="voiceFbChip_(' + i + ')">' + esc(w) + '</button>';
+      }).join('') + '</div>' +
+      '<input type="text" id="vsFbCmd" class="vs-fb-cmd" value="' + esc(pre) + '">' +
+      '<button type="button" class="vs-btn" onclick="voiceFbSave_()">Запомнить и ответить</button>';
+  }
+  function voiceFbChip_(i) {
+    const inp = document.getElementById('vsFbCmd');
+    const who = voiceFbStrip_(inp.value);
+    inp.value = VOICE_FB_WORDS[i] + (who ? ' ' + who : ' ');
+    inp.focus();
+  }
+  function voiceFbSave_() {
+    const tr = voiceTr, cmd = document.getElementById('vsFbCmd').value.trim();
+    if (!tr || !cmd || !voiceFbStrip_(cmd) && VOICE_FB_WORDS.indexOf(cmd) !== -1) { voiceStatus_('Допишите, про кого или про что'); return; }
+    voiceExamples.push({ q: tr.q, cmd: cmd });
+    voiceExSave_();
+    api('voiceFix', { id: tr.id, q: tr.q, cmd: cmd }).then(function () { voiceStatus_('Запомнил'); })
+      .catch(function (err) { console.error('voiceFix:', err); voiceStatus_('Не сохранилось на сервере: ' + (err && err.message ? err.message : err)); });
+    tr.gpt = ''; tr.rules = 'исправлено';
+    voiceAsk_(cmd, { orig: tr.q, ex: true });
+  }
+  const VOICE_EX_LS = 'dmcrm_m_voice_ex';
+  let voiceExamples = (function () { try { return JSON.parse(localStorage.getItem(VOICE_EX_LS) || '[]'); } catch (e) { console.error(e); return []; } })();
+  let voiceExLoaded = false;
+  function voiceExSave_() { try { localStorage.setItem(VOICE_EX_LS, JSON.stringify(voiceExamples.slice(-300))); } catch (e) { console.error(e); } }
+  function voiceExLoad_() { // раз за запуск, при открытии панели
+    if (voiceExLoaded || IS_APPS_SCRIPT) return;
+    voiceExLoaded = true;
+    api('voiceExamples', {}).then(function (list) {
+      if (Array.isArray(list)) { voiceExamples = list; voiceExSave_(); }
+    }).catch(function (err) { console.error('voiceExamples:', err); voiceExLoaded = false; });
+  }
+  function voiceExFind_(norm) { // та же или почти та же фраза уже исправлялась — её команда
+    const a = norm.split(' ').filter(function (w) { return w.length >= 2; });
+    if (!a.length) return '';
+    let best = '', bestSim = 0;
+    voiceExamples.forEach(function (x) {
+      const n2 = voiceNorm_(x.q);
+      if (n2 === norm) { best = x.cmd; bestSim = 2; return; }
+      const b = n2.split(' ').filter(function (w) { return w.length >= 2; });
+      if (a.length < 2 || !b.length) return;
+      const hit = a.filter(function (w) { return b.some(function (y) { return voiceWordMatch_(w, y) > 0; }); }).length;
+      const sim = 2 * hit / (a.length + b.length);
+      if (sim >= 0.85 && sim > bestSim) { best = x.cmd; bestSim = sim; }
+    });
+    return best && voiceNorm_(best) !== norm ? best : '';
   }
   function voiceAsk_(text, gpt) { // gpt — v3.7: { orig } — фраза уже переписана YandexGPT
     const norm = voiceNorm_(text);
     if (!norm) return;
     document.getElementById('vsInput').value = '';
     document.getElementById('vsHeard').textContent = gpt ? gpt.orig + ' → ' + text : text;
+    // v3.9: трасса вопроса — для журнала и «👎 не то»
+    if (!gpt) voiceTr = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), q: text, rules: '', gpt: '', topic: '', deal: '', t0: Date.now(), logged: false };
+    else if (voiceTr && gpt.ex) voiceTrRules_('пример');
+    else if (voiceTr) voiceTr.gpt = text;
     if (!ALL_DEALS.length) { voiceAnswer_('Доска ещё не загрузилась — попробуйте через пару секунд.', 'Доска ещё не загрузилась'); return; }
-    if (voiceAskGeneral_(norm)) return; // v3.3: поставщик / этап / итоги
+    if (!gpt) { const ex = voiceExFind_(norm); if (ex) { voiceAsk_(ex, { orig: text, ex: true }); return; } } // v3.9: уже исправленная фраза
+    if (voiceAskGeneral_(norm)) { voiceTrRules_('общий вопрос'); return; } // v3.3: поставщик / этап / итоги
     const deals = voiceFindDeals_(norm);
     voiceLast = { topic: voiceTopic_(norm) };
     // v3.3: «сколько должен Иванов» и нашлось несколько сделок — сумма по всем, а не выбор
-    if (voiceLast.topic === 'rem' && deals.length > 1) { voiceClientTotal_(deals); return; }
+    if (voiceTr) voiceTr.topic = voiceLast.topic;
+    if (voiceLast.topic === 'rem' && deals.length > 1) { voiceTrRules_('сумма по клиенту'); voiceClientTotal_(deals); return; }
     if (!deals.length) { voiceNotFound_(text, gpt); return; }
     // v3.7: сделка есть, а что спрашивают — не понятно, и в фразе есть лишние слова — спросить ИИ;
     // не помог — как раньше (карточка или выбор)
@@ -2631,7 +2871,8 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
       voiceNotFound_(text, null, function () { voiceLast = keep; voiceAnswerDeals_(deals); });
       return;
     }
-    if (gpt) voiceMissAdd_(gpt.orig, text, true);
+    if (gpt && !gpt.ex) voiceMissAdd_(gpt.orig, text, true);
+    voiceTrRules_(voiceLast.topic ? 'сделка + тема' : 'сделка без темы');
     voiceAnswerDeals_(deals);
   }
   function voiceExtraWords_(norm, deal) { // есть ли в вопросе слова, которых нет в сделке
@@ -2659,6 +2900,7 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
       voiceAnswer_('Не понял вопрос. Назовите клиента и что нужно: остаток, адрес, этап, телефон, что купить.', 'Не понял вопрос');
     };
     if (gpt || IS_APPS_SCRIPT) { fail(gpt ? text : ''); return; }
+    voiceTrRules_(onFail ? 'сделка без темы' : 'не нашли');
     voiceStatus_('Думаю…');
     const seq = ++voiceAnswerSeq;
     api('voiceIntent', { text: text, stages: STAGES.concat(['Успешные', 'Отказы']).join('|') }).then(function (r) {
@@ -2840,7 +3082,8 @@ const SIG='<svg class="sig" viewBox="0 2 229 80" role="img" aria-label="itivan" 
     const topic = voiceLast ? voiceLast.topic : '';
     const d = ALL_DEALS.find(function (x) { return String(x.id) === String(id); });
     if (!d) return;
-    if (!topic) { closeVoice_(); openDetail(d.id); return; } // тема не понята — просто карточка
+    if (voiceTr) { voiceTr.deal = d.name; voiceTr.topic = topic; }
+    if (!topic) { voiceLogSend_('открыл карточку'); closeVoice_(); openDetail(d.id); return; } // тема не понята — просто карточка
     voiceStatus_('Ищу…');
     voiceDetail_(d.id).then(function (det) {
       const deal = (det && det.deal) || d;
